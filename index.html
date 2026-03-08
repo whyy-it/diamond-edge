@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Diamond Edge v10 — MLB + NHL Betting Model</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0e17;--card:#141724;--alt:#111320;--head:#111422;--bd:#1f2338;--bdL:#181c30;--acc:#00ffa3;--ac2:#00c9ff;--tx:#e5e8f2;--tm:#9ca1b8;--td:#5e6380;--tf:#3c4058;--neg:#ff4d6a;--warn:#ff9f43;--ovBg:rgba(0,255,163,0.07);--unBg:rgba(255,77,106,0.07);--ice:#38bdf8;--iceBg:rgba(56,189,248,0.07)}
+.light{--bg:#f3f5f9;--card:#fff;--alt:#f7f8fb;--head:#fff;--bd:#dbe0eb;--bdL:#e7eaf1;--acc:#0c9466;--ac2:#0874b0;--tx:#1b1f30;--tm:#4d5270;--td:#7e839c;--tf:#b2b7cc;--neg:#d43458;--warn:#d68a1e;--ovBg:rgba(12,148,102,0.06);--unBg:rgba(212,52,88,0.06);--ice:#0284c7;--iceBg:rgba(2,132,199,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s;min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+.mono{font-family:'JetBrains Mono',monospace}.sg{font-family:'Space Grotesk',sans-serif}
+::-webkit-scrollbar{height:6px;width:6px}::-webkit-scrollbar-thumb{background:var(--bdL);border-radius:3px}
+
+.bar{display:flex;align-items:center;padding:0 16px;overflow-x:auto;background:var(--head);border-bottom:1px solid var(--bd)}
+.logo{display:flex;align-items:center;gap:8px;padding:10px 14px 10px 0;border-right:1px solid var(--bd);margin-right:6px;flex-shrink:0}
+.logo-icon{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--acc),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:15px}
+.brand{font-size:15px;font-weight:800;letter-spacing:-.5px}
+.lbtn{padding:11px 14px;background:0;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap;border-bottom:2px solid transparent;color:var(--tm);transition:.15s}
+.lbtn.on{border-bottom-color:var(--acc);color:var(--acc)}.lbtn.off{opacity:.45;color:var(--tf);cursor:default}
+.soon{font-size:7px;background:var(--bd);color:var(--td);padding:1px 5px;border-radius:3px;font-weight:600;margin-left:2px}
+.thbtn{width:32px;height:32px;border-radius:7px;border:1px solid var(--bd);background:var(--card);font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--tm);flex-shrink:0;margin-left:auto}
+
+.status{background:var(--head);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sbox{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:5px 12px;display:flex;align-items:center;gap:6px}
+.sval{font-size:16px;font-weight:800}.slbl{font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase}
+.rbtn{padding:4px 12px;border-radius:6px;border:1px solid var(--bd);background:var(--card);font-size:10px;font-weight:700;color:var(--ac2);margin-left:auto}
+.rbtn:disabled{color:var(--tf);cursor:default}
+
+.tabs{display:flex;border-bottom:1px solid var(--bd);background:var(--bg)}
+.tbtn{flex:1;padding:10px 4px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;background:0;color:var(--td);border-bottom:2px solid transparent;transition:.15s}
+.tbtn.on{border-bottom-color:var(--acc);background:var(--card);color:var(--acc)}
+
+.ctrls{padding:8px 16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--bdL)}
+.cb{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--td);font-size:11px;font-weight:600}
+.cb.on{border-color:var(--acc);background:rgba(0,255,163,.08);color:var(--acc)}.cb .d{width:7px;height:7px;border-radius:50%;background:var(--tf)}.cb.on .d{background:var(--acc)}
+.sep{width:1px;height:18px;background:var(--bd)}
+.pill{padding:5px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--td);font-size:10px;font-weight:600}
+.pill.on{border-color:var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2)}
+.prow{padding:6px 16px 8px;display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid var(--bdL)}
+.brow{padding:6px 16px;display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid var(--bdL);background:var(--card)}
+.bchip{padding:3px 9px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid var(--bd);background:0;color:var(--tf)}
+.bchip.on{border-color:var(--acc);background:rgba(0,255,163,.08);color:var(--acc)}
+
+.cnt{padding:14px 16px;min-height:300px}
+.gc{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:8px}
+.gh{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+.tm{font-size:15px;font-weight:800}.at{font-size:10px;color:var(--tf);margin:0 6px}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.tag-e{background:rgba(0,255,163,.1);color:var(--acc);border:1px solid rgba(0,255,163,.2)}
+.tag-w{background:rgba(255,159,67,.1);color:var(--warn);border:1px solid rgba(255,159,67,.2)}
+.tag-i{background:rgba(0,201,255,.1);color:var(--ac2);border:1px solid rgba(0,201,255,.2)}
+.tag-b2b{background:rgba(255,77,106,.1);color:var(--neg);border:1px solid rgba(255,77,106,.2)}
+.tag-stack{background:rgba(255,215,0,.12);color:#f0c420;border:1px solid rgba(255,215,0,.25)}
+.tag-rest{background:rgba(56,189,248,.1);color:var(--ice);border:1px solid rgba(56,189,248,.2)}
+.tag-goalie{background:rgba(255,159,67,.08);color:var(--warn);border:1px solid rgba(255,159,67,.15)}
+.sh{font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.ev{font-size:20px;font-weight:800;padding:2px 6px;border-radius:4px}
+.ev-p{color:var(--acc);background:var(--ovBg)}.ev-n{color:var(--neg);background:var(--unBg)}.ev-0{color:var(--td)}
+.bet-rec{margin-top:10px;padding:10px 14px;border-radius:8px;background:var(--ovBg);border:1px solid rgba(0,255,163,.25);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bet-rec .bet-label{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);font-weight:700}
+.bet-rec .bet-team{font-size:16px;font-weight:800;color:var(--acc);font-family:'Space Grotesk',sans-serif}
+.bet-rec .bet-line{font-size:18px;font-weight:800;color:var(--tx);font-family:'JetBrains Mono',monospace}
+.bet-rec .bet-book{font-size:10px;color:var(--acc);font-weight:600;background:rgba(0,255,163,.1);padding:2px 8px;border-radius:4px}
+.bet-rec .bet-edge{font-size:13px;font-weight:800;color:var(--acc);font-family:'JetBrains Mono',monospace}
+.bet-watch{margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(255,159,67,.06);border:1px solid rgba(255,159,67,.2);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bet-watch .bet-label{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--warn);font-weight:700}
+.bet-watch .bet-team{font-size:14px;font-weight:700;color:var(--warn);font-family:'Space Grotesk',sans-serif}
+.bet-watch .bet-line{font-size:15px;font-weight:700;color:var(--tm);font-family:'JetBrains Mono',monospace}
+.bet-watch .bet-book{font-size:9px;color:var(--warn);font-weight:600}
+.prop-ev{background:var(--ovBg);border-left:2px solid var(--acc)}
+.prop-ev td{color:var(--acc) !important}
+.blr{margin-top:8px;display:flex;gap:5px;overflow-x:auto;padding-top:8px;border-top:1px solid var(--bdL)}
+.bl{background:var(--alt);border:1px solid var(--bdL);border-radius:6px;padding:4px 8px;min-width:80px;text-align:center}
+.bl.best{border-color:rgba(0,255,163,.35)}
+.bln{font-size:7px;color:var(--td);font-weight:600;margin-bottom:2px}
+.blv{font-size:11px;font-weight:700;color:var(--tx)}.blv.hi{color:var(--acc)}
+.ctx{margin-top:8px;padding-top:8px;border-top:1px solid var(--bdL);display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--td)}
+.ctx-item{display:flex;align-items:center;gap:4px}
+.ib{padding:8px 12px;margin-bottom:10px;background:var(--alt);border:1px solid var(--bdL);border-radius:8px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tm)}
+.ib.acc{background:var(--ovBg);border-color:rgba(0,255,163,.2);color:var(--acc);font-weight:600}
+.ib.ice{background:var(--iceBg);border-color:rgba(56,189,248,.2);color:var(--ice);font-weight:600}
+.empty{text-align:center;padding:50px 20px}.empty-i{font-size:40px;margin-bottom:14px}
+.empty-t{font-size:17px;font-weight:800}.empty-d{font-size:13px;margin-top:10px;color:var(--tm);max-width:400px;margin-left:auto;margin-right:auto;line-height:1.7}
+.scard{margin-top:20px;padding:12px 16px;background:var(--card);border:1px solid var(--bd);border-radius:8px;display:inline-block;text-align:left}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.bcard{background:var(--alt);border:1.5px solid var(--bd);border-radius:8px;padding:12px;text-align:left}
+.bcard.on{background:var(--card);border-color:var(--acc)}
+.ft{padding:12px 16px;border-top:1px solid var(--bd);text-align:center;font-size:8px;color:var(--tf)}
+.ld{text-align:center;padding:60px 20px}
+.xbtn{width:100%;padding:12px 14px;background:var(--card);border:1px solid var(--bd);text-align:left;border-radius:10px;margin-bottom:8px;transition:.15s;color:var(--tx)}
+.xbtn:hover{border-color:var(--acc);background:var(--alt)}
+.xbtn .tm{color:var(--tx)}
+.prop-table{width:100%;border-collapse:collapse;margin-top:8px}
+.prop-table th{text-align:left;font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid var(--bdL);font-weight:600}
+.prop-table td{padding:6px 8px;font-size:11px;border-bottom:1px solid var(--bdL)}
+.prop-table tr:last-child td{border-bottom:none}
+.prop-player{font-weight:700;color:var(--tx)}
+.prop-line{font-weight:700;color:var(--ac2);font-family:'JetBrains Mono',monospace}
+.prop-over{color:var(--acc);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px}
+.prop-under{color:var(--neg);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px}
+.prop-book{font-size:9px;color:var(--td)}
+.pl-card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:8px}
+.pl-spread{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.pl-fav{color:var(--neg)}.pl-dog{color:var(--acc)}
+.goalie-row{display:flex;gap:16px;margin-top:6px;font-size:11px;color:var(--tm)}
+.goalie-row .starter{color:var(--tx);font-weight:700}
+.goalie-row .backup{color:var(--warn);font-weight:600;font-style:italic}
+.trk-btn{padding:3px 10px;border-radius:5px;font-size:9px;font-weight:700;border:1px solid var(--acc);background:rgba(0,255,163,.08);color:var(--acc);cursor:pointer;transition:.15s}
+.trk-btn:hover{background:rgba(0,255,163,.2)}
+.trk-btn.placed{border-color:var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2)}
+.trk-res{display:inline-flex;gap:3px}
+.trk-res button{padding:2px 8px;border-radius:4px;font-size:8px;font-weight:700;border:1px solid var(--bd);background:var(--alt);color:var(--td);cursor:pointer}
+.trk-res .w{border-color:var(--acc);color:var(--acc);background:rgba(0,255,163,.08)}
+.trk-res .l{border-color:var(--neg);color:var(--neg);background:rgba(255,77,106,.08)}
+.trk-res .p{border-color:var(--warn);color:var(--warn);background:rgba(255,159,67,.08)}
+.trk-res .w.sel,.trk-res .l.sel,.trk-res .p.sel{font-size:10px;font-weight:800}
+.trk-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.trk-stat{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;text-align:center}
+.trk-stat .val{font-size:16px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.trk-stat .lbl{font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var API_KEY="d50d14349370ac528fa64a3c66b11255";
+var ODDS_BASE="https://api.the-odds-api.com/v4/sports";
+var MLB_BASE="https://statsapi.mlb.com/api/v1";
+var NHL_BASE="https://api-web.nhle.com/v1";
+var CORS_PROXY="https://corsproxy.io/?";
+var CORS_PROXIES=["https://corsproxy.io/?","https://api.allorigins.win/raw?url=","https://cors.sh/?"];
+
+// CORS-safe fetch with multi-proxy fallback
+async function corsProxyFetch(url,opts){
+  // Try direct first (works locally or when CORS is allowed)
+  try{
+    var ac=new AbortController();var tm=setTimeout(function(){ac.abort()},4000);
+    var r=await fetch(url,Object.assign({signal:ac.signal},opts||{}));
+    clearTimeout(tm);
+    if(r.ok)return r;
+  }catch(e){}
+  // Try each proxy in order
+  for(var i=0;i<CORS_PROXIES.length;i++){
+    try{
+      var pUrl=CORS_PROXIES[i]+encodeURIComponent(url);
+      var r2=await fetch(pUrl,opts||{});
+      if(r2.ok){console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,60));return r2;}
+    }catch(e){console.log("[DE] CORS proxy "+i+" failed:",e.message);}
+  }
+  throw new Error("All CORS proxies failed for: "+url.substring(0,80));
+}
+
+// CORS-safe fetch for NHL API (which blocks cross-origin from Netlify)
+async function fetchNHL(path){
+  var r=await corsProxyFetch(NHL_BASE+path);
+  return await r.json();
+}
+
+var PA=[
+  {id:"fanduel",key:"fanduel",n:"FanDuel",api:true},
+  {id:"draftkings",key:"draftkings",n:"DraftKings",api:true},
+  {id:"betmgm",key:"betmgm",n:"BetMGM",api:true},
+  {id:"caesars",key:"williamhill_us",n:"Caesars",api:true,note:"Paid API tier"},
+  {id:"betrivers",key:"betrivers",n:"BetRivers",api:true},
+  {id:"fanatics",key:"fanatics",n:"Fanatics",api:true,note:"Paid API tier"},
+  {id:"bet365",key:null,n:"bet365",api:false,note:"Not in Odds API — check bet365 app"},
+  {id:"betparx",key:"betparx",n:"betPARX",api:true},
+  {id:"sugarhouse",key:null,n:"SugarHouse",api:false,note:"Not in Odds API — check SugarHouse app"},
+  {id:"thescore",key:"espnbet",n:"theScore Bet",api:true},
+  {id:"mohegan",key:null,n:"Mohegan",api:false,note:"Not in Odds API — check Mohegan app"},
+];
+
+var LEAGUES=[
+  {key:"mlb",label:"MLB",icon:"⚾",on:true,sport:"baseball_mlb"},
+  {key:"nhl",label:"NHL",icon:"🏒",on:true,sport:"icehockey_nhl"},
+  {key:"nfl",label:"NFL",icon:"🏈",on:false},{key:"nba",label:"NBA",icon:"🏀",on:false},
+  {key:"ncaaf",label:"NCAAF",icon:"🎓",on:false},{key:"soccer",label:"Soccer",icon:"⚽",on:false},
+];
+
+// ── MLB DATA ──
+var MLB_PTYPES=["Hits","Total Bases","Home Runs","Strikeouts","RBI","Runs","Walks"];
+var UMP_HIGH_K=["Nic Lentz","Manny Gonzalez","Marvin Hudson","Chad Whitson","Tripp Gibson","Shane Livensparger","Pat Hoberg"];
+var UMP_LOW_K=["Angel Hernandez","CB Bucknor","Hunter Wendelstedt","Tom Hallion","Laz Diaz","Jerry Meals","Bill Miller"];
+var PARKS={
+  "New York Yankees":[40.829,-73.926],"New York Mets":[40.757,-73.846],
+  "Boston Red Sox":[42.346,-71.098],"Philadelphia Phillies":[39.906,-75.167],
+  "Baltimore Orioles":[39.284,-76.622],"Washington Nationals":[38.873,-77.007],
+  "Atlanta Braves":[33.891,-84.468],"Miami Marlins":[25.778,-80.220,true],
+  "Tampa Bay Rays":[27.768,-82.653,true],"Toronto Blue Jays":[43.641,-79.389,true],
+  "Cleveland Guardians":[41.496,-81.685],"Detroit Tigers":[42.339,-83.049],
+  "Chicago White Sox":[41.830,-87.634],"Chicago Cubs":[41.948,-87.656],
+  "Milwaukee Brewers":[43.028,-87.971,true],"Minnesota Twins":[44.982,-93.278,true],
+  "Kansas City Royals":[39.051,-94.480],"St. Louis Cardinals":[38.623,-90.193],
+  "Cincinnati Reds":[39.097,-84.507],"Pittsburgh Pirates":[40.447,-80.006],
+  "Houston Astros":[29.757,-95.355,true],"Texas Rangers":[32.751,-97.083,true],
+  "Los Angeles Dodgers":[34.074,-118.240],"Los Angeles Angels":[33.800,-117.883],
+  "San Diego Padres":[32.707,-117.157],"San Francisco Giants":[37.778,-122.389],
+  "Oakland Athletics":[37.752,-122.201],"Seattle Mariners":[47.591,-122.332],
+  "Arizona Diamondbacks":[33.445,-112.067,true],"Colorado Rockies":[39.756,-104.994],
+};
+
+// ── NHL DATA ──
+var NHL_PTYPES=["Goals","Assists","Points","Shots on Goal","Saves","Power Play Points"];
+
+// NHL team name → abbreviation mapping (for NHL API cross-reference)
+var NHL_ABBREVS={
+  "Anaheim Ducks":"ANA","Boston Bruins":"BOS","Buffalo Sabres":"BUF",
+  "Calgary Flames":"CGY","Carolina Hurricanes":"CAR","Chicago Blackhawks":"CHI",
+  "Colorado Avalanche":"COL","Columbus Blue Jackets":"CBJ","Dallas Stars":"DAL",
+  "Detroit Red Wings":"DET","Edmonton Oilers":"EDM","Florida Panthers":"FLA",
+  "Los Angeles Kings":"LAK","Minnesota Wild":"MIN","Montréal Canadiens":"MTL",
+  "Montreal Canadiens":"MTL","Nashville Predators":"NSH","New Jersey Devils":"NJD",
+  "New York Islanders":"NYI","New York Rangers":"NYR","Ottawa Senators":"OTT",
+  "Philadelphia Flyers":"PHI","Pittsburgh Penguins":"PIT","San Jose Sharks":"SJS",
+  "Seattle Kraken":"SEA","St Louis Blues":"STL","St. Louis Blues":"STL",
+  "Tampa Bay Lightning":"TBL","Toronto Maple Leafs":"TOR","Utah Hockey Club":"UTA",
+  "Vancouver Canucks":"VAN","Vegas Golden Knights":"VGK","Washington Capitals":"WSH",
+  "Winnipeg Jets":"WPG",
+};
+
+// NHL arena timezone offsets (for travel distance estimation)
+// Eastern=0, Central=1, Mountain=2, Pacific=3
+var NHL_TZ={
+  "BOS":0,"BUF":0,"CAR":0,"CBJ":0,"DET":0,"FLA":0,"MTL":0,"NJD":0,
+  "NYI":0,"NYR":0,"OTT":0,"PHI":0,"PIT":0,"TBL":0,"TOR":0,"WSH":0,
+  "CHI":1,"COL":2,"DAL":1,"MIN":1,"NSH":1,"STL":1,"WPG":1,"UTA":2,
+  "ANA":3,"CGY":2,"EDM":2,"LAK":3,"SJS":3,"SEA":3,"VAN":3,"VGK":3,
+};
+
+// ── STATE ──
+var S={
+  mode:(function(){try{var m=localStorage.getItem("de_mode");if(m==="dark"||m==="light")return m;}catch(e){}var h=new Date().getHours();return h>=7&&h<19?"light":"dark";})(),
+  league:"nhl",tab:"ml",sortBy:"edge",evOnly:false,
+  propType:"Hits",nhlPropType:"Goals",
+  booksOn:(function(){try{var s=localStorage.getItem("de_books");if(s)return JSON.parse(s);}catch(e){}return Object.fromEntries(PA.map(function(b){return[b.id,true]}));})(),
+  showBooks:false,
+  bankroll:(function(){try{var b=localStorage.getItem("de_bankroll");if(b)return parseFloat(b);}catch(e){}return 1000;})(),
+  // Per-league data
+  mlb:{games:[],loading:false,error:null,lastFetch:null,lineups:{},weather:{},fatigue:{},props:{},propsLoading:false,propsLoaded:false,playerStats:{},statcastRates:{},pitcherStatcast:{}},
+  nhl:{games:[],loading:false,error:null,lastFetch:null,schedule:{},standings:{},fatigue:{},goalies:{},props:{},propsLoading:false,propsLoaded:false,playerStats:{}},
+  // Active pointers
+  games:[],loading:true,error:null,remaining:null,lastFetch:null,
+  expanded:{},
+};
+
+// ═══════════════════════════════════════════════════════════
+// BET TRACKER — localStorage-backed bet history + P&L
+// ═══════════════════════════════════════════════════════════
+var TRACKER_KEY="de_bet_tracker";
+
+function loadTracker(){
+  try{var s=localStorage.getItem(TRACKER_KEY);if(s)return JSON.parse(s);}catch(e){}
+  return[];
+}
+function saveTracker(bets){
+  try{localStorage.setItem(TRACKER_KEY,JSON.stringify(bets));}catch(e){}
+}
+var trackedBets=loadTracker();
+
+function betKey(b){
+  // Unique key per bet: sport+player+market+date
+  var d=new Date(b.time||Date.now()).toISOString().slice(0,10);
+  return(b.sport||"")+"_"+(b.player||"")+"_"+(b.market||"")+"_"+d;
+}
+function findTracked(key){
+  return trackedBets.find(function(tb){return tb.key===key});
+}
+function trackBet(bet){
+  var key=betKey(bet);
+  var existing=findTracked(key);
+  if(existing)return; // already tracked
+  trackedBets.push({
+    key:key,sport:bet.sport,icon:bet.icon,type:bet.type,
+    player:bet.player,market:bet.market,line:bet.line,
+    book:bet.book,edge:bet.edge,kelly:bet.scaledKelly||bet.kelly,
+    amount:bet.betAmount||0,matchup:bet.matchup,time:bet.time,
+    placed:new Date().toISOString(),result:null,payout:0
+  });
+  saveTracker(trackedBets);render();
+}
+function untrackBet(key){
+  trackedBets=trackedBets.filter(function(b){return b.key!==key});
+  saveTracker(trackedBets);render();
+}
+function recordResult(key,result){
+  var tb=findTracked(key);
+  if(!tb)return;
+  tb.result=result; // "W", "L", or "P" (push)
+  if(result==="W"){
+    // Calculate payout from the line (moneyline odds)
+    var ml=parseInt(tb.line.replace("+",""))||0;
+    if(ml>0)tb.payout=+(tb.amount*(ml/100)).toFixed(2);
+    else if(ml<0)tb.payout=+(tb.amount*(100/(-ml))).toFixed(2);
+    else tb.payout=0;
+  }else if(result==="P"){
+    tb.payout=0;
+  }else{
+    tb.payout=-tb.amount;
+  }
+  saveTracker(trackedBets);render();
+}
+function clearTracker(){
+  if(!confirm("Clear ALL tracked bet history?"))return;
+  trackedBets=[];saveTracker(trackedBets);render();
+}
+function trackerStats(){
+  var total=trackedBets.filter(function(b){return b.result!=null}).length;
+  var wins=trackedBets.filter(function(b){return b.result==="W"}).length;
+  var losses=trackedBets.filter(function(b){return b.result==="L"}).length;
+  var pushes=trackedBets.filter(function(b){return b.result==="P"}).length;
+  var pending=trackedBets.filter(function(b){return b.result==null}).length;
+  var totalWagered=trackedBets.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.amount},0);
+  var totalPayout=trackedBets.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.payout},0);
+  var roi=totalWagered>0?((totalPayout/totalWagered)*100).toFixed(1):0;
+  var units=totalWagered>0?(totalPayout/(totalWagered/total||1)).toFixed(2):0;
+  return{total:total,wins:wins,losses:losses,pushes:pushes,pending:pending,
+    wagered:totalWagered,payout:totalPayout,profit:+(totalPayout).toFixed(2),roi:roi,units:units};
+}
+
+function ml2p(ml){return ml<0?-ml/(-ml+100):100/(ml+100)}
+function p2ml(p){if(p==null||p<=0||p>=100)return null;var d=p/100;return d>=0.5?Math.round(-d/(1-d)*100):Math.round((1-d)/d*100)}
+function fml(ml){return ml==null?"—":ml>0?"+"+ml:""+ml}
+function fImp(p){var ml=p2ml(p);return ml==null?"—":ml>0?"+"+ml:""+ml}
+function ft(d){return new Date(d).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}
+function fd(d){return new Date(d).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
+function ds(d){return d.toISOString().slice(0,10)}
+
+// ═══════════════════════════════════════════════════════════
+// MLB FETCHERS (unchanged from v8)
+// ═══════════════════════════════════════════════════════════
+
+async function fetchMLBOdds(){
+  var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
+  var url=ODDS_BASE+"/baseball_mlb/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
+  console.log("[Diamond Edge] MLB odds URL:",url.replace(API_KEY,"***"));
+  console.log("[Diamond Edge] Requesting bookmakers:",bk);
+  var r=await fetch(url);
+  if(!r.ok)throw new Error("Odds API "+r.status);
+  var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
+  var data=await r.json();
+  var seen={};
+  (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
+  S.mlb.apiBooks=Object.keys(seen);
+  console.log("[Diamond Edge] MLB books returned:",S.mlb.apiBooks.join(", ")||"none");
+  return data;
+}
+
+async function fetchMLBSchedule(){
+  try{
+    var today=ds(new Date());
+    var url=MLB_BASE+"/schedule?sportId=1&date="+today+"&gameType=R&hydrate=probablePitcher,linescore,officials,team";
+    var r=await fetch(url);var d=await r.json();var result={};
+    (d.dates||[]).forEach(function(dt){(dt.games||[]).forEach(function(g){
+      var ht=g.teams.home.team||{};var at=g.teams.away.team||{};
+      var hp=g.teams.home.probablePitcher||{};var ap=g.teams.away.probablePitcher||{};
+      var ump=null,umpTend="unknown";
+      (g.officials||[]).forEach(function(o){
+        if(o.officialType==="Home Plate"){
+          ump=o.official?o.official.fullName:null;
+          if(ump&&UMP_HIGH_K.indexOf(ump)>=0)umpTend="high";
+          else if(ump&&UMP_LOW_K.indexOf(ump)>=0)umpTend="low";
+          else umpTend="neutral";
+        }
+      });
+      result[ht.name]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
+        homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
+        umpire:ump,umpTendency:umpTend};
+    });});return result;
+  }catch(e){return{}}
+}
+
+async function fetchMLBFatigue(){
+  var fatigue={};
+  for(var i=1;i<=3;i++){
+    var d=new Date();d.setDate(d.getDate()-i);
+    try{
+      var url=MLB_BASE+"/schedule?sportId=1&date="+ds(d)+"&gameType=R";
+      var r=await fetch(url);var data=await r.json();
+      (data.dates||[]).forEach(function(dt){(dt.games||[]).forEach(function(g){
+        if(!g.status||g.status.statusCode!=="F")return;
+        var hn=g.teams.home.team?g.teams.home.team.name:"";
+        var an=g.teams.away.team?g.teams.away.team.name:"";
+        [hn,an].forEach(function(t){if(!t)return;if(!fatigue[t])fatigue[t]={games:0,minRest:99};fatigue[t].games++;fatigue[t].minRest=Math.min(fatigue[t].minRest,i);});
+      });});
+    }catch(e){}
+  }return fatigue;
+}
+
+async function fetchWeather(homeTeam){
+  var pk=PARKS[homeTeam];if(!pk)return null;
+  if(pk[2])return{indoor:true,temp:72,wind:0,desc:"Dome"};
+  try{
+    var url="https://api.open-meteo.com/v1/forecast?latitude="+pk[0]+"&longitude="+pk[1]+"&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph";
+    var r=await fetch(url);var d=await r.json();var cw=d.current_weather||{};
+    return{indoor:false,temp:Math.round(cw.temperature||70),wind:Math.round(cw.windspeed||5),desc:cw.weathercode<3?"Clear":"Cloudy"};
+  }catch(e){return{indoor:false,temp:70,wind:5,desc:"Unknown"}}
+}
+
+// ═══════════════════════════════════════════════════════════
+// NHL FETCHERS
+// ═══════════════════════════════════════════════════════════
+
+async function fetchNHLOdds(){
+  var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
+  var url=ODDS_BASE+"/icehockey_nhl/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
+  console.log("[Diamond Edge] NHL odds URL:",url.replace(API_KEY,"***"));
+  console.log("[Diamond Edge] Requesting bookmakers:",bk);
+  var r=await fetch(url);
+  if(!r.ok)throw new Error("Odds API "+r.status);
+  var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
+  var data=await r.json();
+  // Track which bookmakers actually returned data
+  var seen={};
+  (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
+  S.nhl.apiBooks=Object.keys(seen);
+  console.log("[Diamond Edge] NHL books returned:",S.nhl.apiBooks.join(", ")||"none");
+  return data;
+}
+
+async function fetchNHLSchedule(){
+  // Get today's schedule from NHL API — includes starting goalies
+  try{
+    var today=ds(new Date());
+    var d=await fetchNHL("/schedule/"+today);
+    var result={};
+    var gw=d.gameWeek||[];
+    gw.forEach(function(day){
+      (day.games||[]).forEach(function(g){
+        var ht=g.homeTeam||{};var at=g.awayTeam||{};
+        var hName=ht.placeName?ht.placeName.default:"";
+        var aName=at.placeName?at.placeName.default:"";
+        // Try to get full common names
+        var hCommon=ht.commonName?ht.commonName.default:"";
+        var aCommon=at.commonName?at.commonName.default:"";
+        var hFull=(hName+" "+hCommon).trim();
+        var aFull=(aName+" "+aCommon).trim();
+        // Goalie info from starting lineup if available
+        var hGoalie=null,aGoalie=null,hGoalieConfirmed=false,aGoalieConfirmed=false;
+        // The schedule endpoint may include goalie info in different ways
+        if(g.homeTeam&&g.homeTeam.goalieInNet){
+          hGoalie=g.homeTeam.goalieInNet.default||null;
+          hGoalieConfirmed=true;
+        }
+        if(g.awayTeam&&g.awayTeam.goalieInNet){
+          aGoalie=g.awayTeam.goalieInNet.default||null;
+          aGoalieConfirmed=true;
+        }
+        result[ht.abbrev||""]={
+          gameId:g.id,homeAbbrev:ht.abbrev,awayAbbrev:at.abbrev,
+          homeFull:hFull,awayFull:aFull,
+          homeGoalie:hGoalie,awayGoalie:aGoalie,
+          homeGoalieConfirmed:hGoalieConfirmed,awayGoalieConfirmed:aGoalieConfirmed,
+          gameState:g.gameState||"FUT",
+          startTime:g.startTimeUTC,
+        };
+      });
+    });
+    return result;
+  }catch(e){console.log("NHL schedule error:",e);return{}}
+}
+
+async function fetchNHLStandings(){
+  // Get current standings for team records, PP%, PK%
+  try{
+    var d=await fetchNHL("/standings/now");
+    var result={};
+    (d.standings||[]).forEach(function(t){
+      var abbrev=t.teamAbbrev?t.teamAbbrev.default:"";
+      var name=t.teamName?t.teamName.default:"";
+      var place=t.placeName?t.placeName.default:"";
+      result[abbrev]={
+        abbrev:abbrev,fullName:(place+" "+name).trim(),
+        wins:t.wins||0,losses:t.losses||0,otl:t.otLosses||0,
+        points:t.points||0,gamesPlayed:t.gamesPlayed||0,
+        goalsFor:t.goalFor||0,goalsAgainst:t.goalAgainst||0,
+        goalDiff:t.goalDifferential||0,
+        l10W:t.l10Wins||0,l10L:t.l10Losses||0,l10OTL:t.l10OtLosses||0,
+        streak:t.streakCode||"",streakCount:t.streakCount||0,
+        home:(t.homeWins||0)+"-"+(t.homeLosses||0)+"-"+(t.homeOtLosses||0),
+        away:(t.roadWins||0)+"-"+(t.roadLosses||0)+"-"+(t.roadOtLosses||0),
+        divName:t.divisionName||"",confName:t.conferenceName||"",
+      };
+    });
+    return result;
+  }catch(e){console.log("NHL standings error:",e);return{}}
+}
+
+async function fetchNHLFatigue(){
+  // Check last 3 days of NHL schedule for B2B and fatigue
+  var fatigue={};
+  for(var i=0;i<=3;i++){
+    var d=new Date();d.setDate(d.getDate()-i);
+    try{
+      var data=await fetchNHL("/schedule/"+ds(d));
+      var gw=data.gameWeek||[];
+      // Only look at the specific date we requested
+      gw.forEach(function(day){
+        if(day.date!==ds(d))return;
+        (day.games||[]).forEach(function(g){
+          var state=g.gameState||"";
+          // Count games that are finished or in progress
+          if(state==="OFF"||state==="FINAL"||state==="LIVE"||state==="CRIT"||(i>0)){
+            var ht=g.homeTeam?g.homeTeam.abbrev:"";
+            var at=g.awayTeam?g.awayTeam.abbrev:"";
+            [ht,at].forEach(function(t){
+              if(!t)return;
+              if(!fatigue[t])fatigue[t]={games:[],daysAgo:[]};
+              fatigue[t].games.push(g.id);
+              fatigue[t].daysAgo.push(i);
+            });
+          }
+        });
+      });
+    }catch(e){}
+  }
+  // Calculate rest days and B2B status
+  var result={};
+  Object.keys(fatigue).forEach(function(t){
+    var days=fatigue[t].daysAgo.filter(function(d){return d>0}).sort();
+    var isB2B=days.indexOf(1)>=0&&days.filter(function(d){return d<=1}).length>=1;
+    // Also check if playing today (daysAgo=0) AND played yesterday (daysAgo=1)
+    var playingToday=fatigue[t].daysAgo.indexOf(0)>=0;
+    var playedYesterday=fatigue[t].daysAgo.indexOf(1)>=0;
+    var b2bToday=playingToday&&playedYesterday;
+    var lastGame=days.length?days[0]:99;
+    var gamesIn3=days.filter(function(d){return d<=3}).length;
+    result[t]={
+      b2b:b2bToday,
+      restDays:lastGame,
+      gamesIn3Days:gamesIn3,
+      gamesTotal:fatigue[t].games.length,
+    };
+  });
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLAYER PROPS FETCHER (NHL + MLB)
+// ═══════════════════════════════════════════════════════════
+
+async function fetchPlayerProps(sport,markets){
+  // Player props require per-event endpoint: /events/{eventId}/odds
+  // First get event IDs from the games we already loaded
+  var ld=S[sport==="icehockey_nhl"?"nhl":"mlb"];
+  var games=ld.games||[];
+  if(!games.length)return[];
+  
+  var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
+  var allResults=[];
+  
+  // Fetch props for up to 6 games (to conserve API quota — each event = 1 request per market)
+  var toFetch=games.slice(0,6);
+  console.log("[Diamond Edge] Fetching props for "+toFetch.length+" games...");
+  
+  for(var i=0;i<toFetch.length;i++){
+    var g=toFetch[i];
+    try{
+      var url=ODDS_BASE+"/"+sport+"/events/"+g.id+"/odds?apiKey="+API_KEY+"&markets="+markets+"&oddsFormat=american&bookmakers="+bk;
+      var r=await fetch(url);
+      if(!r.ok){console.log("[Diamond Edge] Props fetch failed for event "+g.id+": "+r.status);continue;}
+      var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
+      var data=await r.json();
+      if(data&&data.bookmakers)allResults.push(data);
+    }catch(e){console.log("[Diamond Edge] Props error for "+g.id+":",e);}
+  }
+  console.log("[Diamond Edge] Props returned data for "+allResults.length+" of "+toFetch.length+" games");
+  return allResults;
+}
+
+function processPlayerProps(apiData){
+  // apiData is array of per-event responses (each has .id, .bookmakers)
+  var result={};
+  (apiData||[]).forEach(function(ev){
+    var id=ev.id;
+    if(!result[id])result[id]={home:ev.home_team,away:ev.away_team};
+    (ev.bookmakers||[]).forEach(function(bm){
+      var pa=PA.find(function(b){return b.key===bm.key});
+      if(!pa)return;
+      (bm.markets||[]).forEach(function(mkt){
+        if(!result[id][mkt.key])result[id][mkt.key]=[];
+        // Group outcomes by player name
+        var byPlayer={};
+        (mkt.outcomes||[]).forEach(function(o){
+          var name=o.description||o.name||"Unknown";
+          if(!byPlayer[name])byPlayer[name]={player:name,line:o.point,overOdds:null,underOdds:null,book:pa.n,bookId:pa.id};
+          if(o.name==="Over")byPlayer[name].overOdds=o.price;
+          else if(o.name==="Under")byPlayer[name].underOdds=o.price;
+          if(o.point!=null)byPlayer[name].line=o.point;
+        });
+        Object.values(byPlayer).forEach(function(p){
+          // Check if player already exists for this market from another book — keep best odds
+          var existing=result[id][mkt.key].find(function(e){return e.player===p.player});
+          if(existing){
+            // Track all books
+            if(!existing.books)existing.books=[{book:existing.book,bookId:existing.bookId,over:existing.overOdds,under:existing.underOdds}];
+            existing.books.push({book:p.book,bookId:p.bookId,over:p.overOdds,under:p.underOdds});
+            if(p.overOdds!=null&&(existing.bestOver==null||p.overOdds>existing.bestOver)){existing.bestOver=p.overOdds;existing.bestOverBook=p.book;}
+            if(p.underOdds!=null&&(existing.bestUnder==null||p.underOdds>existing.bestUnder)){existing.bestUnder=p.underOdds;existing.bestUnderBook=p.book;}
+          }else{
+            p.bestOver=p.overOdds;p.bestUnder=p.underOdds;
+            p.bestOverBook=p.book;p.bestUnderBook=p.book;
+            p.books=[{book:p.book,bookId:p.bookId,over:p.overOdds,under:p.underOdds}];
+            result[id][mkt.key].push(p);
+          }
+        });
+      });
+    });
+  });
+  return result;
+}
+
+async function loadNHLProps(){
+  if(S.nhl.propsLoading)return;
+  S.nhl.propsLoading=true;render();
+  try{
+    // Fetch props AND player stats in parallel
+    var results=await Promise.allSettled([
+      fetchPlayerProps("icehockey_nhl","player_goals,player_assists,player_shots_on_goal,player_points,player_saves"),
+      fetchNHLPlayerStats()
+    ]);
+    if(results[0].status==="fulfilled")S.nhl.props=processPlayerProps(results[0].value);
+    if(results[1].status==="fulfilled")S.nhl.playerStats=results[1].value||{};
+    S.nhl.propsLoaded=true;
+    console.log("[Diamond Edge] NHL player stats loaded:",Object.keys(S.nhl.playerStats||{}).length,"players");
+  }catch(e){console.log("NHL props error:",e);}
+  S.nhl.propsLoading=false;render();
+}
+
+async function loadMLBProps(){
+  if(S.mlb.propsLoading)return;
+  S.mlb.propsLoading=true;render();
+  try{
+    var results=await Promise.allSettled([
+      fetchPlayerProps("baseball_mlb","batter_hits,batter_total_bases,batter_home_runs,pitcher_strikeouts,batter_rbis,batter_runs_scored,batter_walks"),
+      fetchMLBPlayerStats(),
+      fetchStatcastRates(),
+      fetchStatcastPitcherRates()
+    ]);
+    if(results[0].status==="fulfilled")S.mlb.props=processPlayerProps(results[0].value);
+    if(results[1].status==="fulfilled")S.mlb.playerStats=results[1].value||{};
+    if(results[2].status==="fulfilled")S.mlb.statcastRates=results[2].value||{};
+    if(results[3].status==="fulfilled")S.mlb.pitcherStatcast=results[3].value||{};
+    S.mlb.propsLoaded=true;
+    console.log("[Diamond Edge] MLB props loaded. Stats:",Object.keys(S.mlb.playerStats||{}).length,
+      "Statcast batters:",Object.keys(S.mlb.statcastRates||{}).length,
+      "Statcast pitchers:",Object.keys(S.mlb.pitcherStatcast||{}).length);
+  }catch(e){console.log("MLB props error:",e);}
+  S.mlb.propsLoading=false;render();
+}
+
+// ═══════════════════════════════════════════════════════════
+// POISSON PROJECTION ENGINE
+// ═══════════════════════════════════════════════════════════
+// Our own projections based on player season rates — NOT book odds
+
+function logFact(n){var s=0;for(var i=2;i<=n;i++)s+=Math.log(i);return s;}
+function poissonPMF(k,lam){if(lam<=0)return k===0?1:0;return Math.exp(-lam+k*Math.log(lam)-logFact(k));}
+function poissonCDF(k,lam){var s=0;for(var i=0;i<=Math.floor(k);i++)s+=poissonPMF(i,lam);return Math.min(1,s);}
+// P(X > line) — probability of going OVER a line
+function pOver(line,lam){return 1-poissonCDF(Math.floor(line),lam);}
+// P(X < line) — probability of going UNDER a line (excludes push)
+function pUnder(line,lam){return poissonCDF(Math.ceil(line)-1,lam);}
+
+// ── Fetch NHL player season stats (skaters + goalies) ──
+async function fetchNHLPlayerStats(){
+  var stats={};
+  try{
+    // Skater stats (goals, assists, points per game)
+    var skUrl="https://api-web.nhle.com/v1/skater-stats-leaders/20252026/2?categories=goals&limit=-1";
+    var sk=await fetchNHL("/v1/skater-stats-leaders/20252026/2?categories=goals&limit=-1");
+    (sk.goals||[]).forEach(function(p){
+      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
+      var gp=p.gamesPlayed||1;
+      if(!stats[name])stats[name]={gp:gp};
+      stats[name].goals=p.value||0;
+      stats[name].goalsPerGame=(p.value||0)/gp;
+    });
+    // Assists
+    var sk2=await fetchNHL("/v1/skater-stats-leaders/20252026/2?categories=assists&limit=-1");
+    (sk2.assists||[]).forEach(function(p){
+      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
+      var gp=p.gamesPlayed||1;
+      if(!stats[name])stats[name]={gp:gp};
+      stats[name].assists=p.value||0;
+      stats[name].assistsPerGame=(p.value||0)/gp;
+      stats[name].pointsPerGame=(stats[name].goalsPerGame||0)+(p.value||0)/gp;
+    });
+    // Shots
+    var sk3=await fetchNHL("/v1/skater-stats-leaders/20252026/2?categories=shots&limit=-1");
+    (sk3.shots||[]).forEach(function(p){
+      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
+      var gp=p.gamesPlayed||1;
+      if(!stats[name])stats[name]={gp:gp};
+      stats[name].shots=p.value||0;
+      stats[name].shotsPerGame=(p.value||0)/gp;
+    });
+    // Goalie saves
+    var gk=await fetchNHL("/v1/goalie-stats-leaders/20252026/2?categories=saves&limit=-1");
+    (gk.saves||[]).forEach(function(p){
+      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
+      var gp=p.gamesPlayed||1;
+      if(!stats[name])stats[name]={gp:gp};
+      stats[name].saves=p.value||0;
+      stats[name].savesPerGame=(p.value||0)/gp;
+    });
+  }catch(e){console.log("[Diamond Edge] NHL stats fetch error:",e);}
+  return stats;
+}
+
+// ── Fetch MLB player season stats ──
+async function fetchMLBPlayerStats(){
+  var stats={};
+  try{
+    var cats=["hits","homeRuns","strikeouts","rbi","runs","walks","totalBases"];
+    for(var i=0;i<cats.length;i++){
+      var cat=cats[i];
+      var url=MLB_BASE+"/stats/leaders?leaderCategories="+cat+"&season=2026&sportId=1&limit=200";
+      var r=await fetch(url);if(!r.ok)continue;
+      var d=await r.json();
+      var leaders=(d.leagueLeaders||[])[0];
+      if(!leaders)continue;
+      (leaders.leaders||[]).forEach(function(entry){
+        var name=entry.person?.fullName;
+        var gp=entry.stat?.gamesPlayed||1;
+        var val=parseFloat(entry.value)||0;
+        if(!name)return;
+        if(!stats[name])stats[name]={gp:gp};
+        stats[name][cat]=val;
+        stats[name][cat+"PerGame"]=val/gp;
+        stats[name].gp=Math.max(stats[name].gp||0,gp);
+      });
+    }
+  }catch(e){console.log("[Diamond Edge] MLB stats fetch error:",e);}
+  return stats;
+}
+
+async function fetchStatcastRates(){
+  // Fetch Statcast xBA/xSLG from Baseball Savant (via CORS proxy if needed)
+  // Returns: {playerName: {xHitsPerGame, xTBPerGame, xHRPerGame}}
+  var xrates={};
+  var year=new Date().getFullYear();
+  var savantUrl="https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year="+year+"&position=&team=&min=25&csv=true";
+  
+  try{
+    var r=await corsProxyFetch(savantUrl);
+    if(!r||!r.ok){console.log("[Diamond Edge] Statcast fetch failed");return xrates;}
+    
+    var text=await r.text();
+    var lines=text.trim().split("\n");
+    if(lines.length<2){console.log("[Diamond Edge] Statcast: no data");return xrates;}
+    
+    // Parse CSV — handle "LastName, FirstName" quoted field
+    var count=0;
+    for(var i=1;i<lines.length;i++){
+      var m=lines[i].match(/^"([^"]+)"\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*([\d.]+)\s*,\s*([\d.\-]+)/);
+      if(!m)continue;
+      var nameRaw=m[1].trim();
+      var parts=nameRaw.split(",");
+      var fullName=parts.length>=2?(parts[1].trim().replace(/"/g,"")+" "+parts[0].trim()):nameRaw;
+      var pa=parseInt(m[4])||0;
+      var bip=parseInt(m[5])||0;
+      var ba=parseFloat(m[6])||0;
+      var xba=parseFloat(m[7])||0;
+      
+      // Parse more fields: slg(col9), xslg(col10)
+      var allVals=lines[i].match(/[\d.\-]+/g)||[];
+      // After the name field, numeric values are: player_id, year, pa, bip, ba, xba, xba_diff, slg, xslg, ...
+      var xslg=parseFloat(allVals[7])||0; // approximate position
+      
+      if(!fullName||xba<=0||pa<25)continue;
+      
+      // We need AB/game from our MLB stats to convert rates
+      // Use PA and estimate: ~4.2 PA/game average, ~87% are AB
+      var gamesEst=pa/4.2;
+      var abPerGame=pa*0.87/gamesEst;
+      
+      xrates[fullName]={
+        xHitsPerGame: xba*abPerGame,
+        xTBPerGame: xslg*abPerGame,
+        xHRPerGame: Math.max(0,(xslg-xba)*abPerGame*0.15), // ISO-based HR estimate
+        xba:xba, xslg:xslg, pa:pa,
+      };
+      count++;
+    }
+    console.log("[Diamond Edge] Statcast loaded: "+count+" players");
+  }catch(e){console.log("[Diamond Edge] Statcast error:",e);}
+  return xrates;
+}
+
+async function fetchStatcastPitcherRates(){
+  // Fetch Statcast pitcher expected stats: xwOBA-against, xERA, K rates
+  var prates={};
+  var year=new Date().getFullYear();
+  // Pitcher expected stats CSV from Baseball Savant
+  var savantUrl="https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year="+year+"&position=&team=&min=25&csv=true";
+  
+  try{
+    var r=await corsProxyFetch(savantUrl);
+    if(!r||!r.ok){console.log("[Diamond Edge] Pitcher Statcast fetch failed");return prates;}
+    
+    var text=await r.text();
+    var lines=text.trim().split("\n");
+    if(lines.length<2){console.log("[Diamond Edge] Pitcher Statcast: no data");return prates;}
+    
+    // Parse header to find column indices
+    var header=lines[0].toLowerCase();
+    var count=0;
+    for(var i=1;i<lines.length;i++){
+      // Same CSV format: "LastName, FirstName", player_id, year, pa, ...
+      var m=lines[i].match(/^"([^"]+)"\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*([\d.]+)\s*,\s*([\d.\-]+)/);
+      if(!m)continue;
+      var nameRaw=m[1].trim();
+      var parts=nameRaw.split(",");
+      var fullName=parts.length>=2?(parts[1].trim().replace(/"/g,"")+" "+parts[0].trim()):nameRaw;
+      var pa=parseInt(m[4])||0;
+      var ba=parseFloat(m[6])||0;  // BA-against
+      var xba=parseFloat(m[7])||0; // xBA-against
+      
+      if(!fullName||pa<25)continue;
+      
+      // Estimate K rate: pitchers with lower xBA-against tend to have higher K rates
+      // Use PA-based estimation: ~4.2 PA/game for starters, count batters faced
+      var gamesEst=pa/25; // ~25 BF per start for starters
+      if(gamesEst<1)gamesEst=1;
+      
+      prates[fullName]={
+        xbaAgainst:xba,
+        baAgainst:ba,
+        pa:pa,
+        gamesEst:gamesEst,
+      };
+      count++;
+    }
+    console.log("[Diamond Edge] Pitcher Statcast loaded: "+count+" pitchers");
+  }catch(e){console.log("[Diamond Edge] Pitcher Statcast error:",e);}
+  return prates;
+}
+
+// ── Map prop market key to stat rate key ──
+var RATE_MAP_NHL={
+  player_goals:"goalsPerGame",player_assists:"assistsPerGame",
+  player_points:"pointsPerGame",player_shots_on_goal:"shotsPerGame",
+  player_saves:"savesPerGame"
+};
+var RATE_MAP_MLB={
+  batter_hits:"hitsPerGame",batter_total_bases:"totalBasesPerGame",
+  batter_home_runs:"homeRunsPerGame",pitcher_strikeouts:"strikeoutsPerGame",
+  batter_rbis:"rbiPerGame",batter_runs_scored:"runsPerGame",
+  batter_walks:"walksPerGame"
+};
+
+// ── Shared: project prop EV using Poisson stats + book prices ──
+function calcPropEV(p,marketKey,isNHL,activeBookIds,ab){
+  // Backtested on 77K real prop lines (197 MLB games, 2024-25)
+  // Method 3 (Statcast xBA + Rolling 30 fallback): best calibration
+  // Edge in probability points (pp): 3pp min, 15pp max (above = overconfident)
+  // RBI excluded (only losing market). HR flagged high-variance.
+  p.overEV=0;p.underEV=0;p.bestSide=null;p.bestSideEV=0;p.kelly=0;p.fairProb=0;p.projRate=null;p.projSource="none";p.highVar=false;
+  
+  // Skip RBI — negative ROI in backtest across all methods
+  if(marketKey==="batter_rbis"){p.projSource="excluded";return;}
+  
+  var actBO=null,actBU=null,actOBk=null,actUBk=null;
+  (p.books||[]).forEach(function(bk){
+    if(!activeBookIds[bk.bookId])return;
+    if(bk.over!=null&&(actBO==null||bk.over>actBO)){actBO=bk.over;actOBk=bk.book;}
+    if(bk.under!=null&&(actBU==null||bk.under>actBU)){actBU=bk.under;actUBk=bk.book;}
+  });
+  p.bestOver=actBO;p.bestUnder=actBU;p.bestOverBook=actOBk;p.bestUnderBook=actUBk;
+  if(actBO==null||actBU==null)return;
+
+  // ── Get Poisson lambda from player stats ──
+  var rateMap=isNHL?RATE_MAP_NHL:RATE_MAP_MLB;
+  var rateKey=rateMap[marketKey];
+  var ld=S[isNHL?"nhl":"mlb"]||{};
+  var pStats=(ld.playerStats||{})[p.player];
+  var lambda=null;
+  
+  // Priority 1: Statcast xBA rates (MLB hits/TB/HR only — luck-adjusted)
+  var xRates=(ld.statcastRates||{})[p.player];
+  var xKey=null;
+  if(marketKey==="batter_hits")xKey="xHitsPerGame";
+  else if(marketKey==="batter_total_bases")xKey="xTBPerGame";
+  else if(marketKey==="batter_home_runs")xKey="xHRPerGame";
+  if(xRates&&xKey&&xRates[xKey]>0){
+    lambda=xRates[xKey];
+    p.projRate=lambda;p.projSource="statcast";
+  }
+  
+  // Priority 1b: Statcast pitcher K projection (for pitcher_strikeouts)
+  if(lambda==null&&marketKey==="pitcher_strikeouts"&&!isNHL){
+    var pitcherSC=(ld.pitcherStatcast||{})[p.player];
+    var pitcherStats=(ld.playerStats||{})[p.player];
+    if(pitcherSC&&pitcherStats&&pitcherStats.strikeoutsPerGame>0){
+      // Use season K/game adjusted by Statcast xBA-against
+      // Lower xBA-against → pitcher is better → boost K rate
+      var kpg=pitcherStats.strikeoutsPerGame;
+      var xbaA=pitcherSC.xbaAgainst||0;
+      var baA=pitcherSC.baAgainst||0;
+      if(xbaA>0&&baA>0){
+        // If xBA < BA, pitcher is unlucky (expected to be better) → boost Ks
+        // If xBA > BA, pitcher is lucky (regress down) → reduce Ks
+        var luckAdj=1+(baA-xbaA)*2.5; // ~2.5x multiplier on BA diff
+        lambda=kpg*Math.max(0.75,Math.min(1.25,luckAdj));
+      }else{
+        lambda=kpg;
+      }
+      p.projRate=+lambda.toFixed(3);p.projSource="statcast-k";
+    }
+  }
+  
+  // Priority 2: Season per-game rates from stats API
+  if(lambda==null&&pStats&&rateKey&&pStats[rateKey]!=null&&pStats.gp>=5){
+    lambda=pStats[rateKey];
+    p.projRate=lambda;p.projSource="stats";
+  }
+
+  var fairO,fairU;
+  if(lambda!=null&&lambda>0&&p.line!=null){
+    fairO=pOver(p.line,lambda);
+    fairU=pUnder(p.line,lambda);
+    if(fairO+fairU>1){var s2=fairO+fairU;fairO/=s2;fairU/=s2;}
+    if(p.projSource==="stats")p.projSource="poisson";
+  }else{
+    // FALLBACK: cross-book consensus (needs 2+ books)
+    var fOs=[],fUs=[];
+    (p.books||[]).forEach(function(bk){
+      if(!activeBookIds[bk.bookId]||bk.over==null||bk.under==null)return;
+      var oi=ml2p(bk.over),ui=ml2p(bk.under),t=oi+ui;
+      fOs.push(oi/t);fUs.push(ui/t);
+    });
+    if(fOs.length<2)return;
+    fairO=fOs.reduce(function(a,b){return a+b},0)/fOs.length;
+    fairU=fUs.reduce(function(a,b){return a+b},0)/fUs.length;
+    p.projSource="consensus";
+  }
+
+  // Edge in PROBABILITY POINTS (pp) — not EV%
+  var bstOImp=ml2p(actBO),bstUImp=ml2p(actBU);
+  if(!bstOImp||!bstUImp)return;
+  var bookTotal=bstOImp+bstUImp;
+  var overEdge=(fairO-bstOImp/bookTotal)*100;   // pp
+  var underEdge=(fairU-bstUImp/bookTotal)*100;   // pp
+  p.overEV=+overEdge.toFixed(1);
+  p.underEV=+underEdge.toFixed(1);
+
+  // Backtested thresholds: 3pp min, 15pp max (above is model overconfidence)
+  var MIN_PP=3.0, MAX_PP=15.0;
+  if(overEdge>underEdge&&overEdge>=MIN_PP&&overEdge<=MAX_PP){
+    p.bestSide="OVER";p.bestSideEV=+overEdge.toFixed(1);p.fairProb=fairO;
+  }else if(underEdge>=MIN_PP&&underEdge<=MAX_PP){
+    p.bestSide="UNDER";p.bestSideEV=+underEdge.toFixed(1);p.fairProb=fairU;
+  }
+  
+  // Flag HR as high-variance (real edge but huge swings)
+  if(marketKey==="batter_home_runs"||marketKey==="player_goals"){
+    p.highVar=true;
+  }
+
+  // Kelly criterion (half-Kelly for props — less certain than ML model)
+  if(p.bestSide&&p.fairProb>0){
+    var bOdds=p.bestSide==="OVER"?actBO:actBU;
+    var b=bOdds>0?bOdds/100:100/(-bOdds);
+    var kf=(b*p.fairProb-(1-p.fairProb))/b;
+    p.kelly=Math.max(0,+(kf*50).toFixed(2)); // HALF Kelly for props
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROCESS ODDS (shared for both sports)
+// ═══════════════════════════════════════════════════════════
+
+function processOdds(apiData){
+  var now=new Date();
+  return apiData.map(function(ev){
+    var gt=new Date(ev.commence_time);
+    if(gt<now)return null;
+    var home=ev.home_team,away=ev.away_team;
+    var bd={},hMLs=[],aMLs=[],tots=[];
+    (ev.bookmakers||[]).forEach(function(bm){
+      var pa=PA.find(function(b){return b.key===bm.key});
+      if(!pa)return;
+      var hml=null,aml=null,tot=null,hSpread=null,hSpreadOdds=null,aSpread=null,aSpreadOdds=null;
+      (bm.markets||[]).forEach(function(mkt){
+        if(mkt.key==="h2h")mkt.outcomes.forEach(function(o){
+          if(o.name===home)hml=o.price;if(o.name===away)aml=o.price;
+        });
+        if(mkt.key==="totals")mkt.outcomes.forEach(function(o){
+          if(o.name==="Over")tot=o.point;
+        });
+        if(mkt.key==="spreads")mkt.outcomes.forEach(function(o){
+          if(o.name===home){hSpread=o.point;hSpreadOdds=o.price;}
+          if(o.name===away){aSpread=o.point;aSpreadOdds=o.price;}
+        });
+      });
+      bd[pa.id]={homeML:hml,awayML:aml,total:tot,hSpread:hSpread,hSpreadOdds:hSpreadOdds,aSpread:aSpread,aSpreadOdds:aSpreadOdds};
+      if(hml!=null)hMLs.push(hml);if(aml!=null)aMLs.push(aml);if(tot!=null)tots.push(tot);
+    });
+    if(!hMLs.length)return null;
+    var hPs=hMLs.map(ml2p),aPs=aMLs.map(ml2p);
+    var avgH=hPs.reduce(function(a,b){return a+b},0)/hPs.length;
+    var avgA=aPs.reduce(function(a,b){return a+b},0)/aPs.length;
+    var tp=avgH+avgA;
+    var fairH=+(avgH/tp*100).toFixed(1),fairA=+(avgA/tp*100).toFixed(1);
+    var bestHML=Math.max.apply(null,hMLs),bestAML=Math.max.apply(null,aMLs);
+    var bestHB=null,bestAB=null;
+    Object.keys(bd).forEach(function(k){if(bd[k].homeML===bestHML)bestHB=k;if(bd[k].awayML===bestAML)bestAB=k});
+    var conTot=tots.length?+(tots.reduce(function(a,b){return a+b},0)/tots.length).toFixed(1):null;
+    var loTot=tots.length?Math.min.apply(null,tots):null;
+    var hiTot=tots.length?Math.max.apply(null,tots):null;
+    var hEdge=+((1/ml2p(bestHML))*(fairH/100)*100-100).toFixed(1);
+    var aEdge=+((1/ml2p(bestAML))*(fairA/100)*100-100).toFixed(1);
+    var topEdge=Math.max(hEdge,aEdge);
+    var betSide=topEdge>3?(hEdge>=aEdge?"HOME":"AWAY"):null;
+
+    // Find best puck line / run line
+    var bestHSpreadOdds=-999,bestASpreadOdds=-999,bestHSpreadBook=null,bestASpreadBook=null;
+    var plSpread=null;
+    Object.keys(bd).forEach(function(k){
+      var d=bd[k];
+      if(d.hSpreadOdds!=null&&d.hSpreadOdds>bestHSpreadOdds){bestHSpreadOdds=d.hSpreadOdds;bestHSpreadBook=k;plSpread=d.hSpread;}
+      if(d.aSpreadOdds!=null&&d.aSpreadOdds>bestASpreadOdds){bestASpreadOdds=d.aSpreadOdds;bestASpreadBook=k;if(!plSpread)plSpread=d.aSpread;}
+    });
+
+    return{id:ev.id,home:home,away:away,time:ev.commence_time,
+      fairH:fairH,fairA:fairA,bestHML:bestHML,bestAML:bestAML,bestHB:bestHB,bestAB:bestAB,
+      hEdge:hEdge,aEdge:aEdge,topEdge:topEdge,betSide:betSide,
+      conTot:conTot,loTot:loTot,hiTot:hiTot,bd:bd,
+      plSpread:plSpread,bestHSpreadOdds:bestHSpreadOdds>-999?bestHSpreadOdds:null,
+      bestASpreadOdds:bestASpreadOdds>-999?bestASpreadOdds:null,
+      bestHSpreadBook:bestHSpreadBook,bestASpreadBook:bestASpreadBook};
+  }).filter(function(g){return g!=null});
+}
+
+// ═══════════════════════════════════════════════════════════
+// NHL MODEL — Apply context adjustments to edge calculation
+// ═══════════════════════════════════════════════════════════
+// Model factors (weights based on NHL betting research):
+//   rest_advantage: 0.25 — biggest documented edge
+//   goalie_factor:  0.20 — goalie swaps move lines 20-30¢
+//   form_l10:       0.20 — last-10 record as momentum proxy
+//   special_teams:  0.15 — PP/PK mismatch
+//   home_ice:       0.10 — ~2-3% baseline advantage
+//   travel:         0.10 — cross-timezone penalty
+
+function enrichNHLGames(games){
+  var sched=S.nhl.schedule||{};
+  var standings=S.nhl.standings||{};
+  var fatigue=S.nhl.fatigue||{};
+
+  return games.map(function(g){
+    var hAbbr=NHL_ABBREVS[g.home]||"";
+    var aAbbr=NHL_ABBREVS[g.away]||"";
+
+    // Schedule context
+    var schedInfo=sched[hAbbr]||{};
+    g.homeGoalie=schedInfo.homeGoalie||null;
+    g.awayGoalie=schedInfo.awayGoalie||null;
+    g.homeGoalieConfirmed=schedInfo.homeGoalieConfirmed||false;
+    g.awayGoalieConfirmed=schedInfo.awayGoalieConfirmed||false;
+
+    // Fatigue / B2B
+    var hFat=fatigue[hAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
+    var aFat=fatigue[aAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
+    g.homeB2B=hFat.b2b;
+    g.awayB2B=aFat.b2b;
+    g.homeRest=hFat.restDays;
+    g.awayRest=aFat.restDays;
+    g.homeGamesIn3=hFat.gamesIn3Days;
+    g.awayGamesIn3=aFat.gamesIn3Days;
+    g.restDiff=aFat.restDays-hFat.restDays; // positive = home more rested
+
+    // Standings context
+    var hStand=standings[hAbbr]||{};
+    var aStand=standings[aAbbr]||{};
+    g.homeRecord=(hStand.wins||0)+"-"+(hStand.losses||0)+"-"+(hStand.otl||0);
+    g.awayRecord=(aStand.wins||0)+"-"+(aStand.losses||0)+"-"+(aStand.otl||0);
+    g.homeL10=(hStand.l10W||0)+"-"+(hStand.l10L||0)+"-"+(hStand.l10OTL||0);
+    g.awayL10=(aStand.l10W||0)+"-"+(aStand.l10L||0)+"-"+(aStand.l10OTL||0);
+    g.homeStreak=(hStand.streak||"")+(hStand.streakCount||"");
+    g.awayStreak=(aStand.streak||"")+(aStand.streakCount||"");
+    g.homeGD=hStand.goalDiff||0;
+    g.awayGD=aStand.goalDiff||0;
+    g.homePts=hStand.points||0;
+    g.awayPts=aStand.points||0;
+
+    // Travel factor
+    var hTz=NHL_TZ[hAbbr]||0;
+    var aTz=NHL_TZ[aAbbr]||0;
+    g.tzDiff=Math.abs(hTz-aTz);
+
+    // ── NHL Edge Adjustment ──
+    // Start with market-derived edge, then layer context signals
+    var contextAdj=0;
+    var signals=[];
+
+    // Back-to-back penalty (~2% disadvantage)
+    if(g.awayB2B&&!g.homeB2B){
+      contextAdj+=2.0;
+      signals.push({icon:"🔴",text:g.away+" on B2B ("+g.awayRest+"d rest) — fade away",type:"boost"});
+    }
+    if(g.homeB2B&&!g.awayB2B){
+      contextAdj-=2.0;
+      signals.push({icon:"🔴",text:g.home+" on B2B ("+g.homeRest+"d rest) — fade home",type:"fade"});
+    }
+    if(g.homeB2B&&g.awayB2B){
+      signals.push({icon:"🟡",text:"Both teams on B2B — fatigue wash",type:"neutral"});
+    }
+
+    // Rest advantage (beyond B2B)
+    if(!g.homeB2B&&!g.awayB2B){
+      if(g.homeRest>=3&&g.awayRest<=1){
+        contextAdj+=1.5;
+        signals.push({icon:"💤",text:g.home+" well-rested ("+g.homeRest+"d) vs "+g.away+" ("+g.awayRest+"d)",type:"boost"});
+      }else if(g.awayRest>=3&&g.homeRest<=1){
+        contextAdj-=1.5;
+        signals.push({icon:"💤",text:g.away+" well-rested ("+g.awayRest+"d) vs "+g.home+" ("+g.homeRest+"d)",type:"fade"});
+      }
+    }
+
+    // Travel penalty (cross-timezone away team)
+    if(g.tzDiff>=2&&g.awayRest<=1){
+      contextAdj+=1.0;
+      signals.push({icon:"✈️",text:g.away+" crossed "+g.tzDiff+" time zones on short rest",type:"boost"});
+    }
+
+    // Heavy schedule (3+ games in 3 days)
+    if(g.awayGamesIn3>=3){
+      contextAdj+=0.5;
+      signals.push({icon:"📅",text:g.away+" heavy schedule ("+g.awayGamesIn3+" games in 3 days)",type:"boost"});
+    }
+    if(g.homeGamesIn3>=3){
+      contextAdj-=0.5;
+      signals.push({icon:"📅",text:g.home+" heavy schedule ("+g.homeGamesIn3+" games in 3 days)",type:"fade"});
+    }
+
+    // Goalie not confirmed (uncertainty flag)
+    if(!g.homeGoalieConfirmed&&!g.awayGoalieConfirmed){
+      signals.push({icon:"🥅",text:"Goalies TBD — check morning skate",type:"neutral"});
+    }
+
+    if(!signals.length){
+      signals.push({icon:"📊",text:"No strong situational signals",type:"neutral"});
+    }
+
+    g.contextAdj=+contextAdj.toFixed(1);
+    g.adjEdge=+(g.topEdge+contextAdj).toFixed(1);
+    g.signals=signals;
+
+    // Re-evaluate bet side with context
+    var adjHEdge=+(g.hEdge+(contextAdj>0?contextAdj:0)).toFixed(1);
+    var adjAEdge=+(g.aEdge-(contextAdj>0?0:contextAdj)).toFixed(1);
+    g.adjBetSide=g.adjEdge>3?(adjHEdge>=adjAEdge?"HOME":"AWAY"):null;
+
+    // ── BACKTESTED: B2B + CLV Stacking (22,991 games) ──
+    // When opponent is on B2B AND model has CLV edge → premium signal
+    // Test data: +21.8% ROI at 3%+, +32.1% at 5%+, +81.8% at 10%+
+    g.b2bStack=false;
+    g.b2bStackSide=null;
+    if(g.awayB2B&&!g.homeB2B&&g.hEdge>0){
+      g.b2bStack=true;g.b2bStackSide="HOME";
+    }else if(g.homeB2B&&!g.awayB2B&&g.aEdge>0){
+      g.b2bStack=true;g.b2bStackSide="AWAY";
+    }
+
+    return g;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN LOADERS
+// ═══════════════════════════════════════════════════════════
+
+async function loadMLB(){
+  S.mlb.loading=true;S.mlb.error=null;syncActive();render();
+  try{
+    var results=await Promise.allSettled([fetchMLBOdds(),fetchMLBSchedule(),fetchMLBFatigue()]);
+    if(results[0].status==="fulfilled"){S.mlb.games=processOdds(results[0].value||[]);}
+    else{S.mlb.error=results[0].reason?results[0].reason.message:"Failed";S.mlb.games=[];}
+    if(results[1].status==="fulfilled")S.mlb.lineups=results[1].value||{};
+    if(results[2].status==="fulfilled")S.mlb.fatigue=results[2].value||{};
+    S.mlb.games.forEach(function(g){
+      if(!S.mlb.weather[g.home]){
+        fetchWeather(g.home).then(function(w){if(w){S.mlb.weather[g.home]=w;render()}});
+      }
+    });
+    S.mlb.lastFetch=new Date();
+  }catch(e){S.mlb.error=e.message;S.mlb.games=[];}
+  S.mlb.loading=false;syncActive();render();
+  // Fetch bet365 odds async (doesn't block main load)
+}
+
+async function loadNHL(){
+  S.nhl.loading=true;S.nhl.error=null;syncActive();render();
+  try{
+    var results=await Promise.allSettled([fetchNHLOdds(),fetchNHLSchedule(),fetchNHLStandings(),fetchNHLFatigue()]);
+    if(results[0].status==="fulfilled"){
+      S.nhl.games=processOdds(results[0].value||[]);
+    }else{
+      S.nhl.error=results[0].reason?results[0].reason.message:"Failed to load NHL odds";
+      S.nhl.games=[];
+    }
+    if(results[1].status==="fulfilled")S.nhl.schedule=results[1].value||{};
+    if(results[2].status==="fulfilled")S.nhl.standings=results[2].value||{};
+    if(results[3].status==="fulfilled")S.nhl.fatigue=results[3].value||{};
+
+    // Enrich games with NHL model context
+    S.nhl.games=enrichNHLGames(S.nhl.games);
+    S.nhl.lastFetch=new Date();
+  }catch(e){S.nhl.error=e.message;S.nhl.games=[];}
+  S.nhl.loading=false;syncActive();render();
+  // Fetch bet365 odds async (doesn't block main load)
+}
+
+function syncActive(){
+  if(S.league==="bets"){
+    S.games=[];S.loading=false;S.error=null;S.lastFetch=null;
+    return;
+  }
+  var ld=S[S.league]||{};
+  S.games=ld.games||[];
+  S.loading=ld.loading||false;
+  S.error=ld.error||null;
+  S.lastFetch=ld.lastFetch||null;
+}
+
+function loadCurrent(){
+  if(S.league==="mlb")loadMLB();
+  else if(S.league==="nhl")loadNHL();
+}
+
+function toggleBook(id){
+  S.booksOn[id]=!S.booksOn[id];
+  try{localStorage.setItem("de_books",JSON.stringify(S.booksOn));}catch(e){}
+  render();
+}
+
+function switchLeague(key){
+  S.league=key;
+  if(key==="bets"){S.tab="bets";}
+  else{S.tab="ml";S.expanded={};}
+  syncActive();
+  if(key!=="bets"){
+    var ld=S[key]||{};
+    if(!ld.lastFetch&&!ld.loading)loadCurrent();
+    else render();
+  }else{
+    // Load both leagues if not loaded
+    if(!S.nhl.lastFetch&&!S.nhl.loading)loadNHL();
+    if(!S.mlb.lastFetch&&!S.mlb.loading)loadMLB();
+    render();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+
+function render(){
+  document.body.className=S.mode==="light"?"light":"";
+  var t=S.mode;
+  var isNHL=S.league==="nhl";
+  var leagueIcon=isNHL?"🏒":"⚾";
+  var ab=PA.filter(function(b){return S.booksOn[b.id]});
+  var games=S.games.slice();
+  // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
+  if(S.evOnly&&S.tab!=="props")games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.topEdge)>3});
+  if(S.sortBy==="edge")games.sort(function(a,b){return(isNHL?(b.adjEdge||b.topEdge):(b.topEdge))-(isNHL?(a.adjEdge||a.topEdge):(a.topEdge))});
+  else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
+  var edgeOf=function(g){return isNHL?(g.adjEdge||g.topEdge):g.topEdge};
+  // Recount bets/watches using ACTIVE book edges (not all-book edges)
+  var betCount=0,watchCount=0;
+  S.games.forEach(function(g){
+    var ahml=-9999,aaml=-9999;
+    ab.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
+    var he2=(ahml>-9999&&g.fairH)?+((1/ml2p(ahml))*(g.fairH/100)*100-100).toFixed(1):0;
+    var ae2=(aaml>-9999&&g.fairA)?+((1/ml2p(aaml))*(g.fairA/100)*100-100).toFixed(1):0;
+    var te=Math.max(+he2,+ae2);
+    if(isNHL)te=+(te+(g.contextAdj||0)).toFixed(1);
+    // Side-aware threshold: NHL home 5%, NHL away 7%, MLB 10%
+    var bestSide2=(+he2>=+ae2)?"HOME":"AWAY";
+    var statThresh=isNHL?(bestSide2==="HOME"?5:7):10;
+    if(te>=statThresh)betCount++;
+    else if(te>=3)watchCount++;
+  });
+  var ptypes=isNHL?NHL_PTYPES:MLB_PTYPES;
+  var curProp=isNHL?S.nhlPropType:S.propType;
+
+  var h="";
+
+  // ── LEAGUE BAR ──
+  h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">v10</span></div></div>';
+  LEAGUES.forEach(function(lg){
+    var cls="lbtn"+(S.league===lg.key?" on":"")+(lg.on?"":" off");
+    h+='<button class="'+cls+'" onclick="'+(lg.on?"switchLeague('"+lg.key+"')":"")+'"><span style="font-size:14px">'+lg.icon+'</span>'+lg.label+(lg.on?"":'<span class="soon">SOON</span>')+'</button>';
+  });
+  // Today's Bets global button
+  var betsOn=S.league==="bets";
+  h+='<button class="lbtn'+(betsOn?" on":"")+'" onclick="S.league=\'bets\';S.tab=\'bets\';render()" style="'+(betsOn?"border-bottom-color:var(--acc);color:var(--acc)":"")+'"><span style="font-size:14px">📋</span>Bets</button>';
+  h+='<button class="thbtn" onclick="S.mode=S.mode===\'dark\'?\'light\':\'dark\';try{localStorage.setItem(\'de_mode\',S.mode)}catch(e){};render()">'+(t==="dark"?"☀️":"🌙")+'</button></div>';
+
+  // ── STATUS (skip for global bets view) ──
+  if(S.league!=="bets"){
+  h+='<div class="status">';
+  if(betCount>0){
+    h+='<div class="sbox"><span class="sval mono" style="color:var(--acc)">'+betCount+'</span><span class="slbl">bets</span></div>';
+  }
+  if(watchCount>0){
+    h+='<div class="sbox"><span class="sval mono" style="color:var(--warn)">'+watchCount+'</span><span class="slbl">watch</span></div>';
+  }
+  if(betCount===0&&watchCount===0){
+    h+='<div class="sbox"><span class="sval mono" style="color:var(--td)">0</span><span class="slbl">signals</span></div>';
+  }
+  h+='<div class="sbox"><span class="sval mono" style="color:var(--ac2)">'+S.games.length+'</span><span class="slbl">games</span></div>';
+  if(isNHL){
+    var b2bCount=S.games.filter(function(g){return g.homeB2B||g.awayB2B}).length;
+    h+='<div class="sbox"><span class="sval mono" style="color:var(--neg)">'+b2bCount+'</span><span class="slbl">B2B</span></div>';
+  }
+  h+='<div class="sbox"><span style="font-size:9px;font-weight:600;color:var(--warn)">'+(isNHL?"ROI +14.8%":"CLV +0.46%")+'</span><span style="font-size:8px;color:var(--tf);margin-left:4px">'+(isNHL?"at 5%+ edge":"backtested")+'</span></div>';
+  h+='<div style="flex:1"></div>';
+  if(S.remaining)h+='<span class="mono" style="font-size:9px;color:var(--tf)">API: '+S.remaining+'</span>';
+  if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
+  h+='<button class="rbtn" onclick="loadCurrent()"'+(S.loading?' disabled':'')+'>'+(S.loading?'Loading...':'↻ Refresh')+'</button></div>';
+  } // end S.league!=="bets" status bar
+
+  // ── TABS (skip for global bets view) ──
+  if(S.league!=="bets"){
+  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":"Run Line",i:"🏒"},{k:"ou",l:"Over / Under",i:"📊"},{k:"props",l:"Player Props",i:"🎯"},{k:"books",l:"Books",i:"📚"}];
+  h+='<div class="tabs">';
+  tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
+  h+='</div>';
+
+  // ── CONTROLS ──
+  if(S.tab!=="books"&&S.tab!=="bets"){
+    h+='<div class="ctrls">';
+    h+='<button class="cb'+(S.sortBy==="edge"?" on":"")+'" onclick="S.sortBy=\'edge\';render()"><span class="d"></span>By Edge</button>';
+    h+='<button class="cb'+(S.sortBy==="time"?" on":"")+'" onclick="S.sortBy=\'time\';render()"><span class="d"></span>By Time</button>';
+    h+='<div class="sep"></div>';
+    h+='<button class="cb'+(S.evOnly?" on":"")+'" onclick="S.evOnly=!S.evOnly;render()"><span class="d"></span>+EV Only</button>';
+    h+='<div style="flex:1"></div>';
+    var abApi=ab.filter(function(b){return b.api}).length;
+    h+='<button class="cb" onclick="S.showBooks=!S.showBooks;render()">📚 '+abApi+' active / '+ab.length+' on</button>';
+    h+='</div>';
+  }
+  if(S.tab==="props"){
+    h+='<div class="prow">';
+    ptypes.forEach(function(p){
+      var isOn=curProp===p;
+      h+='<button class="pill'+(isOn?" on":"")+'" onclick="'+(isNHL?"S.nhlPropType":"S.propType")+'=\''+p+'\';render()">'+p+'</button>';
+    });
+    h+='</div>';
+  }
+  if(S.showBooks&&S.tab!=="books"&&S.tab!=="bets"){
+    h+='<div class="brow">';
+    PA.forEach(function(bk){
+      var isOn=S.booksOn[bk.id];
+      var cls="bchip"+(isOn?" on":"");
+      var label=bk.n+(!bk.api?" ✗":"");
+      h+='<button class="'+cls+'"'+(!bk.api?" style=\"opacity:0.5\"":"")+' onclick="toggleBook(\''+bk.id+'\')">'+label+'</button>';
+    });
+    h+='</div>';
+  }
+  } // end S.league!=="bets" tabs+controls
+
+  // ── CONTENT ──
+  h+='<div class="cnt">';
+
+  if(S.loading&&S.league!=="bets"){
+    h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">'+leagueIcon+'</div>';
+    h+='<div style="font-size:15px;font-weight:700;color:var(--tm)">Pulling live '+(isNHL?"NHL":"MLB")+' odds + game context...</div>';
+    h+='<div style="font-size:12px;margin-top:8px;color:var(--td)">Odds API'+(isNHL?" · NHL Stats · Standings · Schedule":" · MLB Stats · Weather")+'</div></div>';
+  } else if(S.error&&S.league!=="bets"){
+    h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div style="font-size:14px;font-weight:700;color:var(--neg)">Error loading odds</div><div style="font-size:11px;margin-top:6px;color:var(--td);max-width:400px;margin:6px auto;word-break:break-word">'+S.error+'</div><button class="rbtn" style="margin-top:14px;padding:8px 20px;border-color:var(--acc);color:var(--acc)" onclick="loadCurrent()">Try Again</button></div>';
+  } else if(!games.length&&S.tab!=="books"&&S.tab!=="bets"){
+    h+='<div class="empty"><div class="empty-i">'+leagueIcon+'</div>';
+    h+='<div class="empty-t sg">No '+(isNHL?"NHL":"MLB")+' Games Available</div>';
+    if(isNHL){
+      h+='<div class="empty-d">The NHL regular season runs October through April, with playoffs through June. Once games are on the board, this dashboard populates with live odds from all 11 PA sportsbooks, back-to-back detection, goalie confirmations, rest differentials, and special teams context.</div>';
+      h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">NHL Model Status</div><div style="font-size:12px;line-height:1.8">';
+      h+='<div>✅ Direct Odds API (icehockey_nhl)</div>';
+      h+='<div>✅ NHL Schedule API (goalies, B2B)</div>';
+      h+='<div>✅ NHL Standings API (form, records)</div>';
+      h+='<div>✅ B2B + rest differential model</div>';
+      h+='<div>✅ Travel fatigue (timezone crossings)</div>';
+      h+='<div>✅ Context-adjusted edge scoring</div>';
+      h+='<div>⏳ Awaiting NHL game odds...</div></div></div>';
+    }else{
+      h+='<div class="empty-d">MLB Opening Day is late March. Once games start, this dashboard populates with live odds, backtested edge calculations, and player prop projections from all 11 PA sportsbooks.</div>';
+      h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">MLB Model Status</div><div style="font-size:12px;line-height:1.8">';
+      h+='<div>✅ Direct Odds API connected</div><div>✅ MLB Stats API connected</div><div>✅ Weather API connected</div>';
+      h+='<div>✅ Backtested on 40,996 real games</div><div>✅ CLV +0.46% (opening lines)</div><div>✅ ROI +9.8% at 5%+ edge</div><div>⏳ Awaiting game odds...</div></div></div>';
+    }
+    h+='</div>';
+  }
+
+  // ═══ TODAY'S BETS TAB — Kelly Criterion Staking ═══
+  else if(S.tab==="bets"){
+    // ── GLOBAL TODAY'S BETS — pulls from ALL leagues ──
+    h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
+    h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📋 Today\'s Bet Sheet</div>';
+    h+='<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:4px 10px">';
+    h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
+    h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
+    h+='</div>';
+    h+='<div style="font-size:9px;color:var(--td)">Kelly stakes auto-scaled · total risk ≤ 25% of bankroll</div>';
+    h+='</div>';
+
+    // Collect bets from ALL leagues
+    var allBets=[];
+    window.allBets=allBets; // expose for tracking buttons
+    var abAll=PA.filter(function(b){return S.booksOn[b.id]});
+    var activeIds={};abAll.forEach(function(bk){activeIds[bk.id]=true;});
+    var mktLabels={player_goals:"Goals",player_assists:"Assists",player_points:"Points",player_shots_on_goal:"SOG",player_saves:"Saves",batter_hits:"Hits",batter_total_bases:"TB",batter_home_runs:"HR",pitcher_strikeouts:"K",batter_rbis:"RBI",batter_runs_scored:"Runs",batter_walks:"BB"};
+
+    ["nhl","mlb"].forEach(function(sport){
+      var ld=S[sport]||{};
+      var gms=ld.games||[];
+      var sNHL=sport==="nhl";
+      var icon=sNHL?"🏒":"⚾";
+
+      // ML bets
+      gms.forEach(function(g){
+        var de2=sNHL?(g.adjEdge||g.topEdge):g.topEdge;
+        var ahml2=-9999,aaml2=-9999,ahb2=null,aab2=null;
+        abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml2){ahml2=d.homeML;ahb2=bk;}if(d.awayML!=null&&d.awayML>aaml2){aaml2=d.awayML;aab2=bk;}});
+        var he3=(ahml2>-9999&&g.fairH)?+((1/ml2p(ahml2))*(g.fairH/100)*100-100).toFixed(1):0;
+        var ae3=(aaml2>-9999&&g.fairA)?+((1/ml2p(aaml2))*(g.fairA/100)*100-100).toFixed(1):0;
+        var side3=(+he3>=+ae3)?"HOME":"AWAY";
+        var edge3=Math.max(+he3,+ae3);
+        if(sNHL)edge3=+(edge3+(g.contextAdj||0)).toFixed(1);
+        var thresh3=sNHL?(side3==="HOME"?5:7):10;
+        if(edge3>=thresh3){
+          var ml3=side3==="HOME"?ahml2:aaml2;
+          var bk3=side3==="HOME"?ahb2:aab2;
+          var fp3=side3==="HOME"?g.fairH/100:g.fairA/100;
+          var b3=ml3>0?ml3/100:100/(-ml3);
+          var kf3=(b3*fp3-(1-fp3))/b3;
+          allBets.push({sport:sport,icon:icon,type:"ML",player:side3==="HOME"?g.home:g.away,market:"Moneyline",line:fml(ml3),book:bk3?bk3.n:"—",edge:edge3,kelly:Math.max(0,+(kf3*100).toFixed(2)),fairProb:+(fp3*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:sNHL&&g.b2bStack&&edge3>3,projSource:"model",highVar:false,paperTrade:false,edgeUnit:"%"});
+        }
+      });
+
+      // Prop bets from ALL markets (if loaded)
+      if(ld.propsLoaded){
+        var allMkeys=sNHL?["player_goals","player_assists","player_points","player_shots_on_goal","player_saves"]:["batter_hits","batter_total_bases","batter_home_runs","pitcher_strikeouts"];
+        gms.forEach(function(g){
+          var gProps=(ld.props||{})[g.id];
+          if(!gProps)return;
+          allMkeys.forEach(function(mk){
+            var mps=(gProps[mk]||[]).slice();
+            mps.forEach(function(p){
+              calcPropEV(p,mk,sNHL,activeIds,abAll);
+              if(!p.bestSide||p.bestSideEV<3)return;
+              var bOdds=p.bestSide==="OVER"?p.bestOver:p.bestUnder;
+              allBets.push({sport:sport,icon:icon,type:"Prop",player:p.player,market:(mktLabels[mk]||mk)+" "+p.bestSide+" "+p.line,line:fml(bOdds),book:p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook,edge:p.bestSideEV,kelly:p.kelly||0,fairProb:+(p.fairProb*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:p.projSource||"consensus",highVar:p.highVar||false,paperTrade:true,edgeUnit:"pp"});
+            });
+          });
+        });
+      }
+    });
+
+    allBets.sort(function(a,b){return b.edge-a.edge});
+
+    // Scale Kelly: total raw Kelly ≤ 25%
+    var totalRawKelly=allBets.reduce(function(s,b){return s+b.kelly},0);
+    var kellyScale=totalRawKelly>25?(25/totalRawKelly):1;
+    allBets.forEach(function(b){
+      b.scaledKelly=+(b.kelly*kellyScale).toFixed(2);
+      b.betAmount=Math.max(1,Math.round(S.bankroll*b.scaledKelly/100));
+    });
+    var totalBetAmount=allBets.reduce(function(s,b){return s+b.betAmount},0);
+    var nhlLoaded=S.nhl.lastFetch;var mlbLoaded=S.mlb.lastFetch;
+    var nhlProps=S.nhl.propsLoaded;var mlbProps=S.mlb.propsLoaded;
+
+    // Loading status
+    if(!nhlLoaded&&!mlbLoaded){
+      h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">📋</div><div style="font-size:15px;font-weight:700;color:var(--tm)">Loading odds for all leagues...</div></div>';
+    }else{
+      // Status badges
+      h+='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"+(nhlProps?" · props ✓":" · no props")):"not loaded")+'</div>';
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(mlbLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(mlbLoaded?"var(--acc)":"var(--neg)")+'">⚾ MLB '+(mlbLoaded?(S.mlb.games.length+" games"+(mlbProps?" · props ✓":" · no props")):"not loaded")+'</div>';
+      if(!nhlProps||!mlbProps)h+='<div style="padding:3px 10px;border-radius:5px;background:var(--alt);font-size:10px;color:var(--td)">💡 Load props in each league\'s Props tab to include prop bets</div>';
+      h+='</div>';
+
+      if(!allBets.length){
+        h+='<div class="empty"><div class="empty-i">📋</div><div class="empty-t sg">No Bets Today</div>';
+        h+='<div class="empty-d">No ML or prop edges meet the backtested thresholds. Check back when lines move or load player props for more opportunities.</div></div>';
+      }else{
+        // Summary
+        h+='<div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">';
+        h+='<div class="sbox"><span class="sval mono" style="color:var(--acc)">'+allBets.length+'</span><span class="slbl">bets</span></div>';
+        h+='<div class="sbox"><span class="sval mono" style="color:var(--ac2)">$'+totalBetAmount+'</span><span class="slbl">total risk</span></div>';
+        h+='<div class="sbox"><span class="sval mono" style="color:var(--warn)">'+(totalBetAmount/S.bankroll*100).toFixed(1)+'%</span><span class="slbl">of bankroll</span></div>';
+        if(kellyScale<1)h+='<div class="sbox"><span style="font-size:9px;color:var(--neg);font-weight:600">Kelly scaled to '+(kellyScale*100).toFixed(0)+'%</span></div>';
+        h+='</div>';
+
+        // Bet table
+        h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+        h+='<tr style="border-bottom:2px solid var(--bd)">';
+        h+='<th style="text-align:center;padding:6px 4px;color:var(--td);font-size:8px"></th>';
+        h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">TYPE</th>';
+        h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAYER / TEAM</th>';
+        h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BET</th>';
+        h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">LINE</th>';
+        h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BOOK</th>';
+        h+='<th style="text-align:center;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PROJ</th>';
+        h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">EDGE</th>';
+        h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">KELLY</th>';
+        h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BET $</th>';
+        h+='<th style="text-align:center;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">TRACK</th>';
+        h+='</tr>';
+        allBets.forEach(function(b,i){
+          var bg=i%2===0?"var(--card)":"var(--alt)";
+          var edgeC=b.edge>=10?"var(--acc)":b.edge>=5?"var(--acc)":"var(--warn)";
+          var projIcon=b.projSource==="statcast"?"🔬":b.projSource==="statcast-k"?"🔬":b.projSource==="poisson"?"📊":b.projSource==="model"?"🧠":"📚";
+          var projTip=b.projSource==="statcast"?"Statcast xBA projection":b.projSource==="statcast-k"?"Statcast pitcher xBA-against + K rate":b.projSource==="poisson"?"Poisson from season stats":b.projSource==="model"?"Backtested CLV model":"Book consensus";
+          var typeLabel=b.type+(b.b2bStack?" 🔥":"")+(b.highVar?" ⚡":"")+(b.paperTrade?" 🧪":"");
+          var edgeLabel="+"+b.edge+(b.edgeUnit||"%");
+          var betColor=b.paperTrade?"var(--warn)":"var(--acc)";
+          h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)"'+(b.paperTrade?' title="Paper trade — prop model in validation"':'')+'>';
+          h+='<td style="padding:6px 4px;text-align:center;font-size:14px" title="'+b.sport.toUpperCase()+'">'+b.icon+'</td>';
+          h+='<td style="padding:6px;font-weight:700;color:'+(b.type==="ML"?"var(--ac2)":"var(--warn)")+';font-size:9px">'+typeLabel+'</td>';
+          h+='<td style="padding:6px"><div style="font-weight:700;color:var(--tx)">'+b.player+'</div><div style="font-size:9px;color:var(--td)">'+b.matchup+'</div></td>';
+          h+='<td style="padding:6px;font-weight:600;color:var(--tm);font-size:10px">'+b.market+'</td>';
+          h+='<td style="padding:6px;font-weight:700;color:var(--tx);font-family:\'JetBrains Mono\',monospace">'+b.line+'</td>';
+          h+='<td style="padding:6px;font-size:10px;color:var(--tm)">'+b.book+'</td>';
+          h+='<td style="padding:6px;text-align:center;font-size:12px" title="'+projTip+'">'+projIcon+'</td>';
+          h+='<td style="padding:6px;text-align:right;font-weight:700;color:'+edgeC+';font-family:\'JetBrains Mono\',monospace">'+edgeLabel+'</td>';
+          h+='<td style="padding:6px;text-align:right;font-size:10px;color:var(--tm);font-family:\'JetBrains Mono\',monospace">'+b.scaledKelly+'%</td>';
+          h+='<td style="padding:6px;text-align:right;font-weight:800;color:'+betColor+';font-size:14px;font-family:\'JetBrains Mono\',monospace">$'+b.betAmount+'</td>';
+          // Track button
+          var bk2=betKey(b);var tb2=findTracked(bk2);
+          h+='<td style="padding:6px;text-align:center">';
+          if(!tb2){
+            h+='<button class="trk-btn" onclick="trackBet(allBets['+i+'])">Track</button>';
+          }else if(tb2.result==null){
+            h+='<div class="trk-res">';
+            h+='<button class="w" onclick="recordResult(\''+bk2+'\',\'W\')">W</button>';
+            h+='<button class="l" onclick="recordResult(\''+bk2+'\',\'L\')">L</button>';
+            h+='<button class="p" onclick="recordResult(\''+bk2+'\',\'P\')">P</button>';
+            h+='</div>';
+          }else{
+            var rc2=tb2.result==="W"?"var(--acc)":tb2.result==="L"?"var(--neg)":"var(--warn)";
+            h+='<span style="font-weight:800;color:'+rc2+';font-size:12px">'+tb2.result+'</span>';
+            if(tb2.payout!==0)h+='<div style="font-size:9px;color:'+rc2+';font-family:\'JetBrains Mono\',monospace">'+(tb2.payout>0?"+":"")+tb2.payout+'</div>';
+          }
+          h+='</td>';
+          h+='</tr>';
+        });
+        h+='</table></div>';
+
+        // Legend + Kelly explanation
+        h+='<div style="margin-top:14px;background:var(--alt);border:1px solid var(--bdL);border-radius:8px;padding:12px">';
+        h+='<div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">How This Works</div>';
+        h+='<div style="font-size:11px;color:var(--tm);line-height:1.8">';
+        h+='<div><strong>Sources:</strong> 🧠 = backtested CLV model · 🔬 = Statcast xBA / pitcher xBA-against projection · 📊 = Poisson season rates · 📚 = book consensus</div>';
+        h+='<div><strong>Flags:</strong> 🔥 = B2B+CLV stacked · ⚡ = high variance (HR/goals) · 🧪 = paper trade (prop model validating)</div>';
+        h+='<div><strong>Edge units:</strong> ML bets in % (EV), prop bets in pp (probability points). Prop Kelly at half-Kelly.</div>';
+        h+='<div><strong>Kelly:</strong> <span class="mono">f = (b×p − q) / b</span> · Scaled so total daily risk ≤ 25% of bankroll.</div>';
+        if(kellyScale<1)h+='<div><strong>Today:</strong> Raw Kelly totaled '+totalRawKelly.toFixed(1)+'%, scaled to '+allBets.reduce(function(s,b){return s+b.scaledKelly},0).toFixed(1)+'% across '+allBets.length+' bets.</div>';
+        h+='</div></div>';
+
+        // ═══ BET TRACKER — History + P&L ═══
+        var ts=trackerStats();
+        if(trackedBets.length>0){
+          h+='<div style="margin-top:16px">';
+          h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">';
+          h+='<div style="font-size:15px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📈 Bet Tracker</div>';
+          h+='<button onclick="clearTracker()" style="padding:3px 10px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Clear All</button>';
+          h+='</div>';
+
+          // Stats summary
+          h+='<div class="trk-sum">';
+          h+='<div class="trk-stat"><div class="val" style="color:var(--tx)">'+ts.total+'</div><div class="lbl">graded</div></div>';
+          h+='<div class="trk-stat"><div class="val" style="color:var(--acc)">'+ts.wins+'</div><div class="lbl">wins</div></div>';
+          h+='<div class="trk-stat"><div class="val" style="color:var(--neg)">'+ts.losses+'</div><div class="lbl">losses</div></div>';
+          if(ts.pushes>0)h+='<div class="trk-stat"><div class="val" style="color:var(--warn)">'+ts.pushes+'</div><div class="lbl">push</div></div>';
+          if(ts.pending>0)h+='<div class="trk-stat"><div class="val" style="color:var(--ac2)">'+ts.pending+'</div><div class="lbl">pending</div></div>';
+          var profitColor=ts.profit>0?"var(--acc)":ts.profit<0?"var(--neg)":"var(--td)";
+          h+='<div class="trk-stat"><div class="val" style="color:'+profitColor+'">'+(ts.profit>0?"+$":ts.profit<0?"-$":"$")+Math.abs(ts.profit)+'</div><div class="lbl">profit</div></div>';
+          h+='<div class="trk-stat"><div class="val" style="color:'+profitColor+'">'+ts.roi+'%</div><div class="lbl">ROI</div></div>';
+          if(ts.total>0){
+            var winPct=((ts.wins/ts.total)*100).toFixed(0);
+            h+='<div class="trk-stat"><div class="val" style="color:var(--tm)">'+winPct+'%</div><div class="lbl">win rate</div></div>';
+          }
+          h+='</div>';
+
+          // History table
+          h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px">';
+          h+='<tr style="border-bottom:2px solid var(--bd)">';
+          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">DATE</th>';
+          h+='<th style="text-align:center;padding:4px 4px;color:var(--td);font-size:7px"></th>';
+          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BET</th>';
+          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">LINE</th>';
+          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BOOK</th>';
+          h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">WAGER</th>';
+          h+='<th style="text-align:center;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">RESULT</th>';
+          h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">P&L</th>';
+          h+='</tr>';
+          // Show most recent first
+          var sortedTrack=trackedBets.slice().reverse();
+          sortedTrack.forEach(function(tb,idx){
+            var bg=idx%2===0?"var(--card)":"var(--alt)";
+            var dateStr=tb.time?new Date(tb.time).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"—";
+            h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
+            h+='<td style="padding:4px 6px;color:var(--td)">'+dateStr+'</td>';
+            h+='<td style="padding:4px 4px;font-size:12px">'+tb.icon+'</td>';
+            h+='<td style="padding:4px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+'</div></td>';
+            h+='<td style="padding:4px 6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx)">'+tb.line+'</td>';
+            h+='<td style="padding:4px 6px;color:var(--tm)">'+tb.book+'</td>';
+            h+='<td style="padding:4px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--tm)">$'+tb.amount+'</td>';
+            // Result
+            if(tb.result==null){
+              h+='<td style="padding:4px 6px;text-align:center"><div class="trk-res">';
+              h+='<button class="w" onclick="recordResult(\''+tb.key+'\',\'W\')">W</button>';
+              h+='<button class="l" onclick="recordResult(\''+tb.key+'\',\'L\')">L</button>';
+              h+='<button class="p" onclick="recordResult(\''+tb.key+'\',\'P\')">P</button>';
+              h+='</div></td>';
+            }else{
+              var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
+              h+='<td style="padding:4px 6px;text-align:center;font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</td>';
+            }
+            // P&L
+            if(tb.result!=null){
+              var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
+              h+='<td style="padding:4px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace">'+(tb.payout>0?"+$":"$")+Math.abs(tb.payout).toFixed(0)+'</td>';
+            }else{
+              h+='<td style="padding:4px 6px;text-align:right;color:var(--td)">—</td>';
+            }
+            h+='</tr>';
+          });
+          h+='</table></div>';
+          h+='</div>';
+        }else{
+          h+='<div style="margin-top:14px;text-align:center;padding:16px;background:var(--alt);border:1px solid var(--bdL);border-radius:8px">';
+          h+='<div style="font-size:12px;color:var(--tm)">📈 Click "Track" on any bet above to start building your bet history and P&L tracker.</div>';
+          h+='</div>';
+        }
+      }
+    }
+  }
+
+  // ═══ MONEYLINE TAB ═══
+  else if(S.tab==="ml"){
+    if(isNHL){
+      // NHL info bar
+      h+='<div class="ib ice"><span style="font-size:14px">🏒</span><strong>Backtested 22,991 games:</strong> Home bets BET at 5%+ (ROI +27%), away at 7%+ (ROI +20%). B2B+CLV stacking: +32% ROI. <strong style="color:var(--neg)">⚡ Bet opening lines only — edge gone by close.</strong></div>';
+    }
+
+    games.forEach(function(g){
+      var rawEdge=isNHL?(g.adjEdge||g.topEdge):g.topEdge;
+      
+      // Calculate best lines from ONLY active books FIRST (need side before threshold)
+      var actHML=-9999,actAML=-9999,actHBook=null,actABook=null;
+      ab.forEach(function(bk){
+        var d=g.bd[bk.id];
+        if(!d)return;
+        if(d.homeML!=null&&d.homeML>actHML){actHML=d.homeML;actHBook=bk.id;}
+        if(d.awayML!=null&&d.awayML>actAML){actAML=d.awayML;actABook=bk.id;}
+      });
+
+      // Determine bet side and edge from active books
+      var betTeam=null,betLine=null,betBook=null,betBookName=null,betEdge=0,betSide=null;
+      var displayEdge=rawEdge;
+      if(rawEdge>3){
+        var actHEdge=(actHML>-9999&&g.fairH)?+((1/ml2p(actHML))*(g.fairH/100)*100-100).toFixed(1):0;
+        var actAEdge=(actAML>-9999&&g.fairA)?+((1/ml2p(actAML))*(g.fairA/100)*100-100).toFixed(1):0;
+        var actTopEdge=Math.max(+actHEdge,+actAEdge);
+        betSide=(+actHEdge>=+actAEdge)?"HOME":"AWAY";
+        if(actTopEdge>3){
+          if(betSide==="HOME"&&actHML>-9999){betTeam=g.home;betLine=actHML;betBook=actHBook;betEdge=+actHEdge;}
+          else if(betSide==="AWAY"&&actAML>-9999){betTeam=g.away;betLine=actAML;betBook=actABook;betEdge=+actAEdge;}
+          if(betBook){var bkObj=PA.find(function(b){return b.id===betBook});betBookName=bkObj?bkObj.n:betBook;}
+          displayEdge=isNHL?+(actTopEdge+(g.contextAdj||0)).toFixed(1):actTopEdge;
+        }else{
+          betTeam=null;
+        }
+      }
+
+      // Backtested thresholds (side-aware for NHL):
+      //   MLB: BET at 10%+, WATCH at 3%+ (40,996 games)
+      //   NHL Home: BET at 5%+ (test ROI +17.6%), WATCH at 3%+
+      //   NHL Away: BET at 7%+ (test ROI +7.2% at 7, +20.2% at 10), WATCH at 3%+
+      //   Deep analysis: Home bets 2-3x more profitable than away bets
+      var betThresh=10; // MLB default
+      if(isNHL){
+        betThresh=(betSide==="HOME")?5:7;
+      }
+      var meetsBetThresh=displayEdge>=betThresh;
+
+      var ecls=displayEdge>3?"ev-p":displayEdge<-3?"ev-n":"ev-0";
+      var tagH="";
+      if(meetsBetThresh)tagH='<span class="tag tag-e">'+(isNHL?"BET":"EDGE")+'</span>';
+      else if(displayEdge>3)tagH='<span class="tag tag-w">WATCH</span>';
+
+      // NHL B2B+CLV stacking — backtested at +21.8% ROI (3%+), +32.1% (5%+)
+      if(isNHL&&g.b2bStack&&displayEdge>3){
+        tagH+=' <span class="tag tag-stack">B2B+CLV</span>';
+      }
+
+      // NHL-specific tags
+      if(isNHL){
+        if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
+        if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
+        if(Math.abs(g.restDiff||0)>=2)tagH+=' <span class="tag tag-rest">REST +'+(g.restDiff>0?"H":"A")+'</span>';
+      }
+
+      var sig=meetsBetThresh?"▸ BET "+(betSide||""):displayEdge>3?"Monitor":"No play";
+      var sigC=meetsBetThresh?"var(--acc)":displayEdge>3?"var(--warn)":"var(--td)";
+
+      h+='<div class="gc"><div class="gh">';
+      // Matchup
+      h+='<div style="flex:1 1 180px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">';
+      h+='<span class="tm sg">'+g.away+'</span><span class="at">@</span><span class="tm sg">'+g.home+'</span> '+tagH+'</div>';
+      h+='<div class="mono" style="font-size:10px;color:var(--td)">'+fd(g.time)+' · '+ft(g.time)+'</div>';
+
+      // MLB: pitcher info
+      if(!isNHL){
+        var info=S.mlb.lineups[g.home]||{};
+        if(info.homePitcher)h+='<div style="font-size:10px;color:var(--tm);margin-top:2px">'+info.awayPitcher+' vs '+info.homePitcher+'</div>';
+      }
+      // NHL: goalie + record info
+      if(isNHL){
+        if(g.homeGoalie||g.awayGoalie){
+          h+='<div class="goalie-row">';
+          h+='<span>🥅 '+(g.awayGoalie?'<span class="'+(g.awayGoalieConfirmed?"starter":"backup")+'">'+g.awayGoalie+(g.awayGoalieConfirmed?" ✓":"?")+'</span>':'<span style="color:var(--td)">TBD</span>')+' vs ';
+          h+=(g.homeGoalie?'<span class="'+(g.homeGoalieConfirmed?"starter":"backup")+'">'+g.homeGoalie+(g.homeGoalieConfirmed?" ✓":"?")+'</span>':'<span style="color:var(--td)">TBD</span>')+'</span>';
+          h+='</div>';
+        }
+        // Records
+        if(g.homeRecord!=="0-0-0"){
+          h+='<div style="font-size:10px;color:var(--td);margin-top:2px">';
+          h+=g.away+' <span class="mono">'+g.awayRecord+'</span>';
+          h+=' · '+g.home+' <span class="mono">'+g.homeRecord+'</span>';
+          h+='</div>';
+        }
+      }
+      h+='</div>';
+
+      // Fair prob + implied odds
+      h+='<div style="text-align:center;min-width:120px"><div class="sh">Fair Prob / Implied</div><div style="display:flex;gap:14px;justify-content:center">';
+      h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800">'+g.fairA+'%</div><div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.fairA)+'</div></div>';
+      h+='<div><div class="sh">Home</div><div class="mono" style="font-size:15px;font-weight:800">'+g.fairH+'%</div><div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.fairH)+'</div></div></div></div>';
+      // Best line (from active books only)
+      h+='<div style="text-align:center;min-width:110px"><div class="sh">Best Line</div><div style="display:flex;gap:14px;justify-content:center">';
+      h+='<div><div class="sh">Away</div><div class="mono" style="font-size:14px;font-weight:700">'+fml(actAML>-9999?actAML:g.bestAML)+'</div></div>';
+      h+='<div><div class="sh">Home</div><div class="mono" style="font-size:14px;font-weight:700">'+fml(actHML>-9999?actHML:g.bestHML)+'</div></div></div></div>';
+      // Edge
+      h+='<div style="text-align:center;min-width:75px"><div class="sh">'+(isNHL?"Adj Edge":"Edge")+'</div>';
+      h+='<div class="ev '+ecls+'">'+(displayEdge>0?"+":"")+displayEdge+'%</div>';
+      if(isNHL&&g.contextAdj!==0){
+        h+='<div style="font-size:8px;color:var(--td);margin-top:1px">mkt '+(g.topEdge>0?"+":"")+g.topEdge+'%</div>';
+      }
+      h+='<div style="font-size:9px;color:'+sigC+';margin-top:2px;opacity:.8">'+sig+'</div></div>';
+      h+='</div>';
+
+      // NHL Context row
+      if(isNHL){
+        var ctxItems=[];
+        if(g.homeRest<99)ctxItems.push("🏠 "+g.homeRest+"d rest");
+        if(g.awayRest<99)ctxItems.push("✈️ "+g.awayRest+"d rest");
+        if(g.tzDiff>=2)ctxItems.push("🌐 "+g.tzDiff+" TZ");
+        if(g.homeL10!=="0-0-0")ctxItems.push("📊 L10: "+g.awayL10+" / "+g.homeL10);
+        if(g.homeStreak)ctxItems.push(g.home+" "+g.homeStreak);
+        if(g.awayStreak)ctxItems.push(g.away+" "+g.awayStreak);
+
+        if(ctxItems.length){
+          h+='<div class="ctx">';
+          ctxItems.forEach(function(ci){h+='<span class="ctx-item">'+ci+'</span>'});
+          h+='</div>';
+        }
+      }
+
+      // MLB Context row
+      if(!isNHL){
+        var info=S.mlb.lineups[g.home]||{};
+        var wx=S.mlb.weather[g.home];
+        var fat=S.mlb.fatigue[g.home]||{};
+        var afat=S.mlb.fatigue[g.away]||{};
+        var ctxItems=[];
+        if(wx){if(wx.indoor)ctxItems.push("🏟 Dome");else ctxItems.push("🌡 "+wx.temp+"°F"+(wx.wind>10?" · 🌬 "+wx.wind+"mph":""));}
+        if(info.umpire){var uIcon=info.umpTendency==="high"?"⬆️":info.umpTendency==="low"?"⬇️":"";ctxItems.push("👤 "+info.umpire+(uIcon?" "+uIcon+" K":""));}
+        if(fat.games>=3)ctxItems.push("💤 "+g.home+" pen tired");
+        if(afat.games>=3)ctxItems.push("💤 "+g.away+" pen tired");
+        if(ctxItems.length){h+='<div class="ctx">';ctxItems.forEach(function(ci){h+='<span class="ctx-item">'+ci+'</span>'});h+='</div>';}
+      }
+
+      // ── BET RECOMMENDATION ──
+      var betFairProb=betTeam===g.home?g.fairH:betTeam===g.away?g.fairA:null;
+      var betFairOdds=betFairProb?fImp(betFairProb):null;
+      var isB2BStack=isNHL&&g.b2bStack&&displayEdge>3;
+
+      if(betTeam&&meetsBetThresh){
+        h+='<div class="bet-rec">';
+        h+='<div><div class="bet-label">'+(isB2BStack?"🔥 B2B+CLV Stacked Bet":"Recommended Bet")+'</div><div class="bet-team">'+betTeam+(isNHL?" ("+(betSide==="HOME"?"home":"away")+")":"")+'</div></div>';
+        h+='<div><div class="bet-label">Best Line</div><div class="bet-line">'+fml(betLine)+'</div></div>';
+        if(betFairOdds){h+='<div><div class="bet-label">Fair Odds</div><div class="mono" style="font-size:16px;font-weight:700;color:var(--ac2)">'+betFairOdds+'</div></div>';}
+        h+='<div><div class="bet-label">Book</div><div class="bet-book">'+betBookName+'</div></div>';
+        h+='<div><div class="bet-label">'+(isNHL?"Adj Edge":"Edge")+'</div><div class="bet-edge">+'+displayEdge+'%</div></div>';
+        if(isB2BStack){h+='<div style="font-size:9px;color:#f0c420;font-weight:600">B2B+CLV: +32% ROI backtested at 5%+</div>';}
+        if(isNHL){h+='<div style="font-size:9px;color:var(--neg);font-weight:700;margin-top:2px">⚡ BET EARLY — opening lines only. Edge disappears by close.</div>';}
+        h+='</div>';
+      }else if(betTeam&&displayEdge>3){
+        h+='<div class="bet-watch">';
+        h+='<div><div class="bet-label">'+(isB2BStack?"B2B+CLV Watch":"Watch")+'</div><div class="bet-team">'+betTeam+(isNHL?" ("+(betSide==="HOME"?"home":"away")+")":"")+'</div></div>';
+        h+='<div class="bet-line">'+fml(betLine)+'</div>';
+        if(betFairOdds){h+='<div style="font-size:12px;color:var(--ac2);font-weight:600;font-family:\'JetBrains Mono\',monospace">fair '+betFairOdds+'</div>';}
+        h+='<div class="bet-book">@ '+betBookName+'</div>';
+        h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+displayEdge+'%</div>';
+        if(isNHL&&betSide==="AWAY"){h+='<div style="font-size:9px;color:var(--td)">Away edge — needs 7%+ for BET signal</div>';}
+        h+='</div>';
+      }
+
+      // Book lines
+      var vb=ab.filter(function(bk){return g.bd[bk.id]});
+      if(vb.length){
+        h+='<div class="blr">';
+        vb.forEach(function(bk){
+          var d=g.bd[bk.id];var isBA=bk.id===actABook,isBH=bk.id===actHBook;
+          h+='<div class="bl'+((isBA||isBH)?" best":"")+'"><div class="bln">'+bk.n+'</div>';
+          h+='<div style="display:flex;gap:6px;justify-content:center;font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace">';
+          h+='<span class="blv'+(isBA?" hi":"")+'">'+fml(d.awayML)+'</span>';
+          h+='<span style="color:var(--tf)">/</span>';
+          h+='<span class="blv'+(isBH?" hi":"")+'">'+fml(d.homeML)+'</span>';
+          h+='</div></div>';
+        });
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+  }
+
+  // ═══ PUCK LINE / RUN LINE TAB ═══
+  else if(S.tab==="pl"){
+    var plLabel=isNHL?"Puck Line":"Run Line";
+    var plSpreadVal=isNHL?"±1.5":"±1.5";
+    if(!isNHL){
+      h+='<div class="ib ice"><span style="font-size:14px">⚾</span><strong>Backtested on 40,996 games (2009-2025):</strong> Only favorite -1.5 at 10%+ ML edge is profitable. Underdog +1.5 loses to juice every year. Bets shown are from your active books only.</div>';
+    }else{
+      h+='<div class="ib ice"><span style="font-size:14px">🏒</span>'+plLabel+' ('+plSpreadVal+') — favorite must win by 2+. NHL puck line not yet backtested — using MLB-derived thresholds (10%+ edge on fav side). Best odds from your active books.</div>';
+    }
+
+    games.forEach(function(g){
+      // Check if any ACTIVE book has spread data
+      var hasSpread=false;
+      ab.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)hasSpread=true;});
+      if(!hasSpread)return;
+
+      // Recalculate best spread odds from ACTIVE books only
+      var actBestHSO=-9999,actBestASO=-9999,actHSBook=null,actASBook=null;
+      var aSpreadShow=null,hSpreadShow=null;
+      ab.forEach(function(bk){
+        var d=g.bd[bk.id];if(!d||d.hSpread==null)return;
+        if(aSpreadShow==null){aSpreadShow=d.aSpread;hSpreadShow=d.hSpread;}
+        if(d.hSpreadOdds!=null&&d.hSpreadOdds>actBestHSO){actBestHSO=d.hSpreadOdds;actHSBook=bk;}
+        if(d.aSpreadOdds!=null&&d.aSpreadOdds>actBestASO){actBestASO=d.aSpreadOdds;actASBook=bk;}
+      });
+
+      // ── BACKTESTED LOGIC ──
+      // Recalculate ML edge from active books only
+      var actHML2=-9999,actAML2=-9999;
+      ab.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>actHML2)actHML2=d.homeML;if(d.awayML!=null&&d.awayML>actAML2)actAML2=d.awayML;});
+      var mlEdgeH=(actHML2>-9999&&g.fairH)?+((1/ml2p(actHML2))*(g.fairH/100)*100-100).toFixed(1):0;
+      var mlEdgeA=(actAML2>-9999&&g.fairA)?+((1/ml2p(actAML2))*(g.fairA/100)*100-100).toFixed(1):0;
+      if(isNHL){mlEdgeH=+(+mlEdgeH+(g.contextAdj>0?g.contextAdj:0)).toFixed(1);mlEdgeA=+(+mlEdgeA-(g.contextAdj>0?0:g.contextAdj)).toFixed(1);}
+
+      // Determine favorite: the side with higher fair prob
+      var homeFav=g.fairH>=50;
+      var favTeam=homeFav?g.home:g.away;
+      var favEdge=homeFav?+mlEdgeH:+mlEdgeA;
+      var favSpread=homeFav?hSpreadShow:aSpreadShow;
+      var favOdds=homeFav?(actBestHSO>-9999?actBestHSO:null):(actBestASO>-9999?actBestASO:null);
+      var favBook=homeFav?actHSBook:actASBook;
+      var favFairProb=homeFav?g.fairH:g.fairA;
+
+      // Bet recommendation: ONLY favorite -1.5 at 10%+ edge (backtested rule)
+      var rlBetQualifies=favEdge>=10&&favSpread!=null&&favSpread<0;
+      var rlWatchQualifies=favEdge>=5&&favEdge<10&&favSpread!=null&&favSpread<0;
+
+      // Tags
+      var tagH="";
+      if(rlBetQualifies)tagH='<span class="tag tag-e">RL BET</span>';
+      else if(rlWatchQualifies)tagH='<span class="tag tag-w">RL WATCH</span>';
+      if(isNHL){
+        if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
+        if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
+      }
+
+      // +EV filter: on PL tab, only show games with RL BET or WATCH
+      if(S.evOnly&&!rlBetQualifies&&!rlWatchQualifies)return;
+
+      h+='<div class="pl-card"><div class="gh">';
+      h+='<div style="flex:1 1 180px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">';
+      h+='<span class="tm sg">'+g.away+'</span><span class="at">@</span><span class="tm sg">'+g.home+'</span> '+tagH;
+      h+='</div>';
+      h+='<div class="mono" style="font-size:10px;color:var(--td)">'+fd(g.time)+' · '+ft(g.time)+'</div>';
+      if(isNHL&&(g.homeGoalie||g.awayGoalie)){
+        h+='<div style="font-size:10px;color:var(--tm);margin-top:2px">🥅 '+(g.awayGoalie||"TBD")+' vs '+(g.homeGoalie||"TBD")+'</div>';
+      }
+      h+='</div>';
+
+      // Spread display
+      h+='<div style="text-align:center;min-width:100px"><div class="sh">'+plLabel+'</div>';
+      h+='<div style="display:flex;gap:16px;justify-content:center;align-items:center">';
+      h+='<div><div class="sh">'+g.away+'</div>';
+      h+='<div class="pl-spread '+(aSpreadShow>0?"pl-dog":"pl-fav")+'">'+(aSpreadShow!=null?(aSpreadShow>0?"+":"")+aSpreadShow:"—")+'</div></div>';
+      h+='<div><div class="sh">'+g.home+'</div>';
+      h+='<div class="pl-spread '+(hSpreadShow>0?"pl-dog":"pl-fav")+'">'+(hSpreadShow!=null?(hSpreadShow>0?"+":"")+hSpreadShow:"—")+'</div></div>';
+      h+='</div></div>';
+
+      // Best odds (active books)
+      h+='<div style="text-align:center;min-width:120px"><div class="sh">Best Spread Odds</div>';
+      h+='<div style="display:flex;gap:14px;justify-content:center">';
+      h+='<div><div class="sh">Away</div><div class="mono" style="font-size:14px;font-weight:700;color:var(--tx)">'+fml(actBestASO>-9999?actBestASO:null)+'</div></div>';
+      h+='<div><div class="sh">Home</div><div class="mono" style="font-size:14px;font-weight:700;color:var(--tx)">'+fml(actBestHSO>-9999?actBestHSO:null)+'</div></div>';
+      h+='</div></div>';
+
+      // Fav edge display
+      h+='<div style="text-align:center;min-width:80px"><div class="sh">Fav Edge</div>';
+      var edgeCls=favEdge>=10?"ev-p":favEdge>=5?"ev-p":"ev-0";
+      h+='<div class="ev '+edgeCls+'">'+(favEdge>0?"+":"")+favEdge+'%</div>';
+      h+='<div style="font-size:9px;color:var(--td);margin-top:2px">'+favTeam+'</div>';
+      h+='</div>';
+
+      h+='</div>';
+
+      // ── RUN LINE BET RECOMMENDATION ──
+      if(rlBetQualifies&&favBook&&favOdds!=null){
+        h+='<div class="bet-rec" style="margin-top:0;border-top:none;border-top-left-radius:0;border-top-right-radius:0">';
+        h+='<div><div class="bet-label">Backtested '+plLabel+' Bet</div><div class="bet-team" style="font-size:14px">'+favTeam+' -1.5</div></div>';
+        h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(favOdds)+'</div></div>';
+        h+='<div><div class="bet-label">Book</div><div class="bet-book">'+favBook.n+'</div></div>';
+        h+='<div><div class="bet-label">ML Edge</div><div class="bet-edge">+'+favEdge+'%</div></div>';
+        h+='<div style="font-size:9px;color:var(--td)">Fair: '+favFairProb+'%'+(isNHL?"":" · 45% cover rate at this edge")+'</div>';
+        h+='</div>';
+      }else if(rlWatchQualifies&&favBook&&favOdds!=null){
+        h+='<div class="bet-watch" style="margin-top:0;border-top:none;border-top-left-radius:0;border-top-right-radius:0">';
+        h+='<div><div class="bet-label">Watch '+plLabel+'</div><div class="bet-team" style="font-size:13px">'+favTeam+' -1.5</div></div>';
+        h+='<div class="bet-line">'+fml(favOdds)+'</div>';
+        h+='<div class="bet-book">@ '+favBook.n+'</div>';
+        h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+favEdge+'%</div>';
+        h+='<div style="font-size:9px;color:var(--td)">Below 10% threshold'+(isNHL?"":" (backtest marginal)")+'</div>';
+        h+='</div>';
+      }else if(favEdge<5){
+        // No recommendation — show why
+        h+='<div style="margin-top:0;padding:6px 12px;font-size:10px;color:var(--td);background:var(--alt);border:1px solid var(--bdL);border-top:none;border-radius:0 0 8px 8px">';
+        h+='No '+plLabel+' signal — fav edge +'+favEdge+'% is below 5% threshold. '+(isNHL?"":"Underdog +1.5 is not recommended (negative ROI in backtest).");
+        h+='</div>';
+      }
+
+      // Book spread lines
+      var vb=ab.filter(function(bk){return g.bd[bk.id]&&g.bd[bk.id].hSpread!=null});
+      if(vb.length){
+        h+='<div class="blr">';
+        vb.forEach(function(bk){
+          var d=g.bd[bk.id];
+          var isBH=actHSBook&&bk.id===actHSBook.id;
+          var isBA=actASBook&&bk.id===actASBook.id;
+          h+='<div class="bl'+((isBA||isBH)?" best":"")+'" style="min-width:100px"><div class="bln">'+bk.n+'</div>';
+          h+='<div style="display:flex;gap:4px;justify-content:center;font-size:10px;font-weight:700;font-family:\'JetBrains Mono\',monospace;flex-direction:column;line-height:1.4">';
+          h+='<div><span style="color:var(--td);font-size:9px">'+g.away+'</span> <span style="color:'+(isBA?"var(--acc)":"var(--tx)")+'">'+(d.aSpread>0?"+":"")+d.aSpread+' ('+fml(d.aSpreadOdds)+')</span></div>';
+          h+='<div><span style="color:var(--td);font-size:9px">'+g.home+'</span> <span style="color:'+(isBH?"var(--acc)":"var(--tx)")+'">'+(d.hSpread>0?"+":"")+d.hSpread+' ('+fml(d.hSpreadOdds)+')</span></div>';
+          h+='</div></div>';
+        });
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+
+    if(!games.length||!games.some(function(g){var has=false;ab.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)has=true;});return has;})){
+      h+='<div class="empty"><div class="empty-i">'+(isNHL?"🏒":"⚾")+'</div><div class="empty-t sg">No '+plLabel+' Data Available</div>';
+      h+='<div class="empty-d">'+plLabel+' odds ('+plSpreadVal+') will appear once books post spread lines for upcoming games.</div></div>';
+    }
+  }
+
+  // ═══ OVER/UNDER TAB ═══
+  else if(S.tab==="ou"){
+    if(isNHL){
+      h+='<div class="ib"><span style="font-size:14px">ℹ️</span>NHL totals typically range 5.5-6.5. Totals shown for reference — the O/U market is efficient. Use line disagreements between books for context.</div>';
+    }else{
+      h+='<div class="ib"><span style="font-size:14px">ℹ️</span>Totals for reference — O/U market is too efficient for model bets. Line disagreements between books shown below.</div>';
+    }
+    games.filter(function(g){return g.conTot!=null}).forEach(function(g){
+      // Calculate best over/under from ACTIVE books only
+      var actLoTot=999,actHiTot=0,actTots=[];
+      var actBestOverBook=null,actBestUnderBook=null,actLoTotBook=null,actHiTotBook=null;
+      ab.forEach(function(bk){
+        var d=g.bd[bk.id];if(!d||d.total==null)return;
+        actTots.push(d.total);
+        if(d.total<actLoTot){actLoTot=d.total;actLoTotBook=bk;}
+        if(d.total>actHiTot){actHiTot=d.total;actHiTotBook=bk;}
+      });
+      var actConTot=actTots.length?+(actTots.reduce(function(a,b){return a+b},0)/actTots.length).toFixed(1):g.conTot;
+      var spread=actTots.length>=2?(actHiTot-actLoTot):0;
+
+      var tagH=spread>=0.5?'<span class="tag tag-i">LINE DIFF</span>':"";
+      h+='<div class="gc"><div class="gh">';
+      h+='<div style="flex:1 1 180px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span class="tm sg">'+g.away+' @ '+g.home+'</span> '+tagH+'</div>';
+      h+='<div class="mono" style="font-size:10px;color:var(--td)">'+fd(g.time)+' · '+ft(g.time)+'</div></div>';
+      h+='<div style="display:flex;gap:20px;align-items:center">';
+      h+='<div style="text-align:center"><div class="sh">Consensus</div><div class="mono" style="font-size:22px;font-weight:800">'+actConTot+'</div></div>';
+      if(actTots.length>=2){
+        h+='<div style="text-align:center"><div class="sh">Range</div><div class="mono" style="font-size:16px;font-weight:700;color:var(--tm)">'+actLoTot+'–'+actHiTot+'</div></div>';
+        h+='<div style="text-align:center"><div class="sh">Spread</div><div class="mono" style="font-size:14px;font-weight:700;color:'+(spread>=0.5?"var(--acc)":"var(--td)")+'">'+spread.toFixed(1)+'</div></div>';
+      }
+      h+='</div></div>';
+
+      // ── O/U BEST LINE RECOMMENDATION ──
+      // When books disagree, the outlier book has value
+      // If one book has a lower total → that's the best Over (fewer goals needed)
+      // If one book has a higher total → that's the best Under (more goals needed)
+      if(spread>=0.5&&actLoTotBook&&actHiTotBook){
+        // Determine which direction has more value: 
+        // Count books above vs below consensus
+        var aboveCount=0,belowCount=0;
+        actTots.forEach(function(t){if(t>actConTot)aboveCount++;if(t<actConTot)belowCount++;});
+        
+        // If most books are high and one is low → that low book has Over value
+        // If most books are low and one is high → that high book has Under value
+        var bestDir,bestTotal,bestBook,reason;
+        if(belowCount<=aboveCount){
+          // Outlier is LOW → Over value (you're getting a lower line than consensus)
+          bestDir="OVER";bestTotal=actLoTot;bestBook=actLoTotBook;
+          reason="Line "+actLoTot+" vs consensus "+actConTot+" — lower bar to clear";
+        }else{
+          // Outlier is HIGH → Under value (higher line than consensus)
+          bestDir="UNDER";bestTotal=actHiTot;bestBook=actHiTotBook;
+          reason="Line "+actHiTot+" vs consensus "+actConTot+" — more room underneath";
+        }
+        var dirColor=bestDir==="OVER"?"var(--acc)":"var(--neg)";
+        
+        h+='<div class="bet-watch" style="margin-top:8px">';
+        h+='<div><div class="bet-label">Best O/U Line</div><div style="font-size:15px;font-weight:800;color:'+dirColor+'">'+bestDir+' '+bestTotal+'</div></div>';
+        h+='<div class="bet-book">@ '+bestBook.n+'</div>';
+        h+='<div style="font-size:10px;color:var(--tm)">'+reason+'</div>';
+        h+='<div style="font-size:10px;color:var(--warn);font-weight:700">'+spread.toFixed(1)+' line gap</div>';
+        h+='</div>';
+      }
+
+      var vb=ab.filter(function(bk){return g.bd[bk.id]&&g.bd[bk.id].total!=null});
+      if(vb.length){
+        h+='<div class="blr">';
+        vb.forEach(function(bk){
+          var d=g.bd[bk.id];
+          var isBest=(actLoTotBook&&bk.id===actLoTotBook.id)||(actHiTotBook&&bk.id===actHiTotBook.id);
+          h+='<div class="bl'+(isBest?" best":"")+'"><div class="bln">'+bk.n+'</div><div class="blv'+(isBest?" hi":"")+'">'+(d.total||"—")+'</div></div>';
+        });
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+  }
+
+  // ═══ PROPS TAB ═══
+  else if(S.tab==="props"){
+    // Map display prop type to API market key
+    var nhlPropMap={"Goals":"player_goals","Assists":"player_assists","Points":"player_points","Shots on Goal":"player_shots_on_goal","Saves":"player_saves","Power Play Points":"player_power_play_points"};
+    var mlbPropMap={"Hits":"batter_hits","Total Bases":"batter_total_bases","Home Runs":"batter_home_runs","Strikeouts":"pitcher_strikeouts","RBI":"batter_rbis","Runs":"batter_runs_scored","Walks":"batter_walks"};
+    var propMap=isNHL?nhlPropMap:mlbPropMap;
+    var activeMarket=propMap[curProp]||"";
+    var ld=S[S.league]||{};
+    var propsData=ld.props||{};
+    var propsLoading=ld.propsLoading||false;
+    var propsLoaded=Object.keys(propsData).length>0;
+
+    if(isNHL){
+      h+='<div class="ib ice"><span style="font-size:14px">🎯</span><strong>Not backtested</strong> — NHL prop edges are from Poisson projections vs book lines. Edge shown in probability points (pp), not ROI %. Use as a directional signal, not a bet generator. Paper trade first.</div>';
+    }else{
+      h+='<div class="ib acc"><span style="font-size:14px">🎯</span><strong>Backtested on 77K real prop lines:</strong> Statcast xBA + Poisson model. Edge 3-15pp. Hits (54% win), TB, K profitable. RBI excluded. HR flagged high-variance ⚡. Props at half-Kelly. 🧪 = paper trade.</div>';
+    }
+
+    // Load props button
+    if(!propsLoaded&&!propsLoading&&games.length>0){
+      h+='<div style="text-align:center;padding:16px"><button onclick="'+(isNHL?"loadNHLProps()":"loadMLBProps()")+'" style="padding:10px 24px;border-radius:8px;border:1px solid var(--acc);background:var(--ovBg);color:var(--acc);font-size:13px;font-weight:700;cursor:pointer;font-family:\'DM Sans\'">🎯 Load Player Prop Lines</button>';
+      h+='<div style="font-size:10px;color:var(--td);margin-top:6px">Fetches props per game (up to 6 games) — uses 1 API call each</div></div>';
+    }
+    if(propsLoading){
+      h+='<div style="text-align:center;padding:20px"><div style="font-size:24px;margin-bottom:8px">🎯</div><div style="font-size:13px;font-weight:600;color:var(--tm)">Loading player prop lines...</div></div>';
+    }
+
+    if(!games.length){
+      h+='<div class="empty"><div class="empty-i">🎯</div><div class="empty-t sg">Player Props Ready</div>';
+      if(isNHL){
+        h+='<div class="empty-d">NHL prop engine uses season per-game rates (goals, assists, points, SOG, saves) in a Poisson model to estimate fair probabilities vs book lines. <strong>Not backtested</strong> — use as a directional signal while we validate.</div>';
+      }else{
+        h+='<div class="empty-d">Projection engine uses xBA, xSLG, xwOBA, barrel rate + weather + umpire + fatigue context.</div>';
+      }
+      h+='</div>';
+    }
+
+    // ── CONSOLIDATED EV+ CHART (when +EV toggle is on and props loaded) ──
+    if(S.evOnly&&propsLoaded&&games.length>0){
+      var allEVProps=[];
+      var activeBookIds2={};ab.forEach(function(bk){activeBookIds2[bk.id]=true;});
+      games.forEach(function(g){
+        var gp=propsData[g.id]||{};
+        var mp=(gp[activeMarket]||[]).slice();
+        mp.forEach(function(p){
+          calcPropEV(p,activeMarket,isNHL,activeBookIds2,ab);
+          if(p.bestSide&&p.bestSideEV>=3){
+            var bOdds=p.bestSide==="OVER"?p.bestOver:p.bestUnder;
+            allEVProps.push({player:p.player,line:p.line,side:p.bestSide,odds:bOdds,
+              book:p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook,
+              ev:p.bestSideEV,kelly:p.kelly,projRate:p.projRate,projSource:p.projSource,
+              game:g.away+" @ "+g.home,time:g.time});
+          }
+        });
+      });
+      allEVProps.sort(function(a,b){return b.ev-a.ev});
+      
+      if(allEVProps.length>0){
+        h+='<div style="background:var(--card);border:1px solid var(--acc);border-radius:10px;padding:14px;margin-bottom:14px">';
+        h+='<div style="font-size:14px;font-weight:800;color:var(--acc);margin-bottom:8px;font-family:\'Space Grotesk\',sans-serif">🎯 All +EV Props Today — '+(isNHL?{player_goals:"Goals",player_assists:"Assists",player_points:"Points",player_shots_on_goal:"SOG",player_saves:"Saves"}[activeMarket]||activeMarket:{batter_hits:"Hits",batter_total_bases:"TB",batter_home_runs:"HR",pitcher_strikeouts:"K",batter_rbis:"RBI",batter_runs_scored:"Runs",batter_walks:"BB"}[activeMarket]||activeMarket)+' ('+allEVProps.length+')</div>';
+        h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+        h+='<tr style="border-bottom:2px solid var(--bd)">';
+        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAYER</th>';
+        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAY</th>';
+        h+='<th style="text-align:center;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PROJ</th>';
+        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">ODDS</th>';
+        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BOOK</th>';
+        h+='<th style="text-align:right;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">EDGE</th>';
+        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">GAME</th>';
+        h+='</tr>';
+        allEVProps.forEach(function(ep,i){
+          var bg=i%2===0?"var(--card)":"var(--alt)";
+          var projLabel=ep.projSource==="poisson"?(ep.projRate!=null?ep.projRate.toFixed(2)+"/g":"📊"):ep.projSource==="statcast"?(ep.projRate!=null?ep.projRate.toFixed(2)+"/g":"🔬"):ep.projSource==="statcast-k"?(ep.projRate!=null?ep.projRate.toFixed(1)+"K/g":"🔬"):"📚";
+          var projColor=(ep.projSource==="poisson"||ep.projSource==="statcast"||ep.projSource==="statcast-k")?"var(--ac2)":"var(--td)";
+          var projTitle=ep.projSource==="poisson"?"Poisson projection from season stats":ep.projSource==="statcast"?"Statcast xBA luck-adjusted":ep.projSource==="statcast-k"?"Statcast pitcher xBA-against + K rate":"Cross-book consensus (no stats found)";
+          h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
+          h+='<td style="padding:6px;font-weight:700;color:var(--tx)">'+ep.player+'</td>';
+          h+='<td style="padding:6px;font-weight:600;color:'+(ep.side==="OVER"?"var(--acc)":"var(--neg)")+'">'+ep.side+' '+ep.line+'</td>';
+          h+='<td style="padding:6px;text-align:center;font-size:10px;color:'+projColor+';font-family:\'JetBrains Mono\',monospace" title="'+projTitle+'">'+projLabel+'</td>';
+          h+='<td style="padding:6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx)">'+fml(ep.odds)+'</td>';
+          h+='<td style="padding:6px;font-size:10px;color:var(--tm)">'+ep.book+'</td>';
+          h+='<td style="padding:6px;text-align:right;font-weight:700;color:var(--acc);font-family:\'JetBrains Mono\',monospace">+'+ep.ev+'pp</td>';
+          h+='<td style="padding:6px;font-size:9px;color:var(--td)">'+ep.game+'</td>';
+          h+='</tr>';
+        });
+        h+='</table></div></div>';
+      }else{
+        h+='<div class="ib"><span>📊</span>No +EV props found for this market (need 2+ books with 2%+ edge). Try a different prop type above.</div>';
+      }
+    }
+
+    games.forEach(function(g){
+      var isOpen=S.expanded[g.id];
+      var gameProps=propsData[g.id]||{};
+      var marketProps=(gameProps[activeMarket]||[]).slice();
+
+      // ── Calculate prop EV using Poisson projections (or consensus fallback) ──
+      var activeBookIds={};ab.forEach(function(bk){activeBookIds[bk.id]=true;});
+      marketProps.forEach(function(p){
+        calcPropEV(p,activeMarket,isNHL,activeBookIds,ab);
+        p._gameHome=g.home;p._gameAway=g.away;p._gameTime=g.time;p._gameId=g.id;
+      });
+
+      var hasProps=marketProps.length>0;
+
+      // When +EV toggle is on, filter to only EV+ props
+      var evProps=marketProps;
+      if(S.evOnly&&hasProps){
+        evProps=marketProps.filter(function(p){return p.bestSideEV>=3});
+      }
+      // Skip this game entirely if +EV is on and no EV+ props
+      if(S.evOnly&&propsLoaded&&evProps.length===0&&hasProps)return;
+
+      h+='<button class="xbtn" onclick="S.expanded[\''+g.id+'\']=!S.expanded[\''+g.id+'\'];render()">';
+      h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+      h+='<span style="font-size:15px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">'+g.away+' @ '+g.home+'</span>';
+      h+='<span class="mono" style="font-size:10px;color:var(--tm)">'+fd(g.time)+' · '+ft(g.time)+'</span>';
+      if(isNHL){
+        if(g.homeB2B||g.awayB2B)h+='<span class="tag tag-b2b" style="font-size:8px">B2B</span>';
+        if(g.homeGoalie||g.awayGoalie)h+='<span style="font-size:10px;color:var(--tm)">🥅 '+(g.awayGoalie||"TBD")+' vs '+(g.homeGoalie||"TBD")+'</span>';
+      }
+      if(hasProps){
+        var evCount=marketProps.filter(function(p){return p.bestSideEV>=3}).length;
+        if(S.evOnly&&evCount>0)h+='<span style="font-size:9px;color:var(--acc);font-weight:700">'+evCount+' +EV</span>';
+        else if(evCount>0)h+='<span style="font-size:9px;color:var(--acc);font-weight:700">'+evCount+' +EV / '+marketProps.length+' total</span>';
+        else h+='<span style="font-size:9px;color:var(--tm);font-weight:600">'+marketProps.length+' props</span>';
+      }
+      h+='<div style="flex:1"></div>';
+      h+='<span style="font-size:16px;color:var(--tm);transform:rotate('+(isOpen?180:0)+'deg);transition:transform .2s">▾</span>';
+      h+='</div></button>';
+
+      if(isOpen){
+        h+='<div class="gc" style="margin-top:-4px;border-top-left-radius:0;border-top-right-radius:0">';
+
+        // ── PLAYER PROP LINES TABLE ──
+        if(hasProps){
+          var displayProps=S.evOnly?evProps:marketProps;
+          var evOnlyLabel=S.evOnly?' <span style="font-size:9px;color:var(--acc)">(+EV only)</span>':"";
+          h+='<div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:8px">'+curProp+' Props — '+g.away+' @ '+g.home+evOnlyLabel+'</div>';
+
+          // ── TOP EV+ PROP BET RECOMMENDATION ──
+          var topEVProps=displayProps.filter(function(p){return p.bestSideEV>=3}).sort(function(a,b){return b.bestSideEV-a.bestSideEV});
+          if(topEVProps.length>0){
+            var tp=topEVProps[0];
+            var tpOdds=tp.bestSide==="OVER"?tp.bestOver:tp.bestUnder;
+            var tpBook=tp.bestSide==="OVER"?tp.bestOverBook:tp.bestUnderBook;
+            var tpColor=tp.bestSide==="OVER"?"var(--acc)":"var(--neg)";
+            h+='<div class="bet-rec" style="margin-bottom:10px">';
+            h+='<div><div class="bet-label">Best '+curProp+' Prop</div><div class="bet-team" style="font-size:14px">'+tp.player+'</div></div>';
+            h+='<div><div class="bet-label">Play</div><div style="font-size:16px;font-weight:800;color:'+tpColor+'">'+tp.bestSide+' '+tp.line+'</div></div>';
+            h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(tpOdds)+'</div></div>';
+            h+='<div><div class="bet-label">Book</div><div class="bet-book">'+(tpBook||"—")+'</div></div>';
+            h+='<div><div class="bet-label">Edge</div><div class="bet-edge">+'+tp.bestSideEV+'pp</div></div>';
+            h+='</div>';
+            if(topEVProps.length>1){
+              h+='<div style="font-size:10px;color:var(--acc);margin-bottom:8px">'+topEVProps.length+' total +EV props found — see table below</div>';
+            }
+          }
+          if(displayProps.length){
+            h+='<table class="prop-table"><thead><tr>';
+            h+='<th>Player</th><th>Line</th><th>Over</th><th>Under</th><th>Play</th><th>Edge</th><th>Book</th>';
+            h+='</tr></thead><tbody>';
+            // Sort: EV+ first, then by edge descending
+            displayProps.sort(function(a,b){return(b.bestSideEV||0)-(a.bestSideEV||0)});
+            displayProps.forEach(function(p){
+              var isEV=p.bestSideEV>=3;
+              h+='<tr class="'+(isEV?"prop-ev":"")+'">';
+              h+='<td class="prop-player">'+p.player+'</td>';
+              h+='<td class="prop-line">'+(p.line!=null?p.line:"—")+'</td>';
+              h+='<td class="prop-over"'+(p.bestSide==="OVER"?' style="font-size:13px"':"")+'>'+(p.bestOver!=null?fml(p.bestOver):"—")+'</td>';
+              h+='<td class="prop-under"'+(p.bestSide==="UNDER"?' style="font-size:13px"':"")+'>'+(p.bestUnder!=null?fml(p.bestUnder):"—")+'</td>';
+              // Recommended side
+              if(p.bestSide){
+                var sideColor=p.bestSide==="OVER"?"var(--acc)":"var(--neg)";
+                h+='<td style="font-weight:800;color:'+sideColor+';font-size:11px">'+p.bestSide+'</td>';
+              }else{
+                h+='<td style="color:var(--td);font-size:10px">—</td>';
+              }
+              // Edge %
+              if(isEV){
+                h+='<td style="font-weight:800;color:var(--acc);font-family:\'JetBrains Mono\',monospace;font-size:11px">+'+p.bestSideEV+'pp</td>';
+              }else{
+                h+='<td style="color:var(--td);font-size:10px">'+(p.bestSideEV>0?"+"+p.bestSideEV+"pp":"—")+'</td>';
+              }
+              // Book
+              h+='<td class="prop-book">';
+              if(p.bestSide==="OVER")h+=p.bestOverBook||"—";
+              else if(p.bestSide==="UNDER")h+=p.bestUnderBook||"—";
+              else h+="—";
+              h+='</td>';
+              h+='</tr>';
+            });
+            h+='</tbody></table>';
+          }else{
+            h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">No +EV props found for this game. Try disabling the +EV filter or switching prop types.</div>';
+          }
+
+          // Show how many books have this market
+          var totalBooks=0;
+          marketProps.forEach(function(p){if(p.books)totalBooks=Math.max(totalBooks,p.books.length)});
+          if(totalBooks>1)h+='<div style="margin-top:6px;font-size:9px;color:var(--td)">Edge calculated from line disagreement across '+totalBooks+' books</div>';
+        }else if(propsLoaded){
+          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">No '+curProp+' props available for this game yet. Try a different prop category or check back closer to game time.</div>';
+        }else if(!propsLoading){
+          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">Click "Load Player Prop Lines" above to fetch real odds from sportsbooks.</div>';
+        }
+
+        // ── CONTEXT SIGNALS ──
+        if(isNHL){
+          if(hasProps)h+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bdL)">';
+          h+='<div style="font-size:11px;font-weight:700;color:var(--tx);margin-bottom:8px">Context Signals:</div>';
+          (g.signals||[]).forEach(function(s){
+            var bgc=s.type==="boost"?"var(--ovBg)":s.type==="fade"?"var(--unBg)":"transparent";
+            var tc=s.type==="boost"?"var(--acc)":s.type==="fade"?"var(--neg)":"var(--td)";
+            h+='<div style="padding:5px 10px;margin-bottom:3px;border-radius:6px;background:'+bgc+';display:flex;align-items:center;gap:8px;font-size:11px;color:'+tc+'">';
+            h+='<span>'+s.icon+'</span><span>'+s.text+'</span></div>';
+          });
+
+          // Prop guidance
+          h+='<div style="margin-top:8px;font-size:10px;font-weight:700;color:var(--tx);margin-bottom:4px">Prop Direction:</div>';
+          var propGuide=[];
+          if(g.awayB2B){
+            propGuide.push({cat:"Goals/Points",note:"Fade "+g.away+" scoring — B2B fatigue reduces offensive output",type:"fade"});
+            propGuide.push({cat:"Shots on Goal",note:"Lean under on "+g.away+" SOG — tired legs = fewer shots",type:"fade"});
+          }
+          if(g.homeB2B){
+            propGuide.push({cat:"Goals/Points",note:"Fade "+g.home+" scoring — B2B fatigue",type:"fade"});
+          }
+          if(!g.homeB2B&&!g.awayB2B&&(g.homeRest||99)>=3){
+            propGuide.push({cat:"Goals/Points",note:g.home+" well-rested — lean over on home scoring",type:"boost"});
+          }
+          if((g.tzDiff||0)>=2){
+            propGuide.push({cat:"Period props",note:"Road team fades in 3rd after cross-timezone travel",type:"boost"});
+          }
+          if(!propGuide.length)propGuide.push({cat:"General",note:"No strong directional signals — shop book disagreements",type:"neutral"});
+          propGuide.forEach(function(pg){
+            var bgc=pg.type==="boost"?"var(--ovBg)":pg.type==="fade"?"var(--unBg)":"transparent";
+            var tc=pg.type==="boost"?"var(--acc)":pg.type==="fade"?"var(--neg)":"var(--td)";
+            h+='<div style="padding:3px 10px;margin-bottom:2px;border-radius:4px;background:'+bgc+';font-size:10px">';
+            h+='<span style="font-weight:700;color:'+tc+'">'+pg.cat+':</span> <span style="color:var(--tm)">'+pg.note+'</span></div>';
+          });
+          if(hasProps)h+='</div>';
+        }else{
+          // MLB context
+          if(hasProps)h+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bdL)">';
+          var info=S.mlb.lineups[g.home]||{};
+          var wx=S.mlb.weather[g.home];
+          var fat=S.mlb.fatigue[g.home]||{};
+          var afat=S.mlb.fatigue[g.away]||{};
+          h+='<div style="font-size:11px;font-weight:700;color:var(--tx);margin-bottom:8px">Context:</div>';
+          var signals=[];
+          if(wx&&!wx.indoor){
+            if(wx.wind>15)signals.push({icon:"🌬",text:"High wind "+wx.wind+"mph — boost HR/TB overs",type:"boost"});
+            if(wx.temp>90)signals.push({icon:"🔥",text:"Hot "+wx.temp+"°F — boost scoring",type:"boost"});
+            if(wx.temp<50)signals.push({icon:"🥶",text:"Cold "+wx.temp+"°F — lean unders",type:"fade"});
+            if(wx.temp>=50&&wx.temp<=90&&wx.wind<=15)signals.push({icon:"🌤",text:wx.temp+"°F, "+wx.wind+"mph — neutral",type:"neutral"});
+          }
+          if(wx&&wx.indoor)signals.push({icon:"🏟",text:"Dome — neutral",type:"neutral"});
+          if(info.umpire){
+            if(info.umpTendency==="high")signals.push({icon:"⬆️",text:info.umpire+" — HIGH-K ump",type:"boost"});
+            else if(info.umpTendency==="low")signals.push({icon:"⬇️",text:info.umpire+" — LOW-K ump",type:"fade"});
+            else signals.push({icon:"👤",text:info.umpire+" — neutral",type:"neutral"});
+          }
+          if(fat.games>=3)signals.push({icon:"💤",text:g.home+" pen tired",type:"boost"});
+          if(afat.games>=3)signals.push({icon:"💤",text:g.away+" pen tired",type:"boost"});
+          if(!signals.length)signals.push({icon:"📊",text:"No strong signals",type:"neutral"});
+          signals.forEach(function(s){
+            var bgc=s.type==="boost"?"var(--ovBg)":s.type==="fade"?"var(--unBg)":"transparent";
+            var tc=s.type==="boost"?"var(--acc)":s.type==="fade"?"var(--neg)":"var(--td)";
+            h+='<div style="padding:5px 10px;margin-bottom:3px;border-radius:6px;background:'+bgc+';display:flex;align-items:center;gap:8px;font-size:11px;color:'+tc+'"><span>'+s.icon+'</span><span>'+s.text+'</span></div>';
+          });
+          if(hasProps)h+='</div>';
+        }
+
+        h+='</div>';
+      }
+    });
+  }
+
+  // ═══ BOOKS TAB ═══
+  else if(S.tab==="books"){
+    h+='<h2 class="sg" style="margin:0 0 6px;font-size:18px;font-weight:800">📚 Pennsylvania Sportsbooks</h2>';
+    h+='<p style="margin:0 0 14px;font-size:12px;color:var(--td)">11 PGCB-licensed books — toggle to filter line comparisons. Use the model\'s fair implied odds to compare lines on books without API coverage.</p>';
+    h+='<div class="bgrid">';
+    PA.forEach(function(bk){
+      var on=S.booksOn[bk.id];
+      h+='<button class="bcard'+(on?" on":"")+'" onclick="toggleBook(\''+bk.id+'\')"'+(!bk.api?' style="opacity:0.75"':'')+'>';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      h+='<span style="font-size:13px;font-weight:700;color:'+(on?"var(--tx)":"var(--td)")+'">'+bk.n+'</span>';
+      h+='<span style="width:16px;height:16px;border-radius:4px;background:'+(on?"var(--acc)":"var(--tf)")+';display:flex;align-items:center;justify-content:center;font-size:10px;color:'+(on?(t==="dark"?"#0c0e17":"#fff"):"#fff")+';font-weight:800">'+(on?"✓":"")+'</span>';
+      h+='</div>';
+      if(bk.api){
+        h+='<div style="font-size:9px;color:'+(on?"var(--acc)":"var(--td)")+';margin-top:4px">✓ Live odds'+(bk.note?" · "+bk.note:"")+'</div>';
+      }else{
+        h+='<div style="font-size:9px;color:var(--warn);margin-top:4px">'+(bk.note||"No API coverage")+'</div>';
+      }
+      h+='</button>';
+    });
+    h+='</div>';
+    h+='<div style="margin-top:16px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px">';
+    h+='<p style="margin:0;font-size:12px;line-height:1.8;color:var(--tm)"><strong>Live odds (6 books):</strong> FanDuel, DraftKings, BetMGM, BetRivers, betPARX, theScore Bet. <strong>Paid API tier:</strong> Caesars, Fanatics (upgrade your Odds API plan to include them). <strong>Not in API:</strong> bet365, SugarHouse, Mohegan — use the Fair Implied odds from the ML tab as your benchmark, then check these books\' apps directly for better lines. 21+ and physically in PA to wager.</p></div>';
+
+    // ── API DIAGNOSTIC ──
+    var ld=S[S.league]||{};
+    var apiBooks=ld.apiBooks||[];
+    if(apiBooks.length>0||ld.lastFetch){
+      h+='<div style="margin-top:12px;background:var(--alt);border:1px solid var(--bdL);border-radius:8px;padding:12px">';
+      h+='<div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">API Diagnostic — Last Fetch</div>';
+      h+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+      PA.forEach(function(bk){
+        if(!bk.api)return;
+        var returned=apiBooks.indexOf(bk.key)>=0;
+        var bg=returned?"rgba(0,255,163,.12)":"rgba(255,77,106,.08)";
+        var col=returned?"var(--acc)":"var(--neg)";
+        var icon=returned?"✓":"✗";
+        h+='<div style="padding:4px 10px;border-radius:5px;background:'+bg+';border:1px solid '+col+'30;font-size:10px">';
+        h+='<span style="color:'+col+';font-weight:700">'+icon+'</span> ';
+        h+='<span style="color:var(--tx);font-weight:600">'+bk.n+'</span>';
+        h+='<span style="color:var(--td);font-size:8px;margin-left:3px">('+bk.key+')</span>';
+        h+='</div>';
+      });
+      h+='</div>';
+      h+='<div style="font-size:10px;color:var(--tm);margin-top:8px">'+apiBooks.length+' books returned data. bet365, SugarHouse, Mohegan are not available through any odds API — use the fair implied odds from the model as your reference line.</div>';
+      h+='</div>';
+    }
+  }
+
+  h+='</div>';
+
+  // ── FOOTER ──
+  h+='<div class="ft">DIAMOND EDGE v10 · '+(isNHL?"NHL: 22,991 games backtested · Home 5% / Away 7% · B2B+CLV stacking · Opening lines only":"MLB: 40,996 games backtested · CLV +0.46% · 10%+ edge threshold")+' · 21+ · 1-800-GAMBLER</div>';
+
+  document.getElementById("app").innerHTML=h;
+}
+
+// ── BOOT ──
+loadCurrent();
+</script>
+</body>
+</html>
