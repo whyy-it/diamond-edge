@@ -559,7 +559,7 @@ async function fetchPlayerProps(sport,markets){
   for(var i=0;i<toFetch.length;i++){
     var g=toFetch[i];
     try{
-      var url=ODDS_BASE+"/"+sport+"/events/"+g.id+"/odds?apiKey="+API_KEY+"&markets="+markets+"&oddsFormat=american&bookmakers="+bk;
+      var url=ODDS_BASE+"/"+sport+"/events/"+g.id+"/odds?apiKey="+API_KEY+"&regions=us&markets="+markets+"&oddsFormat=american";
       var r=await fetch(url);
       if(r.status===422){console.log("[Diamond Edge] Props: event "+g.id+" returned 422 (game may have started)");continue;}
       if(r.status===429){console.log("[Diamond Edge] Rate limited — pausing 5s");await new Promise(function(res){setTimeout(res,5000)});i--;continue;}
