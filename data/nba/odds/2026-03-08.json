@@ -12260,5 +12260,5402 @@
         ]
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-08T23:57:34Z",
+    "label": "closing",
+    "sport": "nba",
+    "snapshot_type": "odds",
+    "event_count": 10,
+    "data": [
+      {
+        "id": "006622ec4db6bee347f96611117716b1",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-08T22:10:00Z",
+        "home_team": "Miami Heat",
+        "away_team": "Detroit Pistons",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": 3500
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -50000
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -114,
+                    "point": 21.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -114,
+                    "point": -21.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -108,
+                    "point": 237.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -122,
+                    "point": 237.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -120,
+                    "point": 20.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -110,
+                    "point": -20.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 236.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 236.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -140,
+                    "point": 23.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -115,
+                    "point": -23.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 235.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 235.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": 4000
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -100000
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -115,
+                    "point": 21.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -115,
+                    "point": -21.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 233.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 233.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -115,
+                    "point": 22.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -115,
+                    "point": -22.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -117,
+                    "point": 233.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -114,
+                    "point": 233.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -121,
+                    "point": 21.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -113,
+                    "point": -21.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -118,
+                    "point": 234.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -118,
+                    "point": 234.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:55:56Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -120,
+                    "point": 22.0
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -110,
+                    "point": -22.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -105,
+                    "point": 20.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -125,
+                    "point": -20.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -111,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -105,
+                    "point": 21.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -125,
+                    "point": -21.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 237.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 237.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": 3300
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -10000
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Pistons",
+                    "price": -118,
+                    "point": 22.5
+                  },
+                  {
+                    "name": "Miami Heat",
+                    "price": -110,
+                    "point": -22.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -102,
+                    "point": 233.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 233.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "1f7f16be27b4d4686fb80a5ca7952320",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-08T22:12:00Z",
+        "home_team": "Toronto Raptors",
+        "away_team": "Dallas Mavericks",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -104,
+                    "point": 23.5
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -128,
+                    "point": -23.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -102,
+                    "point": 213.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 213.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -105,
+                    "point": 18.5
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -125,
+                    "point": -18.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 211.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 211.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -115,
+                    "point": 23.5
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -115,
+                    "point": -23.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 212.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 212.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -110,
+                    "point": 25.5
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -120,
+                    "point": -25.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 213.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 213.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -120,
+                    "point": 23.5
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -110,
+                    "point": -23.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 213.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 213.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -110,
+                    "point": 24.5
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -120,
+                    "point": -24.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 213.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 213.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -114,
+                    "point": 24.0
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -120,
+                    "point": -24.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 214.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -124,
+                    "point": 214.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -113,
+                    "point": 24.0
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -118,
+                    "point": -24.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -109,
+                    "point": 214.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -122,
+                    "point": 214.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:55:56Z",
+            "markets": [
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -115,
+                    "point": 21.0
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -115,
+                    "point": -21.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 212.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 212.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": 3300
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -10000
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Dallas Mavericks",
+                    "price": -118,
+                    "point": 24.5
+                  },
+                  {
+                    "name": "Toronto Raptors",
+                    "price": -110,
+                    "point": -24.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 214.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 214.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3eecd922fd730ebc566975991090dd48",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-08T23:11:00Z",
+        "home_team": "New Orleans Pelicans",
+        "away_team": "Washington Wizards",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -720
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 450
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -130,
+                    "point": -10.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -102,
+                    "point": 10.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -132,
+                    "point": 255.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 100,
+                    "point": 255.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:53:20Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:53:20Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -400
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 275
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:53:20Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -111,
+                    "point": -8.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -111,
+                    "point": 8.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:53:20Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -111,
+                    "point": 251.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -111,
+                    "point": 251.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -660
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 420
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -125,
+                    "point": -10.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -105,
+                    "point": 10.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 253.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 253.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -500
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 350
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -110,
+                    "point": -10.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -120,
+                    "point": 10.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 254.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 254.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -630
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 400
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -105,
+                    "point": -10.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -125,
+                    "point": 10.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 254.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 254.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -650
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 400
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -120,
+                    "point": -10.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -110,
+                    "point": 10.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 255.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 255.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -560
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 390
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -118,
+                    "point": -9.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -113,
+                    "point": 9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -117,
+                    "point": 253.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -114,
+                    "point": 253.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -560
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 360
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -120,
+                    "point": -9.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -114,
+                    "point": 9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 253.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -117,
+                    "point": 253.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:52:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:52:16Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -460
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 305
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:52:16Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -110,
+                    "point": -9.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -120,
+                    "point": 9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:52:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 249.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 249.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -475
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": 325
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "New Orleans Pelicans",
+                    "price": -118,
+                    "point": -9.5
+                  },
+                  {
+                    "name": "Washington Wizards",
+                    "price": -110,
+                    "point": 9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 253.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 253.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3746240cd5d317c0378756467f415c9b",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-09T00:10:00Z",
+        "home_team": "San Antonio Spurs",
+        "away_team": "Houston Rockets",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 198
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -240
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -106,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -114,
+                    "point": -5.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 222.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 222.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 185
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -110,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -110,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 223.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 223.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 190
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -230
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -120,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": 100,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 223.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 223.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 185
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -110,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -110,
+                    "point": -5.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 223.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 223.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-08T23:56:17Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 186
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -220
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -107,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -113,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 223.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -108,
+                    "point": 223.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 188
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -219
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -103,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -109,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -109,
+                    "point": 223.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 223.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 190
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -105,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 223.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 223.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-08T23:57:09Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 195
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -230
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -110,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -110,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 223.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 223.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 175
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -114,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -109,
+                    "point": -5.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 223.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 223.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 175
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -220
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -113,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -108,
+                    "point": -5.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 223.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 223.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:55:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 185
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -105,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 222.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 222.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 180
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -227
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -110,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -110,
+                    "point": -5.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 222.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 222.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": 185
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Houston Rockets",
+                    "price": -105,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "San Antonio Spurs",
+                    "price": -105,
+                    "point": -5.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 222.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 222.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "58bd4973656bdf3ba502e52d0343d381",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-09T00:10:00Z",
+        "home_team": "Milwaukee Bucks",
+        "away_team": "Orlando Magic",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 180
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -215
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -106,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -114,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -108,
+                    "point": 217.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 217.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-08T23:56:17Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 183
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -215
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -105,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -115,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 185
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -214
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -101,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -111,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -107,
+                    "point": 217.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -107,
+                    "point": 217.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 185
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -110,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 179
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -222
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -110,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -110,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 185
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -105,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 216.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -108,
+                    "point": 216.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-08T23:57:09Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 183
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -215
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -105,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -115,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 175
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -210
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -110,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -110,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 185
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -235
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -114,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -107,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 216.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 216.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 185
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -235
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -108,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 216.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 216.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 180
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -215
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -105,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 180
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -220
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -105,
+                    "point": -6.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:55:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": 170
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -200
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Milwaukee Bucks",
+                    "price": -110,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Orlando Magic",
+                    "price": -110,
+                    "point": -6.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 217.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 217.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "0921e076bc572536f8a2ecd29ce1c426",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-09T01:10:00Z",
+        "home_team": "Sacramento Kings",
+        "away_team": "Chicago Bulls",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -162
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 136
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -114,
+                    "point": -3.5
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -106,
+                    "point": 3.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -170
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 142
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -115,
+                    "point": -3.5
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -105,
+                    "point": 3.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -165
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 140
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -110,
+                    "point": -4.0
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -110,
+                    "point": 4.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-08T23:56:17Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -160
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 140
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -104,
+                    "point": -4.0
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -116,
+                    "point": 4.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -160
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 141
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": 100,
+                    "point": -4.0
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -112,
+                    "point": 4.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -102,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -170
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 140
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -110,
+                    "point": -4.0
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -110,
+                    "point": 4.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -170
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 145
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -120,
+                    "point": -3.5
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 100,
+                    "point": 3.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -169
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 137
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -110,
+                    "point": -4.0
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -110,
+                    "point": 4.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 237.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 237.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-08T23:57:09Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -165
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 142
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -110,
+                    "point": -4.0
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -110,
+                    "point": 4.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -159
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -110,
+                    "point": -3.5
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -110,
+                    "point": 3.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -109,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -162
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -112,
+                    "point": -3.5
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -112,
+                    "point": 3.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:55:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -170
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 145
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -105,
+                    "point": -4.0
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -115,
+                    "point": 4.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -170
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": 140
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Bulls",
+                    "price": -115,
+                    "point": -3.5
+                  },
+                  {
+                    "name": "Sacramento Kings",
+                    "price": -105,
+                    "point": 3.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "deb6b3ad949cc94864c1b0bc8d76ea12",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-09T01:10:00Z",
+        "home_team": "Portland Trail Blazers",
+        "away_team": "Indiana Pacers",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 315
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -400
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -114,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -106,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -108,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 330
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -425
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -115,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -105,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 345
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -455
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -115,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -105,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-08T23:56:17Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 340
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -435
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -115,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -105,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 346
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -429
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -111,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -101,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -107,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -107,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 330
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -425
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -110,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -110,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 320
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -425
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -120,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": 100,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-08T23:57:09Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 340
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -435
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -110,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -110,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 335
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -455
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -109,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -112,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -109,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 330
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -455
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -110,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -113,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:55:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 310
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -415
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -105,
+                    "point": 9.0
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -115,
+                    "point": -9.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 328
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -455
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -110,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -110,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 238.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 238.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": 340
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -450
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Indiana Pacers",
+                    "price": -115,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Portland Trail Blazers",
+                    "price": -105,
+                    "point": -9.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 238.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 238.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "730f1c3bdb79a1e2e7b62bf3babd5e0a",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-09T02:10:00Z",
+        "home_team": "Phoenix Suns",
+        "away_team": "Charlotte Hornets",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -190
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 160
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -110,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 218.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -108,
+                    "point": 218.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -200
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 165
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -110,
+                    "point": -5.0
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 5.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 219.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 219.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -192
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 160
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -108,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -112,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 219.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 219.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -190
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 158
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -115,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -105,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 219.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 219.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-08T23:56:17Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -183
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 160
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -110,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:17Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 219.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 219.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -183
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 161
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -106,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -106,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -107,
+                    "point": 219.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -107,
+                    "point": 219.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -190
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 160
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -110,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 218.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 218.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-08T23:57:09Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -190
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 163
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -110,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:09Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 218.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 218.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -190
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 155
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -112,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -109,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -109,
+                    "point": 218.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 218.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -195
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 155
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -113,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 218.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -113,
+                    "point": 218.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-08T23:55:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -195
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 165
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -105,
+                    "point": -5.0
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -115,
+                    "point": 5.0
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:55:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 219.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 219.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -192
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 154
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -110,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 219.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 219.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-08T23:57:07Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -190
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": 155
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Charlotte Hornets",
+                    "price": -110,
+                    "point": -4.5
+                  },
+                  {
+                    "name": "Phoenix Suns",
+                    "price": -110,
+                    "point": 4.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:07Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 219.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 219.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "45df97b54d688962ca73235c4837a580",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-09T23:10:00Z",
+        "home_team": "Cleveland Cavaliers",
+        "away_team": "Philadelphia 76ers",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Cavaliers",
+                    "price": -480
+                  },
+                  {
+                    "name": "Philadelphia 76ers",
+                    "price": 370
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Cavaliers",
+                    "price": -110,
+                    "point": -10.5
+                  },
+                  {
+                    "name": "Philadelphia 76ers",
+                    "price": -110,
+                    "point": 10.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 225.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 225.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "0b99caf66dc0e57b0a2bb492e66e9b48",
+        "sport_key": "basketball_nba",
+        "sport_title": "NBA",
+        "commence_time": "2026-03-09T23:40:00Z",
+        "home_team": "Oklahoma City Thunder",
+        "away_team": "Denver Nuggets",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-08T23:57:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 240
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -295
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -110,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -110,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -114,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -106,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-08T23:57:22Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 230
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -285
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -115,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -105,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:22Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 240
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -305
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -115,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -105,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-08T23:57:00Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 235
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -305
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -112,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -112,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:00Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-08T23:57:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 240
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -305
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -110,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -110,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-08T23:57:30Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 232
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -303
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -110,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -110,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:57:30Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-08T23:56:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 230
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -280
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -115,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -105,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-08T23:56:52Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": 230
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -285
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Denver Nuggets",
+                    "price": -110,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Oklahoma City Thunder",
+                    "price": -110,
+                    "point": -7.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-08T23:56:52Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 231.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 231.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
