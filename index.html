@@ -884,19 +884,17 @@ var RATE_MAP_MLB={
 };
 
 // ── Shared: project prop EV using Poisson stats + book prices ──
-function calcPropEV(p,marketKey,isNHL,activeBookIds,ab){
+function calcPropEV(p,marketKey,isNHL){
+  // ALWAYS uses ALL books for edge calculation — book toggles only affect display
   // Backtested on 77K real prop lines (197 MLB games, 2024-25)
-  // Method 3 (Statcast xBA + Rolling 30 fallback): best calibration
-  // Edge in probability points (pp): 3pp min, 15pp max (above = overconfident)
-  // RBI excluded (only losing market). HR flagged high-variance.
   p.overEV=0;p.underEV=0;p.bestSide=null;p.bestSideEV=0;p.kelly=0;p.fairProb=0;p.projRate=null;p.projSource="none";p.highVar=false;
   
   // Skip RBI — negative ROI in backtest across all methods
   if(marketKey==="batter_rbis"){p.projSource="excluded";return;}
   
+  // Find best odds across ALL books (no filtering)
   var actBO=null,actBU=null,actOBk=null,actUBk=null;
   (p.books||[]).forEach(function(bk){
-    if(!activeBookIds[bk.bookId])return;
     if(bk.over!=null&&(actBO==null||bk.over>actBO)){actBO=bk.over;actOBk=bk.book;}
     if(bk.under!=null&&(actBU==null||bk.under>actBU)){actBU=bk.under;actUBk=bk.book;}
   });
@@ -956,10 +954,10 @@ function calcPropEV(p,marketKey,isNHL,activeBookIds,ab){
     if(fairO+fairU>1){var s2=fairO+fairU;fairO/=s2;fairU/=s2;}
     if(p.projSource==="stats")p.projSource="poisson";
   }else{
-    // FALLBACK: cross-book consensus (needs 2+ books)
+    // FALLBACK: cross-book consensus (needs 2+ books) — uses ALL books
     var fOs=[],fUs=[];
     (p.books||[]).forEach(function(bk){
-      if(!activeBookIds[bk.bookId]||bk.over==null||bk.under==null)return;
+      if(bk.over==null||bk.under==null)return;
       var oi=ml2p(bk.over),ui=ml2p(bk.under),t=oi+ui;
       fOs.push(oi/t);fUs.push(ui/t);
     });
@@ -1535,10 +1533,10 @@ function render(){
           allMkeys.forEach(function(mk){
             var mps=(gProps[mk]||[]).slice();
             mps.forEach(function(p){
-              calcPropEV(p,mk,sNHL,activeIds,abAll);
+              calcPropEV(p,mk,sNHL);
               if(!p.bestSide||p.bestSideEV<3)return;
               var bOdds=p.bestSide==="OVER"?p.bestOver:p.bestUnder;
-              allBets.push({sport:sport,icon:icon,type:"Prop",player:p.player,market:(mktLabels[mk]||mk)+" "+p.bestSide+" "+p.line,line:fml(bOdds),book:p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook,edge:p.bestSideEV,kelly:p.kelly||0,fairProb:+(p.fairProb*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:p.projSource||"consensus",highVar:p.highVar||false,paperTrade:true,edgeUnit:"pp"});
+              allBets.push({sport:sport,icon:icon,type:"Prop",player:p.player,market:(mktLabels[mk]||mk)+" "+p.bestSide+" "+p.line,line:fml(bOdds),book:p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook,edge:p.bestSideEV,kelly:p.kelly||0,fairProb:+(p.fairProb*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:p.projSource||"consensus",highVar:p.highVar||false,paperTrade:true,edgeUnit:"%"});
             });
           });
         });
@@ -1660,7 +1658,7 @@ function render(){
         h+='<div style="font-size:11px;color:var(--tm);line-height:1.8">';
         h+='<div><strong>Sources:</strong> 🧠 = backtested CLV model · 🔬 = Statcast xBA / pitcher xBA-against projection · 📊 = Poisson season rates · 📚 = book consensus</div>';
         h+='<div><strong>Flags:</strong> 🔥 = B2B+CLV stacked · ⚡ = high variance (HR/goals) · 🧪 = paper trade (prop model validating)</div>';
-        h+='<div><strong>Edge units:</strong> ML bets in % (EV), prop bets in pp (probability points). Prop Kelly at half-Kelly.</div>';
+        h+='<div><strong>Edge:</strong> All edges shown in %. Prop Kelly at half-Kelly.</div>';
         h+='<div><strong>Kelly:</strong> <span class="mono">f = (b×p − q) / b</span> · Scaled so total daily risk ≤ 25% of bankroll.</div>';
         if(kellyScale<1)h+='<div><strong>Today:</strong> Raw Kelly totaled '+totalRawKelly.toFixed(1)+'%, scaled to '+allBets.reduce(function(s,b){return s+b.scaledKelly},0).toFixed(1)+'% across '+allBets.length+' bets.</div>';
         h+='</div></div>';
@@ -2188,7 +2186,7 @@ function render(){
     var propsLoaded=ld.propsLoaded||Object.keys(propsData).length>0;
 
     if(isNHL){
-      h+='<div class="ib ice"><span style="font-size:14px">🎯</span><strong>Not backtested</strong> — NHL prop edges are from Poisson projections vs book lines. Edge shown in probability points (pp), not ROI %. Use as a directional signal, not a bet generator. Paper trade first.</div>';
+      h+='<div class="ib ice"><span style="font-size:14px">🎯</span><strong>Not backtested</strong> — NHL prop edges are from Poisson projections vs book lines. Use as a directional signal, not a bet generator. Paper trade first.</div>';
     }else{
       h+='<div class="ib acc"><span style="font-size:14px">🎯</span><strong>Backtested on 77K real prop lines:</strong> Statcast xBA + Poisson model. Edge 3-15pp. Hits (54% win), TB, K profitable. RBI excluded. HR flagged high-variance ⚡. Props at half-Kelly. 🧪 = paper trade.</div>';
     }
@@ -2225,10 +2223,12 @@ function render(){
           mp.forEach(function(p){
             calcPropEV(p,mk,isNHL,activeBookIds3,abAll);
             applyActiveBookDisplay(p,ab);
-            if(p.dispSide&&p.dispSideEV>=3){
+            if(p.bestSide&&p.bestSideEV>=3){
+              var showOdds=p.dispOdds||(p.bestSide==="OVER"?p.bestOver:p.bestUnder);
+              var showBook=p.dispBook||(p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook);
               masterEVProps.push({player:p.player,market:mktDisplayNames[mk]||mk,line:p.line,
-                side:p.dispSide,odds:p.dispOdds,
-                book:p.dispBook,
+                side:p.bestSide,odds:showOdds,
+                book:showBook,atActiveBook:!!p.dispSide,
                 ev:p.bestSideEV,kelly:p.kelly,projRate:p.projRate,projSource:p.projSource,
                 game:g.away+" @ "+g.home,time:g.time,highVar:p.highVar});
             }
@@ -2292,9 +2292,11 @@ function render(){
         mp.forEach(function(p){
           calcPropEV(p,activeMarket,isNHL,activeBookIds2,abAll);
           applyActiveBookDisplay(p,ab);
-          if(p.dispSide&&p.dispSideEV>=3){
-            allEVProps.push({player:p.player,line:p.line,side:p.dispSide,odds:p.dispOdds,
-              book:p.dispBook,
+          if(p.bestSide&&p.bestSideEV>=3){
+            var showOdds=p.dispOdds||(p.bestSide==="OVER"?p.bestOver:p.bestUnder);
+            var showBook=p.dispBook||(p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook);
+            allEVProps.push({player:p.player,line:p.line,side:p.bestSide,odds:showOdds,
+              book:showBook,atActiveBook:!!p.dispSide,
               ev:p.bestSideEV,kelly:p.kelly,projRate:p.projRate,projSource:p.projSource,
               game:g.away+" @ "+g.home,time:g.time});
           }
@@ -2350,7 +2352,7 @@ function render(){
       // ── Calculate prop EV using Poisson projections (or consensus fallback) ──
       var activeBookIds={};abAll.forEach(function(bk){activeBookIds[bk.id]=true;});
       marketProps.forEach(function(p){
-        calcPropEV(p,activeMarket,isNHL,activeBookIds,abAll);
+        calcPropEV(p,activeMarket,isNHL);
         applyActiveBookDisplay(p,ab);
         p._gameHome=g.home;p._gameAway=g.away;p._gameTime=g.time;p._gameId=g.id;
       });
@@ -2433,11 +2435,11 @@ function render(){
               // Over edge (from ALL books)
               var oEV=p.overEV||0;
               var oCol=oEV>=3?"var(--acc)":oEV>0?"var(--tm)":"var(--td)";
-              h+='<td style="font-weight:700;color:'+oCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestOver!=null?(oEV>0?"+":"")+oEV+"pp":"—")+'</td>';
+              h+='<td style="font-weight:700;color:'+oCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestOver!=null?(oEV>0?"+":"")+oEV+"%":"—")+'</td>';
               // Under edge (from ALL books)
               var uEV=p.underEV||0;
               var uCol=uEV>=3?"var(--acc)":uEV>0?"var(--tm)":"var(--td)";
-              h+='<td style="font-weight:700;color:'+uCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestUnder!=null?(uEV>0?"+":"")+uEV+"pp":"—")+'</td>';
+              h+='<td style="font-weight:700;color:'+uCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestUnder!=null?(uEV>0?"+":"")+uEV+"%":"—")+'</td>';
               // Recommended side (only if active book is +EV)
               if(p.dispSide){
                 var sideColor=p.dispSide==="OVER"?"var(--acc)":"var(--neg)";
