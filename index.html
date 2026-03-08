@@ -543,7 +543,6 @@ async function fetchNHLFatigue(){
 
 async function fetchPlayerProps(sport,markets){
   // Player props require per-event endpoint: /events/{eventId}/odds
-  // First get event IDs from the games we already loaded
   var ld=S[sport==="icehockey_nhl"?"nhl":"mlb"];
   var games=ld.games||[];
   if(!games.length)return[];
@@ -551,19 +550,24 @@ async function fetchPlayerProps(sport,markets){
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
   var allResults=[];
   
-  // Fetch props for ALL games (20K/month plan — no need to limit)
-  var toFetch=games;
-  console.log("[Diamond Edge] Fetching props for ALL "+toFetch.length+" games...");
+  // Only fetch props for games that haven't started yet (in-progress games return 422)
+  var now=new Date();
+  var toFetch=games.filter(function(g){return new Date(g.time)>now});
+  var skipped=games.length-toFetch.length;
+  console.log("[Diamond Edge] Fetching props for "+toFetch.length+" upcoming games ("+skipped+" in-progress/started, skipped)");
   
   for(var i=0;i<toFetch.length;i++){
     var g=toFetch[i];
     try{
       var url=ODDS_BASE+"/"+sport+"/events/"+g.id+"/odds?apiKey="+API_KEY+"&markets="+markets+"&oddsFormat=american&bookmakers="+bk;
       var r=await fetch(url);
+      if(r.status===422){console.log("[Diamond Edge] Props: event "+g.id+" returned 422 (game may have started)");continue;}
+      if(r.status===429){console.log("[Diamond Edge] Rate limited — pausing 5s");await new Promise(function(res){setTimeout(res,5000)});i--;continue;}
       if(!r.ok){console.log("[Diamond Edge] Props fetch failed for event "+g.id+": "+r.status);continue;}
       var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
       var data=await r.json();
-      if(data&&data.bookmakers)allResults.push(data);
+      if(data&&data.bookmakers&&data.bookmakers.length>0)allResults.push(data);
+      else console.log("[Diamond Edge] Props: event "+g.id+" — no bookmaker data (props may not be posted yet)");
     }catch(e){console.log("[Diamond Edge] Props error for "+g.id+":",e);}
   }
   console.log("[Diamond Edge] Props returned data for "+allResults.length+" of "+toFetch.length+" games");
