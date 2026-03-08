@@ -2111,7 +2111,7 @@ function render(){
     var ld=S[S.league]||{};
     var propsData=ld.props||{};
     var propsLoading=ld.propsLoading||false;
-    var propsLoaded=Object.keys(propsData).length>0;
+    var propsLoaded=ld.propsLoaded||Object.keys(propsData).length>0;
 
     if(isNHL){
       h+='<div class="ib ice"><span style="font-size:14px">🎯</span><strong>Not backtested</strong> — NHL prop edges are from Poisson projections vs book lines. Edge shown in probability points (pp), not ROI %. Use as a directional signal, not a bet generator. Paper trade first.</div>';
@@ -2119,13 +2119,13 @@ function render(){
       h+='<div class="ib acc"><span style="font-size:14px">🎯</span><strong>Backtested on 77K real prop lines:</strong> Statcast xBA + Poisson model. Edge 3-15pp. Hits (54% win), TB, K profitable. RBI excluded. HR flagged high-variance ⚡. Props at half-Kelly. 🧪 = paper trade.</div>';
     }
 
-    // Load props button
-    if(!propsLoaded&&!propsLoading&&games.length>0){
-      h+='<div style="text-align:center;padding:16px"><button onclick="'+(isNHL?"loadNHLProps()":"loadMLBProps()")+'" style="padding:10px 24px;border-radius:8px;border:1px solid var(--acc);background:var(--ovBg);color:var(--acc);font-size:13px;font-weight:700;cursor:pointer;font-family:\'DM Sans\'">🎯 Load Player Prop Lines</button>';
-      h+='<div style="font-size:10px;color:var(--td);margin-top:6px">Fetches props per game (up to 6 games) — uses 1 API call each</div></div>';
-    }
+    // Loading indicator
     if(propsLoading){
       h+='<div style="text-align:center;padding:20px"><div style="font-size:24px;margin-bottom:8px">🎯</div><div style="font-size:13px;font-weight:600;color:var(--tm)">Loading player prop lines...</div></div>';
+    }
+    // If props not loaded yet and not loading, show note (Refresh All handles loading)
+    if(!propsLoaded&&!propsLoading&&games.length>0){
+      h+='<div style="text-align:center;padding:16px;color:var(--tm);font-size:12px">Click <strong>↻ Refresh All</strong> in the status bar to load odds + props for all games.</div>';
     }
 
     if(!games.length){
@@ -2261,10 +2261,14 @@ function render(){
           }
           if(displayProps.length){
             h+='<table class="prop-table"><thead><tr>';
-            h+='<th>Player</th><th>Line</th><th>Over</th><th>Under</th><th>Play</th><th>Edge</th><th>Book</th>';
+            h+='<th>Player</th><th>Line</th><th>Over</th><th>Under</th><th>O Edge</th><th>U Edge</th><th>Play</th><th>Book</th>';
             h+='</tr></thead><tbody>';
-            // Sort: EV+ first, then by edge descending
-            displayProps.sort(function(a,b){return(b.bestSideEV||0)-(a.bestSideEV||0)});
+            // Sort: EV+ first, then by best edge descending
+            displayProps.sort(function(a,b){
+              var aMax=Math.max(a.overEV||0,a.underEV||0);
+              var bMax=Math.max(b.overEV||0,b.underEV||0);
+              return bMax-aMax;
+            });
             displayProps.forEach(function(p){
               var isEV=p.bestSideEV>=3;
               h+='<tr class="'+(isEV?"prop-ev":"")+'">';
@@ -2272,24 +2276,29 @@ function render(){
               h+='<td class="prop-line">'+(p.line!=null?p.line:"—")+'</td>';
               h+='<td class="prop-over"'+(p.bestSide==="OVER"?' style="font-size:13px"':"")+'>'+(p.bestOver!=null?fml(p.bestOver):"—")+'</td>';
               h+='<td class="prop-under"'+(p.bestSide==="UNDER"?' style="font-size:13px"':"")+'>'+(p.bestUnder!=null?fml(p.bestUnder):"—")+'</td>';
+              // Over edge
+              var oEV=p.overEV||0;
+              var oCol=oEV>=3?"var(--acc)":oEV>0?"var(--tm)":"var(--td)";
+              h+='<td style="font-weight:700;color:'+oCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestOver!=null?(oEV>0?"+":"")+oEV+"pp":"—")+'</td>';
+              // Under edge
+              var uEV=p.underEV||0;
+              var uCol=uEV>=3?"var(--acc)":uEV>0?"var(--tm)":"var(--td)";
+              h+='<td style="font-weight:700;color:'+uCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestUnder!=null?(uEV>0?"+":"")+uEV+"pp":"—")+'</td>';
               // Recommended side
               if(p.bestSide){
                 var sideColor=p.bestSide==="OVER"?"var(--acc)":"var(--neg)";
                 h+='<td style="font-weight:800;color:'+sideColor+';font-size:11px">'+p.bestSide+'</td>';
               }else{
-                h+='<td style="color:var(--td);font-size:10px">—</td>';
-              }
-              // Edge %
-              if(isEV){
-                h+='<td style="font-weight:800;color:var(--acc);font-family:\'JetBrains Mono\',monospace;font-size:11px">+'+p.bestSideEV+'pp</td>';
-              }else{
-                h+='<td style="color:var(--td);font-size:10px">'+(p.bestSideEV>0?"+"+p.bestSideEV+"pp":"—")+'</td>';
+                h+='<td style="color:var(--tf);font-size:9px">—</td>';
               }
               // Book
               h+='<td class="prop-book">';
               if(p.bestSide==="OVER")h+=p.bestOverBook||"—";
               else if(p.bestSide==="UNDER")h+=p.bestUnderBook||"—";
-              else h+="—";
+              else{
+                // Show best over book as default
+                h+=p.bestOverBook||p.bestUnderBook||"—";
+              }
               h+='</td>';
               h+='</tr>';
             });
@@ -2303,9 +2312,11 @@ function render(){
           marketProps.forEach(function(p){if(p.books)totalBooks=Math.max(totalBooks,p.books.length)});
           if(totalBooks>1)h+='<div style="margin-top:6px;font-size:9px;color:var(--td)">Edge calculated from line disagreement across '+totalBooks+' books</div>';
         }else if(propsLoaded){
-          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">No '+curProp+' props available for this game yet. Try a different prop category or check back closer to game time.</div>';
-        }else if(!propsLoading){
-          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">Click "Load Player Prop Lines" above to fetch real odds from sportsbooks.</div>';
+          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">No '+curProp+' props available for this game. Try a different prop category.</div>';
+        }else if(propsLoading){
+          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">Loading props...</div>';
+        }else{
+          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">Click <strong>↻ Refresh All</strong> to load props for all games.</div>';
         }
 
         // ── CONTEXT SIGNALS ──
