@@ -203,7 +203,7 @@ var PARKS={
 };
 
 // ── NHL DATA ──
-var NHL_PTYPES=["Goals","Anytime Goalscorer","Assists","Points","Shots on Goal","Saves","Power Play Points"];
+var NHL_PTYPES=["Goals","Assists","Points","Shots on Goal","Saves","Power Play Points"];
 
 // NHL team name → abbreviation mapping (for NHL API cross-reference)
 var NHL_ABBREVS={
@@ -608,11 +608,17 @@ function processPlayerProps(apiData){
         if(!result[id][mkt.key])result[id][mkt.key]=[];
         // Group outcomes by player name
         var byPlayer={};
+        var isAnytime=mkt.key.indexOf("anytime")>=0||mkt.key.indexOf("scorer")>=0;
         (mkt.outcomes||[]).forEach(function(o){
           var name=o.description||o.name||"Unknown";
           if(!byPlayer[name])byPlayer[name]={player:name,line:o.point,overOdds:null,underOdds:null,book:pa.n,bookId:pa.id};
           if(o.name==="Over")byPlayer[name].overOdds=o.price;
           else if(o.name==="Under")byPlayer[name].underOdds=o.price;
+          else if(isAnytime||o.name==="Yes"||(o.name!=="Over"&&o.name!=="Under"&&!o.point)){
+            // Anytime goalscorer / yes-no market: treat as Over 0.5
+            byPlayer[name].overOdds=o.price;
+            byPlayer[name].line=0.5;
+          }
           if(o.point!=null)byPlayer[name].line=o.point;
         });
         Object.values(byPlayer).forEach(function(p){
@@ -994,9 +1000,32 @@ function calcPropEV(p,marketKey,isNHL,activeBookIds,ab){
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// PROCESS ODDS (shared for both sports)
-// ═══════════════════════════════════════════════════════════
+// After calcPropEV (which uses ALL books for edge), apply active-book display filter
+function applyActiveBookDisplay(p,activeBooks){
+  // Find best odds from only the user's ACTIVE (toggled-on) books
+  var abIds={};activeBooks.forEach(function(bk){abIds[bk.id]=true;});
+  var dBO=null,dBU=null,dOBk=null,dUBk=null;
+  (p.books||[]).forEach(function(bk){
+    if(!abIds[bk.bookId])return;
+    if(bk.over!=null&&(dBO==null||bk.over>dBO)){dBO=bk.over;dOBk=bk.book;}
+    if(bk.under!=null&&(dBU==null||bk.under>dBU)){dBU=bk.under;dUBk=bk.book;}
+  });
+  p.dispOver=dBO;p.dispUnder=dBU;p.dispOverBook=dOBk;p.dispUnderBook=dUBk;
+  // Check if the recommended side is still +EV at the active-book odds
+  p.dispSide=null;p.dispSideEV=0;
+  if(p.bestSide&&p.fairProb>0){
+    var dispOdds=p.bestSide==="OVER"?dBO:dBU;
+    if(dispOdds!=null){
+      var dispImp=ml2p(dispOdds);
+      var dispEdge=(p.fairProb-dispImp)*100;
+      if(dispEdge>0){
+        p.dispSide=p.bestSide;p.dispSideEV=+dispEdge.toFixed(1);
+        p.dispBook=p.bestSide==="OVER"?dOBk:dUBk;
+        p.dispOdds=dispOdds;
+      }
+    }
+  }
+}
 
 function processOdds(apiData){
   var now=new Date();
@@ -1305,17 +1334,18 @@ function render(){
   var isNHL=S.league==="nhl";
   var leagueIcon=isNHL?"🏒":"⚾";
   var ab=PA.filter(function(b){return S.booksOn[b.id]});
+  var abAll=PA; // ALL books for calculations — toggles only affect display
   var games=S.games.slice();
   // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
   if(S.evOnly&&S.tab!=="props")games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.topEdge)>3});
   if(S.sortBy==="edge")games.sort(function(a,b){return(isNHL?(b.adjEdge||b.topEdge):(b.topEdge))-(isNHL?(a.adjEdge||a.topEdge):(a.topEdge))});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
   var edgeOf=function(g){return isNHL?(g.adjEdge||g.topEdge):g.topEdge};
-  // Recount bets/watches using ACTIVE book edges (not all-book edges)
+  // Recount bets/watches using ALL books for calculations
   var betCount=0,watchCount=0;
   S.games.forEach(function(g){
     var ahml=-9999,aaml=-9999;
-    ab.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
+    abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
     var he2=(ahml>-9999&&g.fairH)?+((1/ml2p(ahml))*(g.fairH/100)*100-100).toFixed(1):0;
     var ae2=(aaml>-9999&&g.fairA)?+((1/ml2p(aaml))*(g.fairA/100)*100-100).toFixed(1):0;
     var te=Math.max(+he2,+ae2);
@@ -1465,8 +1495,8 @@ function render(){
     // Collect bets from ALL leagues
     var allBets=[];
     window.allBets=allBets; // expose for tracking buttons
-    var abAll=PA.filter(function(b){return S.booksOn[b.id]});
-    var activeIds={};abAll.forEach(function(bk){activeIds[bk.id]=true;});
+    var abAll2=PA; // ALL books for calculations
+    var activeIds={};abAll2.forEach(function(bk){activeIds[bk.id]=true;});
     var mktLabels={player_goals:"Goals",player_goal_scorer_anytime:"Anytime GS",player_assists:"Assists",player_points:"Points",player_shots_on_goal:"SOG",player_saves:"Saves",batter_hits:"Hits",batter_total_bases:"TB",batter_home_runs:"HR",pitcher_strikeouts:"K",batter_rbis:"RBI",batter_runs_scored:"Runs",batter_walks:"BB"};
 
     ["nhl","mlb"].forEach(function(sport){
@@ -1725,17 +1755,17 @@ function render(){
     games.forEach(function(g){
       var rawEdge=isNHL?(g.adjEdge||g.topEdge):g.topEdge;
       
-      // Calculate best lines from ONLY active books FIRST (need side before threshold)
+      // Calculate best lines from ALL books for edge calculation
       var actHML=-9999,actAML=-9999,actHBook=null,actABook=null;
-      ab.forEach(function(bk){
+      abAll.forEach(function(bk){
         var d=g.bd[bk.id];
         if(!d)return;
         if(d.homeML!=null&&d.homeML>actHML){actHML=d.homeML;actHBook=bk.id;}
         if(d.awayML!=null&&d.awayML>actAML){actAML=d.awayML;actABook=bk.id;}
       });
 
-      // Determine bet side and edge from active books
-      var betTeam=null,betLine=null,betBook=null,betBookName=null,betEdge=0,betSide=null;
+      // Determine edge from ALL books
+      var betSide=null;
       var displayEdge=rawEdge;
       if(rawEdge>3){
         var actHEdge=(actHML>-9999&&g.fairH)?+((1/ml2p(actHML))*(g.fairH/100)*100-100).toFixed(1):0;
@@ -1743,12 +1773,31 @@ function render(){
         var actTopEdge=Math.max(+actHEdge,+actAEdge);
         betSide=(+actHEdge>=+actAEdge)?"HOME":"AWAY";
         if(actTopEdge>3){
-          if(betSide==="HOME"&&actHML>-9999){betTeam=g.home;betLine=actHML;betBook=actHBook;betEdge=+actHEdge;}
-          else if(betSide==="AWAY"&&actAML>-9999){betTeam=g.away;betLine=actAML;betBook=actABook;betEdge=+actAEdge;}
-          if(betBook){var bkObj=PA.find(function(b){return b.id===betBook});betBookName=bkObj?bkObj.n:betBook;}
           displayEdge=isNHL?+(actTopEdge+(g.contextAdj||0)).toFixed(1):actTopEdge;
-        }else{
-          betTeam=null;
+        }
+      }
+
+      // Find best line from ACTIVE (toggled-on) books for the recommendation
+      var dispHML=-9999,dispAML=-9999,dispHBook=null,dispABook=null;
+      ab.forEach(function(bk){
+        var d=g.bd[bk.id];if(!d)return;
+        if(d.homeML!=null&&d.homeML>dispHML){dispHML=d.homeML;dispHBook=bk.id;}
+        if(d.awayML!=null&&d.awayML>dispAML){dispAML=d.awayML;dispABook=bk.id;}
+      });
+      // Check if active book line is still +EV
+      var betTeam=null,betLine=null,betBook=null,betBookName=null,betEdge=0;
+      if(betSide&&displayEdge>3){
+        var dispML=betSide==="HOME"?dispHML:dispAML;
+        var dispBk=betSide==="HOME"?dispHBook:dispABook;
+        var fairP=betSide==="HOME"?g.fairH/100:g.fairA/100;
+        if(dispML>-9999){
+          var dispEdge=+((1/ml2p(dispML))*fairP*100-100).toFixed(1);
+          if(isNHL)dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
+          if(dispEdge>0){
+            betTeam=betSide==="HOME"?g.home:g.away;
+            betLine=dispML;betBook=dispBk;betEdge=dispEdge;
+            if(betBook){var bkObj=PA.find(function(b){return b.id===betBook});betBookName=bkObj?bkObj.n:betBook;}
+          }
         }
       }
 
@@ -1916,15 +1965,15 @@ function render(){
     }
 
     games.forEach(function(g){
-      // Check if any ACTIVE book has spread data
+      // Check if any book has spread data
       var hasSpread=false;
-      ab.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)hasSpread=true;});
+      abAll.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)hasSpread=true;});
       if(!hasSpread)return;
 
-      // Recalculate best spread odds from ACTIVE books only
+      // Recalculate best spread odds from ALL books
       var actBestHSO=-9999,actBestASO=-9999,actHSBook=null,actASBook=null;
       var aSpreadShow=null,hSpreadShow=null;
-      ab.forEach(function(bk){
+      abAll.forEach(function(bk){
         var d=g.bd[bk.id];if(!d||d.hSpread==null)return;
         if(aSpreadShow==null){aSpreadShow=d.aSpread;hSpreadShow=d.hSpread;}
         if(d.hSpreadOdds!=null&&d.hSpreadOdds>actBestHSO){actBestHSO=d.hSpreadOdds;actHSBook=bk;}
@@ -1932,9 +1981,9 @@ function render(){
       });
 
       // ── BACKTESTED LOGIC ──
-      // Recalculate ML edge from active books only
+      // Recalculate ML edge from ALL books
       var actHML2=-9999,actAML2=-9999;
-      ab.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>actHML2)actHML2=d.homeML;if(d.awayML!=null&&d.awayML>actAML2)actAML2=d.awayML;});
+      abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>actHML2)actHML2=d.homeML;if(d.awayML!=null&&d.awayML>actAML2)actAML2=d.awayML;});
       var mlEdgeH=(actHML2>-9999&&g.fairH)?+((1/ml2p(actHML2))*(g.fairH/100)*100-100).toFixed(1):0;
       var mlEdgeA=(actAML2>-9999&&g.fairA)?+((1/ml2p(actAML2))*(g.fairA/100)*100-100).toFixed(1):0;
       if(isNHL){mlEdgeH=+(+mlEdgeH+(g.contextAdj>0?g.contextAdj:0)).toFixed(1);mlEdgeA=+(+mlEdgeA-(g.contextAdj>0?0:g.contextAdj)).toFixed(1);}
@@ -2042,7 +2091,7 @@ function render(){
       h+='</div>';
     });
 
-    if(!games.length||!games.some(function(g){var has=false;ab.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)has=true;});return has;})){
+    if(!games.length||!games.some(function(g){var has=false;abAll.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)has=true;});return has;})){
       h+='<div class="empty"><div class="empty-i">'+(isNHL?"🏒":"⚾")+'</div><div class="empty-t sg">No '+plLabel+' Data Available</div>';
       h+='<div class="empty-d">'+plLabel+' odds ('+plSpreadVal+') will appear once books post spread lines for upcoming games.</div></div>';
     }
@@ -2056,10 +2105,10 @@ function render(){
       h+='<div class="ib"><span style="font-size:14px">ℹ️</span>Totals for reference — O/U market is too efficient for model bets. Line disagreements between books shown below.</div>';
     }
     games.filter(function(g){return g.conTot!=null}).forEach(function(g){
-      // Calculate best over/under from ACTIVE books only
+      // Calculate best over/under from ALL books
       var actLoTot=999,actHiTot=0,actTots=[];
       var actBestOverBook=null,actBestUnderBook=null,actLoTotBook=null,actHiTotBook=null;
-      ab.forEach(function(bk){
+      abAll.forEach(function(bk){
         var d=g.bd[bk.id];if(!d||d.total==null)return;
         actTots.push(d.total);
         if(d.total<actLoTot){actLoTot=d.total;actLoTotBook=bk;}
@@ -2129,7 +2178,7 @@ function render(){
   // ═══ PROPS TAB ═══
   else if(S.tab==="props"){
     // Map display prop type to API market key
-    var nhlPropMap={"Goals":"player_goals","Anytime Goalscorer":"player_goal_scorer_anytime","Assists":"player_assists","Points":"player_points","Shots on Goal":"player_shots_on_goal","Saves":"player_saves","Power Play Points":"player_power_play_points"};
+    var nhlPropMap={"Goals":"player_goals","Assists":"player_assists","Points":"player_points","Shots on Goal":"player_shots_on_goal","Saves":"player_saves","Power Play Points":"player_power_play_points"};
     var mlbPropMap={"Hits":"batter_hits","Total Bases":"batter_total_bases","Home Runs":"batter_home_runs","Strikeouts":"pitcher_strikeouts","RBI":"batter_rbis","Runs":"batter_runs_scored","Walks":"batter_walks"};
     var propMap=isNHL?nhlPropMap:mlbPropMap;
     var activeMarket=propMap[curProp]||"";
@@ -2167,19 +2216,19 @@ function render(){
     if(propsLoaded&&games.length>0){
       var allMktKeys=isNHL?["player_goals","player_goal_scorer_anytime","player_assists","player_points","player_shots_on_goal","player_saves"]:["batter_hits","batter_total_bases","batter_home_runs","pitcher_strikeouts","batter_rbis","batter_runs_scored","batter_walks"];
       var mktDisplayNames=isNHL?{player_goals:"Goals",player_goal_scorer_anytime:"Anytime GS",player_assists:"Assists",player_points:"Points",player_shots_on_goal:"SOG",player_saves:"Saves"}:{batter_hits:"Hits",batter_total_bases:"TB",batter_home_runs:"HR",pitcher_strikeouts:"K",batter_rbis:"RBI",batter_runs_scored:"Runs",batter_walks:"BB"};
-      var activeBookIds3={};ab.forEach(function(bk){activeBookIds3[bk.id]=true;});
+      var activeBookIds3={};abAll.forEach(function(bk){activeBookIds3[bk.id]=true;});
       var masterEVProps=[];
       games.forEach(function(g){
         var gp=propsData[g.id]||{};
         allMktKeys.forEach(function(mk){
           var mp=(gp[mk]||[]).slice();
           mp.forEach(function(p){
-            calcPropEV(p,mk,isNHL,activeBookIds3,ab);
-            if(p.bestSide&&p.bestSideEV>=3){
-              var bOdds=p.bestSide==="OVER"?p.bestOver:p.bestUnder;
+            calcPropEV(p,mk,isNHL,activeBookIds3,abAll);
+            applyActiveBookDisplay(p,ab);
+            if(p.dispSide&&p.dispSideEV>=3){
               masterEVProps.push({player:p.player,market:mktDisplayNames[mk]||mk,line:p.line,
-                side:p.bestSide,odds:bOdds,
-                book:p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook,
+                side:p.dispSide,odds:p.dispOdds,
+                book:p.dispBook,
                 ev:p.bestSideEV,kelly:p.kelly,projRate:p.projRate,projSource:p.projSource,
                 game:g.away+" @ "+g.home,time:g.time,highVar:p.highVar});
             }
@@ -2229,16 +2278,23 @@ function render(){
     // ── CONSOLIDATED EV+ CHART (when +EV toggle is on and props loaded) ──
     if(S.evOnly&&propsLoaded&&games.length>0){
       var allEVProps=[];
-      var activeBookIds2={};ab.forEach(function(bk){activeBookIds2[bk.id]=true;});
+      var activeBookIds2={};abAll.forEach(function(bk){activeBookIds2[bk.id]=true;});
       games.forEach(function(g){
         var gp=propsData[g.id]||{};
         var mp=(gp[activeMarket]||[]).slice();
+        // Merge anytime goalscorer into Goals tab
+        if(activeMarket==="player_goals"&&gp["player_goal_scorer_anytime"]){
+          (gp["player_goal_scorer_anytime"]||[]).forEach(function(agp){
+            // Only add if player isn't already in goals list
+            if(!mp.find(function(p){return p.player===agp.player}))mp.push(agp);
+          });
+        }
         mp.forEach(function(p){
-          calcPropEV(p,activeMarket,isNHL,activeBookIds2,ab);
-          if(p.bestSide&&p.bestSideEV>=3){
-            var bOdds=p.bestSide==="OVER"?p.bestOver:p.bestUnder;
-            allEVProps.push({player:p.player,line:p.line,side:p.bestSide,odds:bOdds,
-              book:p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook,
+          calcPropEV(p,activeMarket,isNHL,activeBookIds2,abAll);
+          applyActiveBookDisplay(p,ab);
+          if(p.dispSide&&p.dispSideEV>=3){
+            allEVProps.push({player:p.player,line:p.line,side:p.dispSide,odds:p.dispOdds,
+              book:p.dispBook,
               ev:p.bestSideEV,kelly:p.kelly,projRate:p.projRate,projSource:p.projSource,
               game:g.away+" @ "+g.home,time:g.time});
           }
@@ -2284,11 +2340,18 @@ function render(){
       var isOpen=S.expanded[g.id];
       var gameProps=propsData[g.id]||{};
       var marketProps=(gameProps[activeMarket]||[]).slice();
+      // Merge anytime goalscorer into Goals tab
+      if(activeMarket==="player_goals"&&gameProps["player_goal_scorer_anytime"]){
+        (gameProps["player_goal_scorer_anytime"]||[]).forEach(function(agp){
+          if(!marketProps.find(function(p){return p.player===agp.player}))marketProps.push(agp);
+        });
+      }
 
       // ── Calculate prop EV using Poisson projections (or consensus fallback) ──
-      var activeBookIds={};ab.forEach(function(bk){activeBookIds[bk.id]=true;});
+      var activeBookIds={};abAll.forEach(function(bk){activeBookIds[bk.id]=true;});
       marketProps.forEach(function(p){
-        calcPropEV(p,activeMarket,isNHL,activeBookIds,ab);
+        calcPropEV(p,activeMarket,isNHL,activeBookIds,abAll);
+        applyActiveBookDisplay(p,ab);
         p._gameHome=g.home;p._gameAway=g.away;p._gameTime=g.time;p._gameId=g.id;
       });
 
@@ -2329,23 +2392,24 @@ function render(){
           var evOnlyLabel=S.evOnly?' <span style="font-size:9px;color:var(--acc)">(+EV only)</span>':"";
           h+='<div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:8px">'+curProp+' Props — '+g.away+' @ '+g.home+evOnlyLabel+'</div>';
 
-          // ── TOP EV+ PROP BET RECOMMENDATION ──
-          var topEVProps=displayProps.filter(function(p){return p.bestSideEV>=3}).sort(function(a,b){return b.bestSideEV-a.bestSideEV});
+          // ── TOP EV+ PROP BET RECOMMENDATION (from active books) ──
+          var topEVProps=displayProps.filter(function(p){return p.dispSide&&p.dispSideEV>=3}).sort(function(a,b){return b.dispSideEV-a.dispSideEV});
           if(topEVProps.length>0){
             var tp=topEVProps[0];
-            var tpOdds=tp.bestSide==="OVER"?tp.bestOver:tp.bestUnder;
-            var tpBook=tp.bestSide==="OVER"?tp.bestOverBook:tp.bestUnderBook;
-            var tpColor=tp.bestSide==="OVER"?"var(--acc)":"var(--neg)";
+            var tpColor=tp.dispSide==="OVER"?"var(--acc)":"var(--neg)";
             h+='<div class="bet-rec" style="margin-bottom:10px">';
             h+='<div><div class="bet-label">Best '+curProp+' Prop</div><div class="bet-team" style="font-size:14px">'+tp.player+'</div></div>';
-            h+='<div><div class="bet-label">Play</div><div style="font-size:16px;font-weight:800;color:'+tpColor+'">'+tp.bestSide+' '+tp.line+'</div></div>';
-            h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(tpOdds)+'</div></div>';
-            h+='<div><div class="bet-label">Book</div><div class="bet-book">'+(tpBook||"—")+'</div></div>';
+            h+='<div><div class="bet-label">Play</div><div style="font-size:16px;font-weight:800;color:'+tpColor+'">'+tp.dispSide+' '+tp.line+'</div></div>';
+            h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(tp.dispOdds)+'</div></div>';
+            h+='<div><div class="bet-label">Book</div><div class="bet-book">'+(tp.dispBook||"—")+'</div></div>';
             h+='<div><div class="bet-label">Edge</div><div class="bet-edge">+'+tp.bestSideEV+'pp</div></div>';
             h+='</div>';
             if(topEVProps.length>1){
-              h+='<div style="font-size:10px;color:var(--acc);margin-bottom:8px">'+topEVProps.length+' total +EV props found — see table below</div>';
+              h+='<div style="font-size:10px;color:var(--acc);margin-bottom:8px">'+topEVProps.length+' total +EV props at your active books — see table below</div>';
             }
+          }else if(displayProps.some(function(p){return p.bestSideEV>=3})){
+            // Edge exists from all books but no active book has it
+            h+='<div class="bet-watch" style="margin-bottom:10px"><div class="bet-label">+EV at other books</div><div style="font-size:11px;color:var(--warn)">Edge exists but not at your active sportsbooks. Enable more books to see the recommendation.</div></div>';
           }
           if(displayProps.length){
             h+='<table class="prop-table"><thead><tr>';
@@ -2358,35 +2422,36 @@ function render(){
               return bMax-aMax;
             });
             displayProps.forEach(function(p){
-              var isEV=p.bestSideEV>=3;
-              h+='<tr class="'+(isEV?"prop-ev":"")+'">';
+              var isEV=p.dispSide&&p.dispSideEV>=3;
+              var hasEdgeAllBooks=p.bestSideEV>=3;
+              h+='<tr class="'+(isEV?"prop-ev":(hasEdgeAllBooks?"":""))+'">';
               h+='<td class="prop-player">'+p.player+'</td>';
               h+='<td class="prop-line">'+(p.line!=null?p.line:"—")+'</td>';
-              h+='<td class="prop-over"'+(p.bestSide==="OVER"?' style="font-size:13px"':"")+'>'+(p.bestOver!=null?fml(p.bestOver):"—")+'</td>';
-              h+='<td class="prop-under"'+(p.bestSide==="UNDER"?' style="font-size:13px"':"")+'>'+(p.bestUnder!=null?fml(p.bestUnder):"—")+'</td>';
-              // Over edge
+              // Show active-book odds (what user can actually bet)
+              h+='<td class="prop-over"'+(p.dispSide==="OVER"?' style="font-size:13px"':"")+'>'+(p.dispOver!=null?fml(p.dispOver):(p.bestOver!=null?'<span style="opacity:0.4">'+fml(p.bestOver)+'</span>':"—"))+'</td>';
+              h+='<td class="prop-under"'+(p.dispSide==="UNDER"?' style="font-size:13px"':"")+'>'+(p.dispUnder!=null?fml(p.dispUnder):(p.bestUnder!=null?'<span style="opacity:0.4">'+fml(p.bestUnder)+'</span>':"—"))+'</td>';
+              // Over edge (from ALL books)
               var oEV=p.overEV||0;
               var oCol=oEV>=3?"var(--acc)":oEV>0?"var(--tm)":"var(--td)";
               h+='<td style="font-weight:700;color:'+oCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestOver!=null?(oEV>0?"+":"")+oEV+"pp":"—")+'</td>';
-              // Under edge
+              // Under edge (from ALL books)
               var uEV=p.underEV||0;
               var uCol=uEV>=3?"var(--acc)":uEV>0?"var(--tm)":"var(--td)";
               h+='<td style="font-weight:700;color:'+uCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestUnder!=null?(uEV>0?"+":"")+uEV+"pp":"—")+'</td>';
-              // Recommended side
-              if(p.bestSide){
-                var sideColor=p.bestSide==="OVER"?"var(--acc)":"var(--neg)";
-                h+='<td style="font-weight:800;color:'+sideColor+';font-size:11px">'+p.bestSide+'</td>';
+              // Recommended side (only if active book is +EV)
+              if(p.dispSide){
+                var sideColor=p.dispSide==="OVER"?"var(--acc)":"var(--neg)";
+                h+='<td style="font-weight:800;color:'+sideColor+';font-size:11px">'+p.dispSide+'</td>';
+              }else if(hasEdgeAllBooks){
+                h+='<td style="color:var(--warn);font-size:9px" title="Edge exists at other books">⚠️</td>';
               }else{
                 h+='<td style="color:var(--tf);font-size:9px">—</td>';
               }
-              // Book
+              // Book (active book)
               h+='<td class="prop-book">';
-              if(p.bestSide==="OVER")h+=p.bestOverBook||"—";
-              else if(p.bestSide==="UNDER")h+=p.bestUnderBook||"—";
-              else{
-                // Show best over book as default
-                h+=p.bestOverBook||p.bestUnderBook||"—";
-              }
+              if(p.dispSide)h+=p.dispBook||"—";
+              else if(hasEdgeAllBooks)h+='<span style="font-size:8px;color:var(--warn)">other</span>';
+              else h+=p.dispOverBook||p.dispUnderBook||"—";
               h+='</td>';
               h+='</tr>';
             });
