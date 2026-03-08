@@ -1,0 +1,46 @@
+name: Odds Collector
+on:
+  schedule:
+    - cron: '0 10 * * *'
+    - cron: '0 13 * * *'
+    - cron: '0 17 * * *'
+    - cron: '0 21 * * *'
+    - cron: '30 23 * * *'
+  workflow_dispatch:
+    inputs:
+      sport:
+        description: 'Sport (mlb/nhl/nba/nfl/all)'
+        required: false
+        default: 'all'
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Determine snapshot label
+        id: label
+        run: |
+          HOUR=$(date -u +%H)
+          if [ "$HOUR" = "10" ]; then LABEL="opening"
+          elif [ "$HOUR" = "13" ]; then LABEL="morning"
+          elif [ "$HOUR" = "17" ]; then LABEL="midday"
+          elif [ "$HOUR" = "21" ]; then LABEL="evening"
+          elif [ "$HOUR" = "23" ]; then LABEL="closing"
+          else LABEL="manual"; fi
+          echo "label=${LABEL}" >> $GITHUB_OUTPUT
+      - name: Collect odds
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python collector/collect_odds.py --sport ${{ github.event.inputs.sport || 'all' }} --snapshot ${{ steps.label.outputs.label }}
+      - name: Commit data
+        run: |
+          git config user.name "Diamond Edge Bot"
+          git config user.email "bot@diamond-edge.dev"
+          git add data/ -f
+          git diff --staged --quiet || git commit -m "📊 ${{ steps.label.outputs.label }} snapshot $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push

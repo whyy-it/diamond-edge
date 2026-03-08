@@ -1,0 +1,43 @@
+name: Results Grader
+on:
+  schedule:
+    - cron: '0 8 * * *'
+    - cron: '0 10 * * 0'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: false
+        default: 'grade'
+        type: choice
+        options: [grade, export, stats]
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Fetch scores
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python collector/collect_odds.py --scores-only --scores-days 3
+      - name: Grade bets
+        run: python collector/grade_bets.py
+      - name: Stats
+        run: python collector/grade_bets.py --stats
+      - name: Export CSVs
+        if: github.event.schedule == '0 10 * * 0' || github.event.inputs.action == 'export'
+        run: |
+          python collector/export_data.py --closing-only
+          python collector/grade_bets.py --export-csv
+      - name: Commit
+        run: |
+          git config user.name "Diamond Edge Bot"
+          git config user.email "bot@diamond-edge.dev"
+          git add data/ tracker/ -f
+          git diff --staged --quiet || git commit -m "📈 Results $(date -u +'%Y-%m-%d')"
+          git push
