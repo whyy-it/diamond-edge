@@ -1232,6 +1232,21 @@ function loadCurrent(){
   else if(S.league==="nhl")loadNHL();
 }
 
+async function refreshAll(){
+  // Refresh EVERY sport + all props in one click
+  S.mlb.lastFetch=null;S.nhl.lastFetch=null;
+  S.mlb.propsLoaded=false;S.nhl.propsLoaded=false;
+  syncActive();render();
+
+  // Load both sports in parallel
+  await Promise.allSettled([loadMLB(),loadNHL()]);
+
+  // Then load props for both in parallel
+  await Promise.allSettled([loadMLBProps(),loadNHLProps()]);
+
+  render();
+}
+
 function toggleBook(id){
   S.booksOn[id]=!S.booksOn[id];
   try{localStorage.setItem("de_books",JSON.stringify(S.booksOn));}catch(e){}
@@ -1300,6 +1315,19 @@ function render(){
   // Today's Bets global button
   var betsOn=S.league==="bets";
   h+='<button class="lbtn'+(betsOn?" on":"")+'" onclick="S.league=\'bets\';S.tab=\'bets\';render()" style="'+(betsOn?"border-bottom-color:var(--acc);color:var(--acc)":"")+'"><span style="font-size:14px">📋</span>Bets</button>';
+
+  // ── TRACKER STATS in top bar ──
+  var ts=trackerStats();
+  if(ts.total>0){
+    var trkCol=ts.profit>0?"var(--acc)":ts.profit<0?"var(--neg)":"var(--td)";
+    h+='<div style="display:flex;align-items:center;gap:6px;padding:0 8px;border-left:1px solid var(--bd);margin-left:2px;flex-shrink:0">';
+    h+='<span style="font-size:9px;font-weight:700;color:var(--tm)">'+ts.wins+'W-'+ts.losses+'L</span>';
+    h+='<span style="font-size:10px;font-weight:800;color:'+trkCol+';font-family:\'JetBrains Mono\',monospace">'+(ts.profit>0?"+$":"$")+Math.abs(ts.profit).toFixed(0)+'</span>';
+    h+='<span style="font-size:9px;font-weight:700;color:'+trkCol+';font-family:\'JetBrains Mono\',monospace">'+ts.roi+'%</span>';
+    if(ts.pending>0)h+='<span style="font-size:8px;color:var(--ac2)">'+ts.pending+' pending</span>';
+    h+='</div>';
+  }
+
   h+='<button class="thbtn" onclick="S.mode=S.mode===\'dark\'?\'light\':\'dark\';try{localStorage.setItem(\'de_mode\',S.mode)}catch(e){};render()">'+(t==="dark"?"☀️":"🌙")+'</button></div>';
 
   // ── STATUS (skip for global bets view) ──
@@ -1323,7 +1351,7 @@ function render(){
   h+='<div style="flex:1"></div>';
   if(S.remaining)h+='<span class="mono" style="font-size:9px;color:var(--tf)">API: '+S.remaining+'</span>';
   if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
-  h+='<button class="rbtn" onclick="loadCurrent()"'+(S.loading?' disabled':'')+'>'+(S.loading?'Loading...':'↻ Refresh')+'</button></div>';
+  h+='<button class="rbtn" onclick="refreshAll()"'+(S.loading||S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.loading||S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh All')+'</button></div>';
   } // end S.league!=="bets" status bar
 
   // ── TABS (skip for global bets view) ──
@@ -1373,7 +1401,7 @@ function render(){
     h+='<div style="font-size:15px;font-weight:700;color:var(--tm)">Pulling live '+(isNHL?"NHL":"MLB")+' odds + game context...</div>';
     h+='<div style="font-size:12px;margin-top:8px;color:var(--td)">Odds API'+(isNHL?" · NHL Stats · Standings · Schedule":" · MLB Stats · Weather")+'</div></div>';
   } else if(S.error&&S.league!=="bets"){
-    h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div style="font-size:14px;font-weight:700;color:var(--neg)">Error loading odds</div><div style="font-size:11px;margin-top:6px;color:var(--td);max-width:400px;margin:6px auto;word-break:break-word">'+S.error+'</div><button class="rbtn" style="margin-top:14px;padding:8px 20px;border-color:var(--acc);color:var(--acc)" onclick="loadCurrent()">Try Again</button></div>';
+    h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div style="font-size:14px;font-weight:700;color:var(--neg)">Error loading odds</div><div style="font-size:11px;margin-top:6px;color:var(--td);max-width:400px;margin:6px auto;word-break:break-word">'+S.error+'</div><button class="rbtn" style="margin-top:14px;padding:8px 20px;border-color:var(--acc);color:var(--acc)" onclick="refreshAll()">Try Again</button></div>';
   } else if(!games.length&&S.tab!=="books"&&S.tab!=="bets"){
     h+='<div class="empty"><div class="empty-i">'+leagueIcon+'</div>';
     h+='<div class="empty-t sg">No '+(isNHL?"NHL":"MLB")+' Games Available</div>';
@@ -1401,6 +1429,7 @@ function render(){
     // ── GLOBAL TODAY'S BETS — pulls from ALL leagues ──
     h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
     h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📋 Today\'s Bet Sheet</div>';
+    h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh All')+'</button>';
     h+='<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:4px 10px">';
     h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
     h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
@@ -2407,8 +2436,8 @@ function render(){
   document.getElementById("app").innerHTML=h;
 }
 
-// ── BOOT ──
-loadCurrent();
+// ── BOOT — load ALL sports + props on startup ──
+refreshAll();
 </script>
 </body>
 </html>
