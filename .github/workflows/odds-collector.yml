@@ -12,6 +12,8 @@ on:
         description: 'Sport (mlb/nhl/nba/nfl/all)'
         required: false
         default: 'all'
+permissions:
+  contents: write
 jobs:
   collect:
     runs-on: ubuntu-latest

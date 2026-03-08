@@ -11,6 +11,8 @@ on:
         default: 'grade'
         type: choice
         options: [grade, export, stats]
+permissions:
+  contents: write
 jobs:
   grade:
     runs-on: ubuntu-latest
