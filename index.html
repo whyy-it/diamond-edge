@@ -233,7 +233,7 @@ var NHL_TZ={
 // ── STATE ──
 var S={
   mode:(function(){try{var m=localStorage.getItem("de_mode");if(m==="dark"||m==="light")return m;}catch(e){}var h=new Date().getHours();return h>=7&&h<19?"light":"dark";})(),
-  league:"nhl",tab:"ml",sortBy:"edge",evOnly:false,
+  league:"nhl",tab:"ml",sortBy:"time",evOnly:false,
   propType:"Hits",nhlPropType:"Goals",
   booksOn:(function(){try{var s=localStorage.getItem("de_books");if(s)return JSON.parse(s);}catch(e){}return Object.fromEntries(PA.map(function(b){return[b.id,true]}));})(),
   showBooks:false,
@@ -551,9 +551,9 @@ async function fetchPlayerProps(sport,markets){
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
   var allResults=[];
   
-  // Fetch props for up to 6 games (to conserve API quota — each event = 1 request per market)
-  var toFetch=games.slice(0,6);
-  console.log("[Diamond Edge] Fetching props for "+toFetch.length+" games...");
+  // Fetch props for ALL games (20K/month plan — no need to limit)
+  var toFetch=games;
+  console.log("[Diamond Edge] Fetching props for ALL "+toFetch.length+" games...");
   
   for(var i=0;i<toFetch.length;i++){
     var g=toFetch[i];
