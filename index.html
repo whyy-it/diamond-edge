@@ -1449,16 +1449,11 @@ function loadCurrent(){
 }
 
 async function refreshAll(){
-  // Refresh EVERY sport + all props in one click
   S.mlb.lastFetch=null;S.nhl.lastFetch=null;
-  S.mlb.propsLoaded=false;S.nhl.propsLoaded=false;
   syncActive();render();
 
   // Load both sports in parallel
   await Promise.allSettled([loadMLB(),loadNHL()]);
-
-  // Then load props for both in parallel
-  await Promise.allSettled([loadMLBProps(),loadNHLProps()]);
 
   render();
 }
@@ -1577,7 +1572,7 @@ function render(){
 
   // ── TABS (skip for global bets view) ──
   if(S.league!=="bets"){
-  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":"Run Line",i:"🏒"},{k:"ou",l:"Over / Under",i:"📊"},{k:"props",l:"Player Props",i:"🎯"},{k:"books",l:"Books",i:"📚"}];
+  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":"Run Line",i:"🏒"},{k:"ou",l:"Over / Under",i:"📊"},{k:"books",l:"Books",i:"📚"}];
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
@@ -1592,14 +1587,6 @@ function render(){
     h+='<div style="flex:1"></div>';
     var abApi=ab.filter(function(b){return b.api}).length;
     h+='<button class="cb" onclick="S.showBooks=!S.showBooks;render()">📚 '+abApi+' active / '+ab.length+' on</button>';
-    h+='</div>';
-  }
-  if(S.tab==="props"){
-    h+='<div class="prow">';
-    ptypes.forEach(function(p){
-      var isOn=curProp===p;
-      h+='<button class="pill'+(isOn?" on":"")+'" onclick="'+(isNHL?"S.nhlPropType":"S.propType")+'=\''+p+'\';render()">'+p+'</button>';
-    });
     h+='</div>';
   }
   if(S.showBooks&&S.tab!=="books"&&S.tab!=="bets"){
@@ -1721,24 +1708,6 @@ function render(){
           }
         }
       });
-
-      // Prop bets from ALL markets (if loaded)
-      if(ld.propsLoaded){
-        var allMkeys=sNHL?["player_goals","player_goal_scorer_anytime","player_assists","player_points","player_shots_on_goal","player_saves"]:["batter_hits","batter_total_bases","batter_home_runs","pitcher_strikeouts"];
-        gms.forEach(function(g){
-          var gProps=(ld.props||{})[g.id];
-          if(!gProps)return;
-          allMkeys.forEach(function(mk){
-            var mps=(gProps[mk]||[]).slice();
-            mps.forEach(function(p){
-              calcPropEV(p,mk,sNHL);
-              if(!p.bestSide||p.bestSideEV<3)return;
-              var bOdds=p.bestSide==="OVER"?p.bestOver:p.bestUnder;
-              allBets.push({sport:sport,icon:icon,type:"Prop",player:p.player,market:(mktLabels[mk]||mk)+" "+p.bestSide+" "+p.line,line:fml(bOdds),book:p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook,edge:p.bestSideEV,kelly:p.kelly||0,fairProb:+(p.fairProb*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:p.projSource||"consensus",highVar:p.highVar||false,paperTrade:true,edgeUnit:"%"});
-            });
-          });
-        });
-      }
     });
 
     allBets.sort(function(a,b){return b.edge-a.edge});
@@ -1770,7 +1739,6 @@ function render(){
 
     var totalBetAmount=allBets.reduce(function(s,b){return s+b.betAmount},0);
     var nhlLoaded=S.nhl.lastFetch;var mlbLoaded=S.mlb.lastFetch;
-    var nhlProps=S.nhl.propsLoaded;var mlbProps=S.mlb.propsLoaded;
 
     // Loading status
     if(!nhlLoaded&&!mlbLoaded){
@@ -1778,9 +1746,8 @@ function render(){
     }else{
       // Status badges
       h+='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
-      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"+(nhlProps?" · props ✓":" · no props")):"not loaded")+'</div>';
-      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(mlbLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(mlbLoaded?"var(--acc)":"var(--neg)")+'">⚾ MLB '+(mlbLoaded?(S.mlb.games.length+" games"+(mlbProps?" · props ✓":" · no props")):"not loaded")+'</div>';
-      if(!nhlProps||!mlbProps)h+='<div style="padding:3px 10px;border-radius:5px;background:var(--alt);font-size:10px;color:var(--td)">💡 Load props in each league\'s Props tab to include prop bets</div>';
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"):"not loaded")+'</div>';
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(mlbLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(mlbLoaded?"var(--acc)":"var(--neg)")+'">⚾ MLB '+(mlbLoaded?(S.mlb.games.length+" games"):"not loaded")+'</div>';
       h+='</div>';
 
       if(!allBets.length){
@@ -2426,379 +2393,6 @@ function render(){
         h+='</div>';
       }
       h+='</div>';
-    });
-  }
-
-  // ═══ PROPS TAB ═══
-  else if(S.tab==="props"){
-    // Map display prop type to API market key
-    var nhlPropMap={"Goals":"player_goals","Assists":"player_assists","Points":"player_points","Shots on Goal":"player_shots_on_goal","Saves":"player_saves","Power Play Points":"player_power_play_points"};
-    var mlbPropMap={"Hits":"batter_hits","Total Bases":"batter_total_bases","Home Runs":"batter_home_runs","Strikeouts":"pitcher_strikeouts","RBI":"batter_rbis","Runs":"batter_runs_scored","Walks":"batter_walks"};
-    var propMap=isNHL?nhlPropMap:mlbPropMap;
-    var activeMarket=propMap[curProp]||"";
-    var ld=S[S.league]||{};
-    var propsData=ld.props||{};
-    var propsLoading=ld.propsLoading||false;
-    var propsLoaded=ld.propsLoaded||Object.keys(propsData).length>0;
-
-    if(isNHL){
-      h+='<div class="ib ice"><span style="font-size:14px">🎯</span><strong>Not backtested</strong> — NHL prop edges are from Poisson projections vs book lines. Use as a directional signal, not a bet generator. Paper trade first.</div>';
-    }else{
-      h+='<div class="ib acc"><span style="font-size:14px">🎯</span><strong>Backtested on 77K real prop lines:</strong> Statcast xBA + Poisson model. Edge 3-15pp. Hits (54% win), TB, K profitable. RBI excluded. HR flagged high-variance ⚡. Props at half-Kelly. 🧪 = paper trade.</div>';
-    }
-
-    // Loading indicator
-    if(propsLoading){
-      h+='<div style="text-align:center;padding:20px"><div style="font-size:24px;margin-bottom:8px">🎯</div><div style="font-size:13px;font-weight:600;color:var(--tm)">Loading player prop lines...</div></div>';
-    }
-    // If props not loaded yet and not loading, show note (Refresh All handles loading)
-    if(!propsLoaded&&!propsLoading&&games.length>0){
-      h+='<div style="text-align:center;padding:16px;color:var(--tm);font-size:12px">Click <strong>↻ Refresh All</strong> in the status bar to load odds + props for all games.</div>';
-    }
-
-    if(!games.length){
-      h+='<div class="empty"><div class="empty-i">🎯</div><div class="empty-t sg">Player Props Ready</div>';
-      if(isNHL){
-        h+='<div class="empty-d">NHL prop engine uses season per-game rates (goals, assists, points, SOG, saves) in a Poisson model to estimate fair probabilities vs book lines. <strong>Not backtested</strong> — use as a directional signal while we validate.</div>';
-      }else{
-        h+='<div class="empty-d">Projection engine uses xBA, xSLG, xwOBA, barrel rate + weather + umpire + fatigue context.</div>';
-      }
-      h+='</div>';
-    }
-
-    // ═══ MASTER +EV SUMMARY — across ALL prop markets ═══
-    if(propsLoaded&&games.length>0){
-      var allMktKeys=isNHL?["player_goals","player_goal_scorer_anytime","player_assists","player_points","player_shots_on_goal","player_saves"]:["batter_hits","batter_total_bases","batter_home_runs","pitcher_strikeouts","batter_rbis","batter_runs_scored","batter_walks"];
-      var mktDisplayNames=isNHL?{player_goals:"Goals",player_goal_scorer_anytime:"Anytime GS",player_assists:"Assists",player_points:"Points",player_shots_on_goal:"SOG",player_saves:"Saves"}:{batter_hits:"Hits",batter_total_bases:"TB",batter_home_runs:"HR",pitcher_strikeouts:"K",batter_rbis:"RBI",batter_runs_scored:"Runs",batter_walks:"BB"};
-      var activeBookIds3={};abAll.forEach(function(bk){activeBookIds3[bk.id]=true;});
-      var masterEVProps=[];
-      games.forEach(function(g){
-        var gp=propsData[g.id]||{};
-        allMktKeys.forEach(function(mk){
-          var mp=(gp[mk]||[]).slice();
-          mp.forEach(function(p){
-            calcPropEV(p,mk,isNHL,activeBookIds3,abAll);
-            applyActiveBookDisplay(p,ab);
-            if(p.bestSide&&p.bestSideEV>=3){
-              var showOdds=p.dispOdds||(p.bestSide==="OVER"?p.bestOver:p.bestUnder);
-              var showBook=p.dispBook||(p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook);
-              masterEVProps.push({player:p.player,market:mktDisplayNames[mk]||mk,line:p.line,
-                side:p.bestSide,odds:showOdds,
-                book:showBook,atActiveBook:!!p.dispSide,
-                ev:p.bestSideEV,kelly:p.kelly,projRate:p.projRate,projSource:p.projSource,
-                game:g.away+" @ "+g.home,time:g.time,highVar:p.highVar});
-            }
-          });
-        });
-      });
-      masterEVProps.sort(function(a,b){return b.ev-a.ev});
-
-      // Always show the summary box
-      h+='<div style="background:var(--card);border:1px solid '+(masterEVProps.length>0?"var(--acc)":"var(--bd)")+';border-radius:10px;padding:14px;margin-bottom:14px">';
-      h+='<div style="font-size:14px;font-weight:800;color:'+(masterEVProps.length>0?"var(--acc)":"var(--tm)")+';margin-bottom:8px;font-family:\'Space Grotesk\',sans-serif">🎯 All +EV Props Today — All Markets ('+masterEVProps.length+')</div>';
-
-      if(masterEVProps.length>0){
-        h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-        h+='<tr style="border-bottom:2px solid var(--bd)">';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAYER</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">MARKET</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAY</th>';
-        h+='<th style="text-align:center;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PROJ</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">ODDS</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BOOK</th>';
-        h+='<th style="text-align:right;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">EDGE</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">GAME</th>';
-        h+='</tr>';
-        masterEVProps.forEach(function(ep,idx){
-          var bg=idx%2===0?"var(--card)":"var(--alt)";
-          var projLabel=ep.projSource==="poisson"||ep.projSource==="statcast"||ep.projSource==="statcast-k"?(ep.projRate!=null?ep.projRate.toFixed(2)+"/g":"🔬"):"📚";
-          var projColor=(ep.projSource==="poisson"||ep.projSource==="statcast"||ep.projSource==="statcast-k")?"var(--ac2)":"var(--td)";
-          h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
-          h+='<td style="padding:6px;font-weight:700;color:var(--tx)">'+ep.player+'</td>';
-          h+='<td style="padding:6px;font-weight:600;color:var(--ac2);font-size:10px">'+ep.market+'</td>';
-          h+='<td style="padding:6px;font-weight:700;color:'+(ep.side==="OVER"?"var(--acc)":"var(--neg)")+'">'+ep.side+' '+ep.line+'</td>';
-          h+='<td style="padding:6px;text-align:center;font-size:10px;color:'+projColor+';font-family:\'JetBrains Mono\',monospace">'+projLabel+'</td>';
-          h+='<td style="padding:6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx)">'+fml(ep.odds)+'</td>';
-          h+='<td style="padding:6px;font-size:10px;color:var(--tm)">'+ep.book+'</td>';
-          h+='<td style="padding:6px;text-align:right;font-weight:700;color:var(--acc);font-family:\'JetBrains Mono\',monospace">+'+ep.ev+'pp</td>';
-          h+='<td style="padding:6px;font-size:9px;color:var(--td)">'+ep.game+'</td>';
-          h+='</tr>';
-        });
-        h+='</table></div>';
-      }else{
-        h+='<div style="padding:8px 0;font-size:12px;color:var(--tm);text-align:center">No +EV props found across any market right now. Check individual markets below for all lines.</div>';
-      }
-      h+='</div>';
-    }
-
-    // ── CONSOLIDATED EV+ CHART (when +EV toggle is on and props loaded) ──
-    if(S.evOnly&&propsLoaded&&games.length>0){
-      var allEVProps=[];
-      var activeBookIds2={};abAll.forEach(function(bk){activeBookIds2[bk.id]=true;});
-      games.forEach(function(g){
-        var gp=propsData[g.id]||{};
-        var mp=(gp[activeMarket]||[]).slice();
-        // Merge anytime goalscorer into Goals tab
-        if(activeMarket==="player_goals"&&gp["player_goal_scorer_anytime"]){
-          (gp["player_goal_scorer_anytime"]||[]).forEach(function(agp){
-            // Only add if player isn't already in goals list
-            if(!mp.find(function(p){return p.player===agp.player}))mp.push(agp);
-          });
-        }
-        mp.forEach(function(p){
-          calcPropEV(p,activeMarket,isNHL,activeBookIds2,abAll);
-          applyActiveBookDisplay(p,ab);
-          if(p.bestSide&&p.bestSideEV>=3){
-            var showOdds=p.dispOdds||(p.bestSide==="OVER"?p.bestOver:p.bestUnder);
-            var showBook=p.dispBook||(p.bestSide==="OVER"?p.bestOverBook:p.bestUnderBook);
-            allEVProps.push({player:p.player,line:p.line,side:p.bestSide,odds:showOdds,
-              book:showBook,atActiveBook:!!p.dispSide,
-              ev:p.bestSideEV,kelly:p.kelly,projRate:p.projRate,projSource:p.projSource,
-              game:g.away+" @ "+g.home,time:g.time});
-          }
-        });
-      });
-      allEVProps.sort(function(a,b){return b.ev-a.ev});
-      
-      if(allEVProps.length>0){
-        h+='<div style="background:var(--card);border:1px solid var(--acc);border-radius:10px;padding:14px;margin-bottom:14px">';
-        h+='<div style="font-size:14px;font-weight:800;color:var(--acc);margin-bottom:8px;font-family:\'Space Grotesk\',sans-serif">🎯 All +EV Props Today — '+(isNHL?{player_goals:"Goals",player_assists:"Assists",player_points:"Points",player_shots_on_goal:"SOG",player_saves:"Saves"}[activeMarket]||activeMarket:{batter_hits:"Hits",batter_total_bases:"TB",batter_home_runs:"HR",pitcher_strikeouts:"K",batter_rbis:"RBI",batter_runs_scored:"Runs",batter_walks:"BB"}[activeMarket]||activeMarket)+' ('+allEVProps.length+')</div>';
-        h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-        h+='<tr style="border-bottom:2px solid var(--bd)">';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAYER</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAY</th>';
-        h+='<th style="text-align:center;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PROJ</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">ODDS</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BOOK</th>';
-        h+='<th style="text-align:right;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">EDGE</th>';
-        h+='<th style="text-align:left;padding:5px 6px;color:var(--td);font-size:8px;letter-spacing:1px">GAME</th>';
-        h+='</tr>';
-        allEVProps.forEach(function(ep,i){
-          var bg=i%2===0?"var(--card)":"var(--alt)";
-          var projLabel=ep.projSource==="poisson"?(ep.projRate!=null?ep.projRate.toFixed(2)+"/g":"📊"):ep.projSource==="statcast"?(ep.projRate!=null?ep.projRate.toFixed(2)+"/g":"🔬"):ep.projSource==="statcast-k"?(ep.projRate!=null?ep.projRate.toFixed(1)+"K/g":"🔬"):"📚";
-          var projColor=(ep.projSource==="poisson"||ep.projSource==="statcast"||ep.projSource==="statcast-k")?"var(--ac2)":"var(--td)";
-          var projTitle=ep.projSource==="poisson"?"Poisson projection from season stats":ep.projSource==="statcast"?"Statcast xBA luck-adjusted":ep.projSource==="statcast-k"?"Statcast pitcher xBA-against + K rate":"Cross-book consensus (no stats found)";
-          h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
-          h+='<td style="padding:6px;font-weight:700;color:var(--tx)">'+ep.player+'</td>';
-          h+='<td style="padding:6px;font-weight:600;color:'+(ep.side==="OVER"?"var(--acc)":"var(--neg)")+'">'+ep.side+' '+ep.line+'</td>';
-          h+='<td style="padding:6px;text-align:center;font-size:10px;color:'+projColor+';font-family:\'JetBrains Mono\',monospace" title="'+projTitle+'">'+projLabel+'</td>';
-          h+='<td style="padding:6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx)">'+fml(ep.odds)+'</td>';
-          h+='<td style="padding:6px;font-size:10px;color:var(--tm)">'+ep.book+'</td>';
-          h+='<td style="padding:6px;text-align:right;font-weight:700;color:var(--acc);font-family:\'JetBrains Mono\',monospace">+'+ep.ev+'pp</td>';
-          h+='<td style="padding:6px;font-size:9px;color:var(--td)">'+ep.game+'</td>';
-          h+='</tr>';
-        });
-        h+='</table></div></div>';
-      }else{
-        h+='<div class="ib"><span>📊</span>No +EV props found for this market (need 2+ books with 2%+ edge). Try a different prop type above.</div>';
-      }
-    }
-
-    games.forEach(function(g){
-      var isOpen=S.expanded[g.id];
-      var gameProps=propsData[g.id]||{};
-      var marketProps=(gameProps[activeMarket]||[]).slice();
-      // Merge anytime goalscorer into Goals tab
-      if(activeMarket==="player_goals"&&gameProps["player_goal_scorer_anytime"]){
-        (gameProps["player_goal_scorer_anytime"]||[]).forEach(function(agp){
-          if(!marketProps.find(function(p){return p.player===agp.player}))marketProps.push(agp);
-        });
-      }
-
-      // ── Calculate prop EV using Poisson projections (or consensus fallback) ──
-      var activeBookIds={};abAll.forEach(function(bk){activeBookIds[bk.id]=true;});
-      marketProps.forEach(function(p){
-        calcPropEV(p,activeMarket,isNHL);
-        applyActiveBookDisplay(p,ab);
-        p._gameHome=g.home;p._gameAway=g.away;p._gameTime=g.time;p._gameId=g.id;
-      });
-
-      var hasProps=marketProps.length>0;
-
-      // When +EV toggle is on, filter to only EV+ props
-      var evProps=marketProps;
-      if(S.evOnly&&hasProps){
-        evProps=marketProps.filter(function(p){return p.bestSideEV>=3});
-      }
-      // Skip this game entirely if +EV is on and no EV+ props
-      if(S.evOnly&&propsLoaded&&evProps.length===0&&hasProps)return;
-
-      h+='<button class="xbtn" onclick="S.expanded[\''+g.id+'\']=!S.expanded[\''+g.id+'\'];render()">';
-      h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
-      h+='<span style="font-size:15px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">'+g.away+' @ '+g.home+'</span>';
-      h+='<span class="mono" style="font-size:10px;color:var(--tm)">'+fd(g.time)+' · '+ft(g.time)+'</span>';
-      if(isNHL){
-        if(g.homeB2B||g.awayB2B)h+='<span class="tag tag-b2b" style="font-size:8px">B2B</span>';
-        if(g.homeGoalie||g.awayGoalie)h+='<span style="font-size:10px;color:var(--tm)">🥅 '+(g.awayGoalie||"TBD")+' vs '+(g.homeGoalie||"TBD")+'</span>';
-      }
-      if(hasProps){
-        var evCount=marketProps.filter(function(p){return p.bestSideEV>=3}).length;
-        if(S.evOnly&&evCount>0)h+='<span style="font-size:9px;color:var(--acc);font-weight:700">'+evCount+' +EV</span>';
-        else if(evCount>0)h+='<span style="font-size:9px;color:var(--acc);font-weight:700">'+evCount+' +EV / '+marketProps.length+' total</span>';
-        else h+='<span style="font-size:9px;color:var(--tm);font-weight:600">'+marketProps.length+' props</span>';
-      }
-      h+='<div style="flex:1"></div>';
-      h+='<span style="font-size:16px;color:var(--tm);transform:rotate('+(isOpen?180:0)+'deg);transition:transform .2s">▾</span>';
-      h+='</div></button>';
-
-      if(isOpen){
-        h+='<div class="gc" style="margin-top:-4px;border-top-left-radius:0;border-top-right-radius:0">';
-
-        // ── PLAYER PROP LINES TABLE ──
-        if(hasProps){
-          var displayProps=S.evOnly?evProps:marketProps;
-          var evOnlyLabel=S.evOnly?' <span style="font-size:9px;color:var(--acc)">(+EV only)</span>':"";
-          h+='<div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:8px">'+curProp+' Props — '+g.away+' @ '+g.home+evOnlyLabel+'</div>';
-
-          // ── TOP EV+ PROP BET RECOMMENDATION (from active books) ──
-          var topEVProps=displayProps.filter(function(p){return p.dispSide&&p.dispSideEV>=3}).sort(function(a,b){return b.dispSideEV-a.dispSideEV});
-          if(topEVProps.length>0){
-            var tp=topEVProps[0];
-            var tpColor=tp.dispSide==="OVER"?"var(--acc)":"var(--neg)";
-            h+='<div class="bet-rec" style="margin-bottom:10px">';
-            h+='<div><div class="bet-label">Best '+curProp+' Prop</div><div class="bet-team" style="font-size:14px">'+tp.player+'</div></div>';
-            h+='<div><div class="bet-label">Play</div><div style="font-size:16px;font-weight:800;color:'+tpColor+'">'+tp.dispSide+' '+tp.line+'</div></div>';
-            h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(tp.dispOdds)+'</div></div>';
-            h+='<div><div class="bet-label">Book</div><div class="bet-book">'+(tp.dispBook||"—")+'</div></div>';
-            h+='<div><div class="bet-label">Edge</div><div class="bet-edge">+'+tp.bestSideEV+'pp</div></div>';
-            h+='</div>';
-            if(topEVProps.length>1){
-              h+='<div style="font-size:10px;color:var(--acc);margin-bottom:8px">'+topEVProps.length+' total +EV props at your active books — see table below</div>';
-            }
-          }else if(displayProps.some(function(p){return p.bestSideEV>=3})){
-            // Edge exists from all books but no active book has it
-            h+='<div class="bet-watch" style="margin-bottom:10px"><div class="bet-label">+EV at other books</div><div style="font-size:11px;color:var(--warn)">Edge exists but not at your active sportsbooks. Enable more books to see the recommendation.</div></div>';
-          }
-          if(displayProps.length){
-            h+='<table class="prop-table"><thead><tr>';
-            h+='<th>Player</th><th>Line</th><th>Over</th><th>Under</th><th>O Edge</th><th>U Edge</th><th>Play</th><th>Book</th>';
-            h+='</tr></thead><tbody>';
-            // Sort: EV+ first, then by best edge descending
-            displayProps.sort(function(a,b){
-              var aMax=Math.max(a.overEV||0,a.underEV||0);
-              var bMax=Math.max(b.overEV||0,b.underEV||0);
-              return bMax-aMax;
-            });
-            displayProps.forEach(function(p){
-              var isEV=p.dispSide&&p.dispSideEV>=3;
-              var hasEdgeAllBooks=p.bestSideEV>=3;
-              h+='<tr class="'+(isEV?"prop-ev":(hasEdgeAllBooks?"":""))+'">';
-              h+='<td class="prop-player">'+p.player+'</td>';
-              h+='<td class="prop-line">'+(p.line!=null?p.line:"—")+'</td>';
-              // Show active-book odds (what user can actually bet)
-              h+='<td class="prop-over"'+(p.dispSide==="OVER"?' style="font-size:13px"':"")+'>'+(p.dispOver!=null?fml(p.dispOver):(p.bestOver!=null?'<span style="opacity:0.4">'+fml(p.bestOver)+'</span>':"—"))+'</td>';
-              h+='<td class="prop-under"'+(p.dispSide==="UNDER"?' style="font-size:13px"':"")+'>'+(p.dispUnder!=null?fml(p.dispUnder):(p.bestUnder!=null?'<span style="opacity:0.4">'+fml(p.bestUnder)+'</span>':"—"))+'</td>';
-              // Over edge (from ALL books)
-              var oEV=p.overEV||0;
-              var oCol=oEV>=3?"var(--acc)":oEV>0?"var(--tm)":"var(--td)";
-              h+='<td style="font-weight:700;color:'+oCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestOver!=null?(oEV>0?"+":"")+oEV+"%":"—")+'</td>';
-              // Under edge (from ALL books)
-              var uEV=p.underEV||0;
-              var uCol=uEV>=3?"var(--acc)":uEV>0?"var(--tm)":"var(--td)";
-              h+='<td style="font-weight:700;color:'+uCol+';font-family:\'JetBrains Mono\',monospace;font-size:10px">'+(p.bestUnder!=null?(uEV>0?"+":"")+uEV+"%":"—")+'</td>';
-              // Recommended side (only if active book is +EV)
-              if(p.dispSide){
-                var sideColor=p.dispSide==="OVER"?"var(--acc)":"var(--neg)";
-                h+='<td style="font-weight:800;color:'+sideColor+';font-size:11px">'+p.dispSide+'</td>';
-              }else if(hasEdgeAllBooks){
-                h+='<td style="color:var(--warn);font-size:9px" title="Edge exists at other books">⚠️</td>';
-              }else{
-                h+='<td style="color:var(--tf);font-size:9px">—</td>';
-              }
-              // Book (active book)
-              h+='<td class="prop-book">';
-              if(p.dispSide)h+=p.dispBook||"—";
-              else if(hasEdgeAllBooks)h+='<span style="font-size:8px;color:var(--warn)">other</span>';
-              else h+=p.dispOverBook||p.dispUnderBook||"—";
-              h+='</td>';
-              h+='</tr>';
-            });
-            h+='</tbody></table>';
-          }else{
-            h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">No +EV props found for this game. Try disabling the +EV filter or switching prop types.</div>';
-          }
-
-          // Show how many books have this market
-          var totalBooks=0;
-          marketProps.forEach(function(p){if(p.books)totalBooks=Math.max(totalBooks,p.books.length)});
-          if(totalBooks>1)h+='<div style="margin-top:6px;font-size:9px;color:var(--td)">Edge calculated from line disagreement across '+totalBooks+' books</div>';
-        }else if(propsLoaded){
-          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">No '+curProp+' props available for this game. Try a different prop category.</div>';
-        }else if(propsLoading){
-          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">Loading props...</div>';
-        }else{
-          h+='<div style="padding:12px 0;font-size:12px;color:var(--tm);text-align:center">Click <strong>↻ Refresh All</strong> to load props for all games.</div>';
-        }
-
-        // ── CONTEXT SIGNALS ──
-        if(isNHL){
-          if(hasProps)h+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bdL)">';
-          h+='<div style="font-size:11px;font-weight:700;color:var(--tx);margin-bottom:8px">Context Signals:</div>';
-          (g.signals||[]).forEach(function(s){
-            var bgc=s.type==="boost"?"var(--ovBg)":s.type==="fade"?"var(--unBg)":"transparent";
-            var tc=s.type==="boost"?"var(--acc)":s.type==="fade"?"var(--neg)":"var(--td)";
-            h+='<div style="padding:5px 10px;margin-bottom:3px;border-radius:6px;background:'+bgc+';display:flex;align-items:center;gap:8px;font-size:11px;color:'+tc+'">';
-            h+='<span>'+s.icon+'</span><span>'+s.text+'</span></div>';
-          });
-
-          // Prop guidance
-          h+='<div style="margin-top:8px;font-size:10px;font-weight:700;color:var(--tx);margin-bottom:4px">Prop Direction:</div>';
-          var propGuide=[];
-          if(g.awayB2B){
-            propGuide.push({cat:"Goals/Points",note:"Fade "+g.away+" scoring — B2B fatigue reduces offensive output",type:"fade"});
-            propGuide.push({cat:"Shots on Goal",note:"Lean under on "+g.away+" SOG — tired legs = fewer shots",type:"fade"});
-          }
-          if(g.homeB2B){
-            propGuide.push({cat:"Goals/Points",note:"Fade "+g.home+" scoring — B2B fatigue",type:"fade"});
-          }
-          if(!g.homeB2B&&!g.awayB2B&&(g.homeRest||99)>=3){
-            propGuide.push({cat:"Goals/Points",note:g.home+" well-rested — lean over on home scoring",type:"boost"});
-          }
-          if((g.tzDiff||0)>=2){
-            propGuide.push({cat:"Period props",note:"Road team fades in 3rd after cross-timezone travel",type:"boost"});
-          }
-          if(!propGuide.length)propGuide.push({cat:"General",note:"No strong directional signals — shop book disagreements",type:"neutral"});
-          propGuide.forEach(function(pg){
-            var bgc=pg.type==="boost"?"var(--ovBg)":pg.type==="fade"?"var(--unBg)":"transparent";
-            var tc=pg.type==="boost"?"var(--acc)":pg.type==="fade"?"var(--neg)":"var(--td)";
-            h+='<div style="padding:3px 10px;margin-bottom:2px;border-radius:4px;background:'+bgc+';font-size:10px">';
-            h+='<span style="font-weight:700;color:'+tc+'">'+pg.cat+':</span> <span style="color:var(--tm)">'+pg.note+'</span></div>';
-          });
-          if(hasProps)h+='</div>';
-        }else{
-          // MLB context
-          if(hasProps)h+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bdL)">';
-          var info=S.mlb.lineups[g.home]||{};
-          var wx=S.mlb.weather[g.home];
-          var fat=S.mlb.fatigue[g.home]||{};
-          var afat=S.mlb.fatigue[g.away]||{};
-          h+='<div style="font-size:11px;font-weight:700;color:var(--tx);margin-bottom:8px">Context:</div>';
-          var signals=[];
-          if(wx&&!wx.indoor){
-            if(wx.wind>15)signals.push({icon:"🌬",text:"High wind "+wx.wind+"mph — boost HR/TB overs",type:"boost"});
-            if(wx.temp>90)signals.push({icon:"🔥",text:"Hot "+wx.temp+"°F — boost scoring",type:"boost"});
-            if(wx.temp<50)signals.push({icon:"🥶",text:"Cold "+wx.temp+"°F — lean unders",type:"fade"});
-            if(wx.temp>=50&&wx.temp<=90&&wx.wind<=15)signals.push({icon:"🌤",text:wx.temp+"°F, "+wx.wind+"mph — neutral",type:"neutral"});
-          }
-          if(wx&&wx.indoor)signals.push({icon:"🏟",text:"Dome — neutral",type:"neutral"});
-          if(info.umpire){
-            if(info.umpTendency==="high")signals.push({icon:"⬆️",text:info.umpire+" — HIGH-K ump",type:"boost"});
-            else if(info.umpTendency==="low")signals.push({icon:"⬇️",text:info.umpire+" — LOW-K ump",type:"fade"});
-            else signals.push({icon:"👤",text:info.umpire+" — neutral",type:"neutral"});
-          }
-          if(fat.games>=3)signals.push({icon:"💤",text:g.home+" pen tired",type:"boost"});
-          if(afat.games>=3)signals.push({icon:"💤",text:g.away+" pen tired",type:"boost"});
-          if(!signals.length)signals.push({icon:"📊",text:"No strong signals",type:"neutral"});
-          signals.forEach(function(s){
-            var bgc=s.type==="boost"?"var(--ovBg)":s.type==="fade"?"var(--unBg)":"transparent";
-            var tc=s.type==="boost"?"var(--acc)":s.type==="fade"?"var(--neg)":"var(--td)";
-            h+='<div style="padding:5px 10px;margin-bottom:3px;border-radius:6px;background:'+bgc+';display:flex;align-items:center;gap:8px;font-size:11px;color:'+tc+'"><span>'+s.icon+'</span><span>'+s.text+'</span></div>';
-          });
-          if(hasProps)h+='</div>';
-        }
-
-        h+='</div>';
-      }
     });
   }
 
