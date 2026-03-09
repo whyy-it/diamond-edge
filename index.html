@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Diamond Edge v10 — MLB + NHL Betting Model</title>
+<title>Diamond Edge v11c — MLB + NHL Betting Model</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0c0e17;--card:#141724;--alt:#111320;--head:#111422;--bd:#1f2338;--bdL:#181c30;--acc:#00ffa3;--ac2:#00c9ff;--tx:#e5e8f2;--tm:#9ca1b8;--td:#5e6380;--tf:#3c4058;--neg:#ff4d6a;--warn:#ff9f43;--ovBg:rgba(0,255,163,0.07);--unBg:rgba(255,77,106,0.07);--ice:#38bdf8;--iceBg:rgba(56,189,248,0.07)}
@@ -230,3683 +230,6 @@ var NHL_TZ={
   "ANA":3,"CGY":2,"EDM":2,"LAK":3,"SJS":3,"SEA":3,"VAN":3,"VGK":3,
 };
 
-
-// ═══════════════════════════════════════════════════════════
-// MLB MODEL v11b — 24 features, trained 2021-2023, tested 2025
-// Test: 59% accuracy, +25.8% ROI at 12%+ edge (closing lines)
-// ═══════════════════════════════════════════════════════════
-var V11B_BIAS = 0.045044;
-var V11B_WEIGHTS = {
-  "f_home": 0.009874,
-  "f_pyth": 0.015458,
-  "f_l10": 0.076103,
-  "f_l30": 0.045677,
-  "f_l10_rd": 0.032638,
-  "f_wrc": 0.281277,
-  "f_ops": 0.115798,
-  "f_xwoba_bat": 0.03397,
-  "f_barrel": 0.018697,
-  "f_ev": 0.086234,
-  "f_era": 0.35812,
-  "f_fip": 0.158244,
-  "f_bb9": 0.138113,
-  "f_sp_xera": 0.149821,
-  "f_sp_xwoba": 0.035446,
-  "f_matchup": 0.093482,
-  "f_pen": -0.254364,
-  "f_park": 0.088199,
-  "f_rest_diff": -0.022195,
-  "f_sched": -0.05917,
-  "f_travel": -0.017581,
-  "f_sp_x_bat": 0.050649,
-  "f_pen_x_sched": 0.116615,
-  "f_form_x_rd": -0.020346
-};
-var V11B_FEATURES = ["f_home", "f_pyth", "f_l10", "f_l30", "f_l10_rd", "f_wrc", "f_ops", "f_xwoba_bat", "f_barrel", "f_ev", "f_era", "f_fip", "f_bb9", "f_sp_xera", "f_sp_xwoba", "f_matchup", "f_pen", "f_park", "f_rest_diff", "f_sched", "f_travel", "f_sp_x_bat", "f_pen_x_sched", "f_form_x_rd"];
-
-// Team batting stats (2025 FanGraphs) — update periodically during 2026 season
-var TEAM_BAT = {
-  "New York Yankees": {
-    "wRC": 119.0,
-    "OPS": 0.787,
-    "xwOBA": 0.34,
-    "Barrel": 0.118,
-    "EV": 90.8,
-    "BB": 0.102
-  },
-  "Los Angeles Dodgers": {
-    "wRC": 113.0,
-    "OPS": 0.768,
-    "xwOBA": 0.335,
-    "Barrel": 0.1,
-    "EV": 89.9,
-    "BB": 0.094
-  },
-  "Toronto Blue Jays": {
-    "wRC": 112.0,
-    "OPS": 0.761,
-    "xwOBA": 0.331,
-    "Barrel": 0.081,
-    "EV": 89.3,
-    "BB": 0.084
-  },
-  "Philadelphia Phillies": {
-    "wRC": 109.0,
-    "OPS": 0.759,
-    "xwOBA": 0.328,
-    "Barrel": 0.09,
-    "EV": 89.9,
-    "BB": 0.086
-  },
-  "Arizona Diamondbacks": {
-    "wRC": 109.0,
-    "OPS": 0.757,
-    "xwOBA": 0.326,
-    "Barrel": 0.09,
-    "EV": 89.3,
-    "BB": 0.088
-  },
-  "New York Mets": {
-    "wRC": 112.0,
-    "OPS": 0.753,
-    "xwOBA": 0.339,
-    "Barrel": 0.106,
-    "EV": 90.7,
-    "BB": 0.091
-  },
-  "Chicago Cubs": {
-    "wRC": 110.0,
-    "OPS": 0.751,
-    "xwOBA": 0.333,
-    "Barrel": 0.1,
-    "EV": 89.0,
-    "BB": 0.09
-  },
-  "ATH": {
-    "wRC": 105.0,
-    "OPS": 0.749,
-    "xwOBA": 0.31,
-    "Barrel": 0.084,
-    "EV": 88.8,
-    "BB": 0.082
-  },
-  "Boston Red Sox": {
-    "wRC": 103.0,
-    "OPS": 0.745,
-    "xwOBA": 0.319,
-    "Barrel": 0.092,
-    "EV": 90.3,
-    "BB": 0.083
-  },
-  "Milwaukee Brewers": {
-    "wRC": 107.0,
-    "OPS": 0.736,
-    "xwOBA": 0.314,
-    "Barrel": 0.067,
-    "EV": 88.6,
-    "BB": 0.091
-  },
-  "Seattle Mariners": {
-    "wRC": 113.0,
-    "OPS": 0.74,
-    "xwOBA": 0.321,
-    "Barrel": 0.095,
-    "EV": 89.7,
-    "BB": 0.088
-  },
-  "Detroit Tigers": {
-    "wRC": 103.0,
-    "OPS": 0.73,
-    "xwOBA": 0.321,
-    "Barrel": 0.094,
-    "EV": 89.3,
-    "BB": 0.084
-  },
-  "Atlanta Braves": {
-    "wRC": 101.0,
-    "OPS": 0.72,
-    "xwOBA": 0.323,
-    "Barrel": 0.09,
-    "EV": 89.7,
-    "BB": 0.093
-  },
-  "Houston Astros": {
-    "wRC": 100.0,
-    "OPS": 0.714,
-    "xwOBA": 0.313,
-    "Barrel": 0.08,
-    "EV": 88.4,
-    "BB": 0.077
-  },
-  "TBR": {
-    "wRC": 98.0,
-    "OPS": 0.714,
-    "xwOBA": 0.308,
-    "Barrel": 0.076,
-    "EV": 89.4,
-    "BB": 0.077
-  },
-  "SDP": {
-    "wRC": 102.0,
-    "OPS": 0.711,
-    "xwOBA": 0.319,
-    "Barrel": 0.075,
-    "EV": 89.0,
-    "BB": 0.084
-  },
-  "Minnesota Twins": {
-    "wRC": 97.0,
-    "OPS": 0.708,
-    "xwOBA": 0.312,
-    "Barrel": 0.087,
-    "EV": 89.4,
-    "BB": 0.082
-  },
-  "Miami Marlins": {
-    "wRC": 96.0,
-    "OPS": 0.708,
-    "xwOBA": 0.317,
-    "Barrel": 0.078,
-    "EV": 89.2,
-    "BB": 0.078
-  },
-  "Cincinnati Reds": {
-    "wRC": 92.0,
-    "OPS": 0.706,
-    "xwOBA": 0.3,
-    "Barrel": 0.072,
-    "EV": 88.6,
-    "BB": 0.087
-  },
-  "KCR": {
-    "wRC": 93.0,
-    "OPS": 0.706,
-    "xwOBA": 0.318,
-    "Barrel": 0.079,
-    "EV": 89.8,
-    "BB": 0.072
-  },
-  "SFG": {
-    "wRC": 97.0,
-    "OPS": 0.697,
-    "xwOBA": 0.307,
-    "Barrel": 0.076,
-    "EV": 88.9,
-    "BB": 0.092
-  },
-  "Baltimore Orioles": {
-    "wRC": 96.0,
-    "OPS": 0.699,
-    "xwOBA": 0.312,
-    "Barrel": 0.091,
-    "EV": 89.6,
-    "BB": 0.08
-  },
-  "St. Louis Cardinals": {
-    "wRC": 96.0,
-    "OPS": 0.693,
-    "xwOBA": 0.309,
-    "Barrel": 0.079,
-    "EV": 89.5,
-    "BB": 0.079
-  },
-  "WSN": {
-    "wRC": 93.0,
-    "OPS": 0.693,
-    "xwOBA": 0.316,
-    "Barrel": 0.079,
-    "EV": 89.6,
-    "BB": 0.074
-  },
-  "Los Angeles Angels": {
-    "wRC": 92.0,
-    "OPS": 0.695,
-    "xwOBA": 0.311,
-    "Barrel": 0.108,
-    "EV": 89.2,
-    "BB": 0.081
-  },
-  "Texas Rangers": {
-    "wRC": 92.0,
-    "OPS": 0.684,
-    "xwOBA": 0.31,
-    "Barrel": 0.086,
-    "EV": 89.2,
-    "BB": 0.08
-  },
-  "Chicago White Sox": {
-    "wRC": 88.0,
-    "OPS": 0.675,
-    "xwOBA": 0.305,
-    "Barrel": 0.081,
-    "EV": 89.3,
-    "BB": 0.083
-  },
-  "Colorado Rockies": {
-    "wRC": 74.0,
-    "OPS": 0.679,
-    "xwOBA": 0.294,
-    "Barrel": 0.08,
-    "EV": 88.8,
-    "BB": 0.067
-  },
-  "Cleveland Guardians": {
-    "wRC": 87.0,
-    "OPS": 0.67,
-    "xwOBA": 0.292,
-    "Barrel": 0.066,
-    "EV": 88.5,
-    "BB": 0.083
-  },
-  "Pittsburgh Pirates": {
-    "wRC": 82.0,
-    "OPS": 0.655,
-    "xwOBA": 0.305,
-    "Barrel": 0.078,
-    "EV": 89.2,
-    "BB": 0.088
-  }
-};
-
-// Team pitching stats (2025 FanGraphs)
-var TEAM_PIT = {
-  "Texas Rangers": {
-    "ERA": 3.49,
-    "FIP": 3.89,
-    "BB9": 2.89,
-    "xwOBA": 0.32
-  },
-  "Milwaukee Brewers": {
-    "ERA": 3.59,
-    "FIP": 3.91,
-    "BB9": 3.33,
-    "xwOBA": 0.32
-  },
-  "SDP": {
-    "ERA": 3.64,
-    "FIP": 4.02,
-    "BB9": 3.36,
-    "xwOBA": 0.32
-  },
-  "Cleveland Guardians": {
-    "ERA": 3.7,
-    "FIP": 3.95,
-    "BB9": 3.29,
-    "xwOBA": 0.32
-  },
-  "Boston Red Sox": {
-    "ERA": 3.72,
-    "FIP": 3.98,
-    "BB9": 3.29,
-    "xwOBA": 0.32
-  },
-  "KCR": {
-    "ERA": 3.73,
-    "FIP": 4.01,
-    "BB9": 2.99,
-    "xwOBA": 0.32
-  },
-  "Pittsburgh Pirates": {
-    "ERA": 3.76,
-    "FIP": 3.83,
-    "BB9": 2.98,
-    "xwOBA": 0.32
-  },
-  "Philadelphia Phillies": {
-    "ERA": 3.79,
-    "FIP": 3.7,
-    "BB9": 2.72,
-    "xwOBA": 0.32
-  },
-  "Chicago Cubs": {
-    "ERA": 3.81,
-    "FIP": 4.16,
-    "BB9": 2.54,
-    "xwOBA": 0.32
-  },
-  "SFG": {
-    "ERA": 3.84,
-    "FIP": 3.74,
-    "BB9": 3.18,
-    "xwOBA": 0.32
-  },
-  "Houston Astros": {
-    "ERA": 3.86,
-    "FIP": 4.02,
-    "BB9": 3.17,
-    "xwOBA": 0.32
-  },
-  "Cincinnati Reds": {
-    "ERA": 3.86,
-    "FIP": 4.11,
-    "BB9": 3.1,
-    "xwOBA": 0.32
-  },
-  "Seattle Mariners": {
-    "ERA": 3.87,
-    "FIP": 3.97,
-    "BB9": 2.79,
-    "xwOBA": 0.32
-  },
-  "New York Yankees": {
-    "ERA": 3.91,
-    "FIP": 3.99,
-    "BB9": 3.48,
-    "xwOBA": 0.32
-  },
-  "TBR": {
-    "ERA": 3.94,
-    "FIP": 4.15,
-    "BB9": 2.98,
-    "xwOBA": 0.32
-  },
-  "Los Angeles Dodgers": {
-    "ERA": 3.95,
-    "FIP": 3.93,
-    "BB9": 3.52,
-    "xwOBA": 0.32
-  },
-  "Detroit Tigers": {
-    "ERA": 3.97,
-    "FIP": 4.05,
-    "BB9": 3.04,
-    "xwOBA": 0.32
-  },
-  "New York Mets": {
-    "ERA": 4.04,
-    "FIP": 3.88,
-    "BB9": 3.49,
-    "xwOBA": 0.32
-  },
-  "Toronto Blue Jays": {
-    "ERA": 4.19,
-    "FIP": 4.26,
-    "BB9": 3.24,
-    "xwOBA": 0.32
-  },
-  "Chicago White Sox": {
-    "ERA": 4.28,
-    "FIP": 4.47,
-    "BB9": 3.78,
-    "xwOBA": 0.32
-  },
-  "St. Louis Cardinals": {
-    "ERA": 4.3,
-    "FIP": 4.06,
-    "BB9": 2.9,
-    "xwOBA": 0.32
-  },
-  "Atlanta Braves": {
-    "ERA": 4.36,
-    "FIP": 4.2,
-    "BB9": 3.32,
-    "xwOBA": 0.32
-  },
-  "Arizona Diamondbacks": {
-    "ERA": 4.49,
-    "FIP": 4.27,
-    "BB9": 3.12,
-    "xwOBA": 0.32
-  },
-  "Minnesota Twins": {
-    "ERA": 4.55,
-    "FIP": 4.09,
-    "BB9": 2.9,
-    "xwOBA": 0.32
-  },
-  "Miami Marlins": {
-    "ERA": 4.6,
-    "FIP": 4.34,
-    "BB9": 3.16,
-    "xwOBA": 0.32
-  },
-  "Baltimore Orioles": {
-    "ERA": 4.62,
-    "FIP": 4.41,
-    "BB9": 3.29,
-    "xwOBA": 0.32
-  },
-  "ATH": {
-    "ERA": 4.71,
-    "FIP": 4.66,
-    "BB9": 3.57,
-    "xwOBA": 0.32
-  },
-  "Los Angeles Angels": {
-    "ERA": 4.89,
-    "FIP": 4.78,
-    "BB9": 3.9,
-    "xwOBA": 0.32
-  },
-  "WSN": {
-    "ERA": 5.35,
-    "FIP": 4.72,
-    "BB9": 3.58,
-    "xwOBA": 0.32
-  },
-  "Colorado Rockies": {
-    "ERA": 5.99,
-    "FIP": 5.24,
-    "BB9": 3.54,
-    "xwOBA": 0.32
-  }
-};
-
-// Pitcher Statcast lookup (2025, 100+ PA starters)
-var PITCHER_XS = {
-  "Logan Webb": {
-    "xERA": 3.58,
-    "xwOBA": 0.295,
-    "ERA": 3.22,
-    "pa": 856
-  },
-  "Garrett Crochet": {
-    "xERA": 2.89,
-    "xwOBA": 0.266,
-    "ERA": 2.59,
-    "pa": 814
-  },
-  "Zac Gallen": {
-    "xERA": 4.27,
-    "xwOBA": 0.32,
-    "ERA": 4.83,
-    "pa": 813
-  },
-  "Cristopher S\u00e1nchez": {
-    "xERA": 3.02,
-    "xwOBA": 0.272,
-    "ERA": 2.5,
-    "pa": 807
-  },
-  "Framber Valdez": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 3.66,
-    "pa": 802
-  },
-  "Max Fried": {
-    "xERA": 3.38,
-    "xwOBA": 0.287,
-    "ERA": 2.86,
-    "pa": 801
-  },
-  "Carlos Rod\u00f3n": {
-    "xERA": 3.36,
-    "xwOBA": 0.286,
-    "ERA": 3.09,
-    "pa": 789
-  },
-  "Jake Irvin": {
-    "xERA": 5.59,
-    "xwOBA": 0.36,
-    "ERA": 5.7,
-    "pa": 787
-  },
-  "Kevin Gausman": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 3.59,
-    "pa": 775
-  },
-  "Yusei Kikuchi": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 3.99,
-    "pa": 772
-  },
-  "Brandon Pfaadt": {
-    "xERA": 5.3,
-    "xwOBA": 0.352,
-    "ERA": 5.25,
-    "pa": 767
-  },
-  "Tanner Bibee": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 4.25,
-    "pa": 762
-  },
-  "Zack Littell": {
-    "xERA": 4.36,
-    "xwOBA": 0.323,
-    "ERA": 3.81,
-    "pa": 759
-  },
-  "Jes\u00fas Luzardo": {
-    "xERA": 3.33,
-    "xwOBA": 0.285,
-    "ERA": 3.92,
-    "pa": 758
-  },
-  "Robbie Ray": {
-    "xERA": 3.71,
-    "xwOBA": 0.3,
-    "ERA": 3.65,
-    "pa": 755
-  },
-  "Sonny Gray": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 4.28,
-    "pa": 753
-  },
-  "Mitch Keller": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 4.18,
-    "pa": 749
-  },
-  "Merrill Kelly": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 3.52,
-    "pa": 748
-  },
-  "Tarik Skubal": {
-    "xERA": 2.71,
-    "xwOBA": 0.258,
-    "ERA": 2.21,
-    "pa": 748
-  },
-  "Sandy Alcantara": {
-    "xERA": 4.64,
-    "xwOBA": 0.332,
-    "ERA": 5.36,
-    "pa": 745
-  },
-  "Luis Castillo": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 3.54,
-    "pa": 745
-  },
-  "Chris Bassitt": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 3.96,
-    "pa": 736
-  },
-  "Paul Skenes": {
-    "xERA": 2.65,
-    "xwOBA": 0.255,
-    "ERA": 1.97,
-    "pa": 733
-  },
-  "Bryan Woo": {
-    "xERA": 3.07,
-    "xwOBA": 0.274,
-    "ERA": 2.94,
-    "pa": 731
-  },
-  "Hunter Brown": {
-    "xERA": 3.14,
-    "xwOBA": 0.277,
-    "ERA": 2.43,
-    "pa": 729
-  },
-  "Mitchell Parker": {
-    "xERA": 5.96,
-    "xwOBA": 0.37,
-    "ERA": 5.68,
-    "pa": 725
-  },
-  "Jos\u00e9 Soriano": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 4.26,
-    "pa": 724
-  },
-  "Freddy Peralta": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 2.7,
-    "pa": 723
-  },
-  "David Peterson": {
-    "xERA": 4.61,
-    "xwOBA": 0.331,
-    "ERA": 4.21,
-    "pa": 723
-  },
-  "Dylan Cease": {
-    "xERA": 3.46,
-    "xwOBA": 0.29,
-    "ERA": 4.55,
-    "pa": 722
-  },
-  "Nick Pivetta": {
-    "xERA": 3.99,
-    "xwOBA": 0.31,
-    "ERA": 2.87,
-    "pa": 721
-  },
-  "Matthew Boyd": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 3.21,
-    "pa": 718
-  },
-  "Michael Wacha": {
-    "xERA": 4.19,
-    "xwOBA": 0.317,
-    "ERA": 3.86,
-    "pa": 716
-  },
-  "Brady Singer": {
-    "xERA": 4.27,
-    "xwOBA": 0.32,
-    "ERA": 4.03,
-    "pa": 716
-  },
-  "Andre Pallante": {
-    "xERA": 4.3,
-    "xwOBA": 0.321,
-    "ERA": 5.31,
-    "pa": 715
-  },
-  "Jeffrey Springs": {
-    "xERA": 4.3,
-    "xwOBA": 0.321,
-    "ERA": 4.11,
-    "pa": 713
-  },
-  "Will Warren": {
-    "xERA": 4.58,
-    "xwOBA": 0.33,
-    "ERA": 4.43,
-    "pa": 711
-  },
-  "Shane Baz": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 4.87,
-    "pa": 711
-  },
-  "Kyle Freeland": {
-    "xERA": 4.96,
-    "xwOBA": 0.342,
-    "ERA": 4.98,
-    "pa": 709
-  },
-  "Dean Kremer": {
-    "xERA": 3.82,
-    "xwOBA": 0.304,
-    "ERA": 4.19,
-    "pa": 708
-  },
-  "Clay Holmes": {
-    "xERA": 4.33,
-    "xwOBA": 0.322,
-    "ERA": 3.53,
-    "pa": 708
-  },
-  "Luis Severino": {
-    "xERA": 4.61,
-    "xwOBA": 0.331,
-    "ERA": 4.54,
-    "pa": 705
-  },
-  "Gavin Williams": {
-    "xERA": 4.3,
-    "xwOBA": 0.321,
-    "ERA": 3.06,
-    "pa": 704
-  },
-  "Brayan Bello": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 3.35,
-    "pa": 700
-  },
-  "Jos\u00e9 Berr\u00edos": {
-    "xERA": 4.8,
-    "xwOBA": 0.337,
-    "ERA": 4.17,
-    "pa": 698
-  },
-  "Kyle Hendricks": {
-    "xERA": 3.93,
-    "xwOBA": 0.308,
-    "ERA": 4.75,
-    "pa": 695
-  },
-  "Eduardo Rodriguez": {
-    "xERA": 4.51,
-    "xwOBA": 0.328,
-    "ERA": 5.01,
-    "pa": 694
-  },
-  "Joe Ryan": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 3.42,
-    "pa": 689
-  },
-  "Yoshinobu Yamamoto": {
-    "xERA": 2.74,
-    "xwOBA": 0.259,
-    "ERA": 2.49,
-    "pa": 684
-  },
-  "Andrew Abbott": {
-    "xERA": 3.56,
-    "xwOBA": 0.294,
-    "ERA": 2.87,
-    "pa": 684
-  },
-  "Nick Martinez": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 4.46,
-    "pa": 683
-  },
-  "Jack Flaherty": {
-    "xERA": 3.99,
-    "xwOBA": 0.31,
-    "ERA": 4.64,
-    "pa": 681
-  },
-  "MacKenzie Gore": {
-    "xERA": 4.33,
-    "xwOBA": 0.322,
-    "ERA": 4.17,
-    "pa": 679
-  },
-  "Ryan Pepiot": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 3.87,
-    "pa": 679
-  },
-  "Bryce Elder": {
-    "xERA": 4.73,
-    "xwOBA": 0.335,
-    "ERA": 5.3,
-    "pa": 679
-  },
-  "Logan Allen": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 4.25,
-    "pa": 676
-  },
-  "Tomoyuki Sugano": {
-    "xERA": 5.81,
-    "xwOBA": 0.366,
-    "ERA": 4.64,
-    "pa": 675
-  },
-  "Chris Paddack": {
-    "xERA": 5.03,
-    "xwOBA": 0.344,
-    "ERA": 5.35,
-    "pa": 670
-  },
-  "Jacob deGrom": {
-    "xERA": 3.36,
-    "xwOBA": 0.286,
-    "ERA": 2.97,
-    "pa": 669
-  },
-  "Miles Mikolas": {
-    "xERA": 5.27,
-    "xwOBA": 0.351,
-    "ERA": 4.84,
-    "pa": 669
-  },
-  "Patrick Corbin": {
-    "xERA": 4.77,
-    "xwOBA": 0.336,
-    "ERA": 4.4,
-    "pa": 663
-  },
-  "Justin Verlander": {
-    "xERA": 4.24,
-    "xwOBA": 0.319,
-    "ERA": 3.85,
-    "pa": 662
-  },
-  "Colin Rea": {
-    "xERA": 4.55,
-    "xwOBA": 0.329,
-    "ERA": 3.95,
-    "pa": 662
-  },
-  "Charlie Morton": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 5.83,
-    "pa": 654
-  },
-  "Quinn Priester": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 3.32,
-    "pa": 653
-  },
-  "Ranger Suarez": {
-    "xERA": 3.16,
-    "xwOBA": 0.278,
-    "ERA": 3.2,
-    "pa": 651
-  },
-  "Matthew Liberatore": {
-    "xERA": 4.9,
-    "xwOBA": 0.34,
-    "ERA": 4.21,
-    "pa": 648
-  },
-  "Jack Leiter": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 3.86,
-    "pa": 646
-  },
-  "Nick Lodolo": {
-    "xERA": 3.51,
-    "xwOBA": 0.292,
-    "ERA": 3.33,
-    "pa": 642
-  },
-  "Casey Mize": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 3.87,
-    "pa": 627
-  },
-  "Bailey Ober": {
-    "xERA": 4.36,
-    "xwOBA": 0.323,
-    "ERA": 5.11,
-    "pa": 624
-  },
-  "Erick Fedde": {
-    "xERA": 5.41,
-    "xwOBA": 0.355,
-    "ERA": 5.49,
-    "pa": 623
-  },
-  "Ryne Nelson": {
-    "xERA": 3.93,
-    "xwOBA": 0.308,
-    "ERA": 3.39,
-    "pa": 619
-  },
-  "Antonio Senzatela": {
-    "xERA": 6.98,
-    "xwOBA": 0.395,
-    "ERA": 6.65,
-    "pa": 618
-  },
-  "Shane Smith": {
-    "xERA": 3.99,
-    "xwOBA": 0.31,
-    "ERA": 3.81,
-    "pa": 616
-  },
-  "Lucas Giolito": {
-    "xERA": 5.06,
-    "xwOBA": 0.345,
-    "ERA": 3.41,
-    "pa": 613
-  },
-  "Seth Lugo": {
-    "xERA": 5.2,
-    "xwOBA": 0.349,
-    "ERA": 4.15,
-    "pa": 611
-  },
-  "Michael Lorenzen": {
-    "xERA": 4.61,
-    "xwOBA": 0.331,
-    "ERA": 4.64,
-    "pa": 606
-  },
-  "Taj Bradley": {
-    "xERA": 4.1,
-    "xwOBA": 0.314,
-    "ERA": 5.05,
-    "pa": 605
-  },
-  "Davis Martin": {
-    "xERA": 5.13,
-    "xwOBA": 0.347,
-    "ERA": 4.1,
-    "pa": 601
-  },
-  "Tyler Anderson": {
-    "xERA": 5.06,
-    "xwOBA": 0.345,
-    "ERA": 4.55,
-    "pa": 599
-  },
-  "Sean Burke": {
-    "xERA": 4.96,
-    "xwOBA": 0.342,
-    "ERA": 4.22,
-    "pa": 596
-  },
-  "Germ\u00e1n M\u00e1rquez": {
-    "xERA": 5.81,
-    "xwOBA": 0.366,
-    "ERA": 6.7,
-    "pa": 591
-  },
-  "Drew Rasmussen": {
-    "xERA": 3.48,
-    "xwOBA": 0.291,
-    "ERA": 2.76,
-    "pa": 585
-  },
-  "Zack Wheeler": {
-    "xERA": 2.49,
-    "xwOBA": 0.247,
-    "ERA": 2.71,
-    "pa": 585
-  },
-  "Dustin May": {
-    "xERA": 5.2,
-    "xwOBA": 0.349,
-    "ERA": 4.96,
-    "pa": 584
-  },
-  "JP Sears": {
-    "xERA": 4.24,
-    "xwOBA": 0.319,
-    "ERA": 5.04,
-    "pa": 583
-  },
-  "Edward Cabrera": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 3.53,
-    "pa": 581
-  },
-  "Randy V\u00e1squez": {
-    "xERA": 5.37,
-    "xwOBA": 0.354,
-    "ERA": 3.84,
-    "pa": 570
-  },
-  "Shota Imanaga": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 3.73,
-    "pa": 567
-  },
-  "Walker Buehler": {
-    "xERA": 5.41,
-    "xwOBA": 0.355,
-    "ERA": 4.93,
-    "pa": 564
-  },
-  "Noah Cameron": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 2.99,
-    "pa": 556
-  },
-  "Jose Quintana": {
-    "xERA": 5.2,
-    "xwOBA": 0.349,
-    "ERA": 3.96,
-    "pa": 556
-  },
-  "Brad Lord": {
-    "xERA": 4.73,
-    "xwOBA": 0.335,
-    "ERA": 4.34,
-    "pa": 546
-  },
-  "Slade Cecconi": {
-    "xERA": 4.99,
-    "xwOBA": 0.343,
-    "ERA": 4.29,
-    "pa": 545
-  },
-  "Spencer Strider": {
-    "xERA": 4.93,
-    "xwOBA": 0.341,
-    "ERA": 4.45,
-    "pa": 539
-  },
-  "Taijuan Walker": {
-    "xERA": 4.58,
-    "xwOBA": 0.33,
-    "ERA": 4.08,
-    "pa": 538
-  },
-  "Andrew Heaney": {
-    "xERA": 5.66,
-    "xwOBA": 0.362,
-    "ERA": 5.52,
-    "pa": 536
-  },
-  "Logan Gilbert": {
-    "xERA": 3.09,
-    "xwOBA": 0.275,
-    "ERA": 3.44,
-    "pa": 535
-  },
-  "George Kirby": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 4.21,
-    "pa": 524
-  },
-  "Jameson Taillon": {
-    "xERA": 3.85,
-    "xwOBA": 0.305,
-    "ERA": 3.68,
-    "pa": 519
-  },
-  "Adrian Houser": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 3.31,
-    "pa": 518
-  },
-  "Bailey Falter": {
-    "xERA": 4.9,
-    "xwOBA": 0.34,
-    "ERA": 4.45,
-    "pa": 518
-  },
-  "Cal Quantrill": {
-    "xERA": 5.81,
-    "xwOBA": 0.366,
-    "ERA": 6.04,
-    "pa": 513
-  },
-  "Jack Kochanowicz": {
-    "xERA": 5.88,
-    "xwOBA": 0.368,
-    "ERA": 6.81,
-    "pa": 512
-  },
-  "Chris Sale": {
-    "xERA": 2.87,
-    "xwOBA": 0.265,
-    "ERA": 2.58,
-    "pa": 510
-  },
-  "Chad Patrick": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 3.54,
-    "pa": 503
-  },
-  "Nathan Eovaldi": {
-    "xERA": 3.02,
-    "xwOBA": 0.272,
-    "ERA": 1.73,
-    "pa": 496
-  },
-  "Grant Holmes": {
-    "xERA": 4.55,
-    "xwOBA": 0.329,
-    "ERA": 3.99,
-    "pa": 492
-  },
-  "Cade Povich": {
-    "xERA": 5.44,
-    "xwOBA": 0.356,
-    "ERA": 5.21,
-    "pa": 488
-  },
-  "Kodai Senga": {
-    "xERA": 3.96,
-    "xwOBA": 0.309,
-    "ERA": 3.02,
-    "pa": 482
-  },
-  "Kris Bubic": {
-    "xERA": 3.16,
-    "xwOBA": 0.278,
-    "ERA": 2.55,
-    "pa": 476
-  },
-  "Cade Horton": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 2.67,
-    "pa": 476
-  },
-  "Landen Roupp": {
-    "xERA": 4.24,
-    "xwOBA": 0.319,
-    "ERA": 3.8,
-    "pa": 476
-  },
-  "Ben Brown": {
-    "xERA": 4.55,
-    "xwOBA": 0.329,
-    "ERA": 5.92,
-    "pa": 472
-  },
-  "Simeon Woods Richardson": {
-    "xERA": 3.82,
-    "xwOBA": 0.304,
-    "ERA": 4.04,
-    "pa": 471
-  },
-  "Jonathan Cannon": {
-    "xERA": 5.37,
-    "xwOBA": 0.354,
-    "ERA": 5.82,
-    "pa": 466
-  },
-  "Clayton Kershaw": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 3.35,
-    "pa": 463
-  },
-  "Stephen Kolek": {
-    "xERA": 4.3,
-    "xwOBA": 0.321,
-    "ERA": 3.52,
-    "pa": 461
-  },
-  "Ryan Gusto": {
-    "xERA": 4.61,
-    "xwOBA": 0.331,
-    "ERA": 5.67,
-    "pa": 453
-  },
-  "Janson Junk": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 4.17,
-    "pa": 447
-  },
-  "Joey Wentz": {
-    "xERA": 4.55,
-    "xwOBA": 0.329,
-    "ERA": 5.6,
-    "pa": 442
-  },
-  "Chase Dollander": {
-    "xERA": 5.13,
-    "xwOBA": 0.347,
-    "ERA": 6.52,
-    "pa": 441
-  },
-  "Aaron Civale": {
-    "xERA": 4.1,
-    "xwOBA": 0.314,
-    "ERA": 4.85,
-    "pa": 435
-  },
-  "Spencer Schwellenbach": {
-    "xERA": 3.56,
-    "xwOBA": 0.294,
-    "ERA": 3.09,
-    "pa": 434
-  },
-  "Eric Lauer": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 3.18,
-    "pa": 426
-  },
-  "Tyler Alexander": {
-    "xERA": 4.64,
-    "xwOBA": 0.332,
-    "ERA": 4.98,
-    "pa": 423
-  },
-  "Trevor Rogers": {
-    "xERA": 3.41,
-    "xwOBA": 0.288,
-    "ERA": 1.8,
-    "pa": 423
-  },
-  "Mike Vasil": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 2.5,
-    "pa": 423
-  },
-  "Hunter Greene": {
-    "xERA": 3.05,
-    "xwOBA": 0.273,
-    "ERA": 2.76,
-    "pa": 420
-  },
-  "Carmen Mlodzinski": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 3.54,
-    "pa": 419
-  },
-  "Aaron Nola": {
-    "xERA": 4.13,
-    "xwOBA": 0.315,
-    "ERA": 6.01,
-    "pa": 404
-  },
-  "Mike Burrows": {
-    "xERA": 4.33,
-    "xwOBA": 0.322,
-    "ERA": 3.94,
-    "pa": 402
-  },
-  "Joey Cantillo": {
-    "xERA": 3.71,
-    "xwOBA": 0.3,
-    "ERA": 3.21,
-    "pa": 401
-  },
-  "Michael McGreevy": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 4.42,
-    "pa": 400
-  },
-  "Jacob Lopez": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 4.08,
-    "pa": 399
-  },
-  "Bryce Miller": {
-    "xERA": 5.27,
-    "xwOBA": 0.351,
-    "ERA": 5.68,
-    "pa": 392
-  },
-  "J.T. Ginn": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 5.08,
-    "pa": 392
-  },
-  "Sean Newcomb": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 2.73,
-    "pa": 391
-  },
-  "Keider Montero": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 4.37,
-    "pa": 389
-  },
-  "Emerson Hancock": {
-    "xERA": 5.51,
-    "xwOBA": 0.358,
-    "ERA": 4.9,
-    "pa": 385
-  },
-  "Eury P\u00e9rez": {
-    "xERA": 3.23,
-    "xwOBA": 0.281,
-    "ERA": 4.25,
-    "pa": 385
-  },
-  "Luis Ortiz": {
-    "xERA": 4.77,
-    "xwOBA": 0.336,
-    "ERA": 4.37,
-    "pa": 382
-  },
-  "Colton Gordon": {
-    "xERA": 4.64,
-    "xwOBA": 0.332,
-    "ERA": 5.34,
-    "pa": 379
-  },
-  "Michael Soroka": {
-    "xERA": 3.53,
-    "xwOBA": 0.293,
-    "ERA": 4.52,
-    "pa": 379
-  },
-  "Mitch Spence": {
-    "xERA": 5.7,
-    "xwOBA": 0.363,
-    "ERA": 5.1,
-    "pa": 375
-  },
-  "Trevor Williams": {
-    "xERA": 4.58,
-    "xwOBA": 0.33,
-    "ERA": 6.21,
-    "pa": 373
-  },
-  "Tyler Glasnow": {
-    "xERA": 3.33,
-    "xwOBA": 0.285,
-    "ERA": 3.19,
-    "pa": 366
-  },
-  "Kyle Leahy": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 3.07,
-    "pa": 363
-  },
-  "Osvaldo Bido": {
-    "xERA": 5.37,
-    "xwOBA": 0.354,
-    "ERA": 5.87,
-    "pa": 363
-  },
-  "Max Scherzer": {
-    "xERA": 4.64,
-    "xwOBA": 0.332,
-    "ERA": 5.19,
-    "pa": 358
-  },
-  "Zebby Matthews": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 5.56,
-    "pa": 354
-  },
-  "Logan Evans": {
-    "xERA": 5.23,
-    "xwOBA": 0.35,
-    "ERA": 4.32,
-    "pa": 350
-  },
-  "Valente Bellozo": {
-    "xERA": 5.23,
-    "xwOBA": 0.35,
-    "ERA": 4.65,
-    "pa": 348
-  },
-  "Jacob Latz": {
-    "xERA": 4.13,
-    "xwOBA": 0.315,
-    "ERA": 2.84,
-    "pa": 348
-  },
-  "Jimmy Herget": {
-    "xERA": 3.31,
-    "xwOBA": 0.284,
-    "ERA": 2.48,
-    "pa": 347
-  },
-  "Tyler Mahle": {
-    "xERA": 4.24,
-    "xwOBA": 0.319,
-    "ERA": 2.18,
-    "pa": 346
-  },
-  "Spencer Bivens": {
-    "xERA": 4.1,
-    "xwOBA": 0.314,
-    "ERA": 4.0,
-    "pa": 343
-  },
-  "Tanner Gordon": {
-    "xERA": 5.88,
-    "xwOBA": 0.368,
-    "ERA": 6.33,
-    "pa": 337
-  },
-  "Jason Alexander": {
-    "xERA": 4.86,
-    "xwOBA": 0.339,
-    "ERA": 4.77,
-    "pa": 336
-  },
-  "Ben Casparius": {
-    "xERA": 3.71,
-    "xwOBA": 0.3,
-    "ERA": 4.63,
-    "pa": 333
-  },
-  "Carlos Vargas": {
-    "xERA": 3.69,
-    "xwOBA": 0.299,
-    "ERA": 3.97,
-    "pa": 331
-  },
-  "Jackson Rutledge": {
-    "xERA": 4.73,
-    "xwOBA": 0.335,
-    "ERA": 5.77,
-    "pa": 331
-  },
-  "Griffin Canning": {
-    "xERA": 4.7,
-    "xwOBA": 0.334,
-    "ERA": 3.77,
-    "pa": 327
-  },
-  "Jose A. Ferrer": {
-    "xERA": 3.56,
-    "xwOBA": 0.294,
-    "ERA": 4.48,
-    "pa": 324
-  },
-  "Ryan Bergert": {
-    "xERA": 4.33,
-    "xwOBA": 0.322,
-    "ERA": 3.65,
-    "pa": 323
-  },
-  "Edwin Uceta": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 3.79,
-    "pa": 321
-  },
-  "Clarke Schmidt": {
-    "xERA": 3.02,
-    "xwOBA": 0.272,
-    "ERA": 3.32,
-    "pa": 316
-  },
-  "Jordan Hicks": {
-    "xERA": 4.61,
-    "xwOBA": 0.331,
-    "ERA": 6.95,
-    "pa": 314
-  },
-  "Tyler Phillips": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 2.78,
-    "pa": 313
-  },
-  "Wandy Peralta": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 3.14,
-    "pa": 313
-  },
-  "Eduard Bazardo": {
-    "xERA": 3.33,
-    "xwOBA": 0.285,
-    "ERA": 2.52,
-    "pa": 313
-  },
-  "Pablo L\u00f3pez": {
-    "xERA": 3.96,
-    "xwOBA": 0.309,
-    "ERA": 2.74,
-    "pa": 312
-  },
-  "Tyler Holton": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 3.66,
-    "pa": 312
-  },
-  "Zach Eflin": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 5.93,
-    "pa": 309
-  },
-  "Steven Matz": {
-    "xERA": 3.38,
-    "xwOBA": 0.287,
-    "ERA": 3.05,
-    "pa": 309
-  },
-  "Michael King": {
-    "xERA": 4.27,
-    "xwOBA": 0.32,
-    "ERA": 3.44,
-    "pa": 308
-  },
-  "Tyler Kinley": {
-    "xERA": 3.53,
-    "xwOBA": 0.293,
-    "ERA": 3.96,
-    "pa": 308
-  },
-  "Jack Dreyer": {
-    "xERA": 2.69,
-    "xwOBA": 0.257,
-    "ERA": 2.95,
-    "pa": 307
-  },
-  "Brandon Eisert": {
-    "xERA": 4.1,
-    "xwOBA": 0.314,
-    "ERA": 4.39,
-    "pa": 306
-  },
-  "Tylor Megill": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 3.95,
-    "pa": 305
-  },
-  "Cam Schlittler": {
-    "xERA": 4.13,
-    "xwOBA": 0.315,
-    "ERA": 2.96,
-    "pa": 304
-  },
-  "Jeremiah Estrada": {
-    "xERA": 2.76,
-    "xwOBA": 0.26,
-    "ERA": 3.45,
-    "pa": 304
-  },
-  "Scott Barlow": {
-    "xERA": 4.36,
-    "xwOBA": 0.323,
-    "ERA": 4.21,
-    "pa": 303
-  },
-  "Ronny Henriquez": {
-    "xERA": 2.98,
-    "xwOBA": 0.27,
-    "ERA": 2.22,
-    "pa": 303
-  },
-  "Tony Santillan": {
-    "xERA": 4.33,
-    "xwOBA": 0.322,
-    "ERA": 2.44,
-    "pa": 301
-  },
-  "Cade Smith": {
-    "xERA": 2.51,
-    "xwOBA": 0.248,
-    "ERA": 2.93,
-    "pa": 300
-  },
-  "Grant Anderson": {
-    "xERA": 3.71,
-    "xwOBA": 0.3,
-    "ERA": 3.23,
-    "pa": 299
-  },
-  "Cole Sands": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 4.5,
-    "pa": 299
-  },
-  "Tyler Rogers": {
-    "xERA": 2.67,
-    "xwOBA": 0.256,
-    "ERA": 1.98,
-    "pa": 299
-  },
-  "Yariel Rodr\u00edguez": {
-    "xERA": 4.19,
-    "xwOBA": 0.317,
-    "ERA": 3.08,
-    "pa": 298
-  },
-  "Hayden Birdsong": {
-    "xERA": 4.7,
-    "xwOBA": 0.334,
-    "ERA": 4.8,
-    "pa": 298
-  },
-  "Abner Uribe": {
-    "xERA": 2.76,
-    "xwOBA": 0.26,
-    "ERA": 1.67,
-    "pa": 298
-  },
-  "Yu Darvish": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 5.38,
-    "pa": 296
-  },
-  "Lake Bachar": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 3.93,
-    "pa": 296
-  },
-  "Louis Varland": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 2.97,
-    "pa": 296
-  },
-  "Bryan Abreu": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 2.28,
-    "pa": 296
-  },
-  "Brendon Little": {
-    "xERA": 3.36,
-    "xwOBA": 0.286,
-    "ERA": 3.03,
-    "pa": 295
-  },
-  "Hoby Milner": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 3.84,
-    "pa": 293
-  },
-  "Garrett Whitlock": {
-    "xERA": 2.8,
-    "xwOBA": 0.262,
-    "ERA": 2.25,
-    "pa": 293
-  },
-  "Braxton Ashcraft": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 2.71,
-    "pa": 292
-  },
-  "Emmet Sheehan": {
-    "xERA": 3.0,
-    "xwOBA": 0.271,
-    "ERA": 2.82,
-    "pa": 291
-  },
-  "Brent Suter": {
-    "xERA": 4.1,
-    "xwOBA": 0.314,
-    "ERA": 4.52,
-    "pa": 291
-  },
-  "Daniel Lynch IV": {
-    "xERA": 4.55,
-    "xwOBA": 0.329,
-    "ERA": 3.06,
-    "pa": 289
-  },
-  "Bowden Francis": {
-    "xERA": 6.08,
-    "xwOBA": 0.373,
-    "ERA": 6.05,
-    "pa": 288
-  },
-  "Jhoan Duran": {
-    "xERA": 2.51,
-    "xwOBA": 0.248,
-    "ERA": 2.06,
-    "pa": 287
-  },
-  "Jeff Hoffman": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 4.37,
-    "pa": 287
-  },
-  "Kumar Rocker": {
-    "xERA": 5.73,
-    "xwOBA": 0.364,
-    "ERA": 5.74,
-    "pa": 287
-  },
-  "Adrian Morejon": {
-    "xERA": 2.63,
-    "xwOBA": 0.254,
-    "ERA": 2.08,
-    "pa": 286
-  },
-  "Max Meyer": {
-    "xERA": 4.8,
-    "xwOBA": 0.337,
-    "ERA": 4.73,
-    "pa": 285
-  },
-  "Reese Olson": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 3.15,
-    "pa": 285
-  },
-  "Graham Ashcraft": {
-    "xERA": 3.46,
-    "xwOBA": 0.29,
-    "ERA": 4.0,
-    "pa": 284
-  },
-  "Jos\u00e9 Butt\u00f3": {
-    "xERA": 4.51,
-    "xwOBA": 0.328,
-    "ERA": 3.9,
-    "pa": 284
-  },
-  "Will Vest": {
-    "xERA": 2.89,
-    "xwOBA": 0.266,
-    "ERA": 3.02,
-    "pa": 284
-  },
-  "Shawn Armstrong": {
-    "xERA": 3.02,
-    "xwOBA": 0.272,
-    "ERA": 2.31,
-    "pa": 284
-  },
-  "Griffin Jax": {
-    "xERA": 3.26,
-    "xwOBA": 0.282,
-    "ERA": 4.23,
-    "pa": 283
-  },
-  "Enyel De Los Santos": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 4.36,
-    "pa": 280
-  },
-  "Justin Wrobleski": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 4.32,
-    "pa": 280
-  },
-  "Gregory Soto": {
-    "xERA": 3.85,
-    "xwOBA": 0.305,
-    "ERA": 4.18,
-    "pa": 279
-  },
-  "Greg Weissert": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 2.82,
-    "pa": 278
-  },
-  "Camilo Doval": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 3.58,
-    "pa": 278
-  },
-  "Hogan Harris": {
-    "xERA": 3.85,
-    "xwOBA": 0.305,
-    "ERA": 3.2,
-    "pa": 277
-  },
-  "Yoendrys G\u00f3mez": {
-    "xERA": 5.13,
-    "xwOBA": 0.347,
-    "ERA": 5.17,
-    "pa": 277
-  },
-  "Brant Hurter": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 2.43,
-    "pa": 277
-  },
-  "Steven Okert": {
-    "xERA": 2.61,
-    "xwOBA": 0.253,
-    "ERA": 3.01,
-    "pa": 276
-  },
-  "Brad Keller": {
-    "xERA": 2.8,
-    "xwOBA": 0.262,
-    "ERA": 2.07,
-    "pa": 276
-  },
-  "Bradley Blalock": {
-    "xERA": 7.62,
-    "xwOBA": 0.409,
-    "ERA": 9.36,
-    "pa": 275
-  },
-  "Angel Chivilli": {
-    "xERA": 5.48,
-    "xwOBA": 0.357,
-    "ERA": 7.06,
-    "pa": 275
-  },
-  "Angel Zerpa": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 4.17,
-    "pa": 275
-  },
-  "Bryan King": {
-    "xERA": 3.07,
-    "xwOBA": 0.274,
-    "ERA": 2.78,
-    "pa": 275
-  },
-  "Lance McCullers Jr.": {
-    "xERA": 5.34,
-    "xwOBA": 0.353,
-    "ERA": 6.51,
-    "pa": 274
-  },
-  "Bryan Baker": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 4.06,
-    "pa": 274
-  },
-  "Hunter Gaddis": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 3.1,
-    "pa": 274
-  },
-  "Jakob Junis": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 2.97,
-    "pa": 274
-  },
-  "Austin Gomber": {
-    "xERA": 6.04,
-    "xwOBA": 0.372,
-    "ERA": 7.49,
-    "pa": 272
-  },
-  "Jacob Misiorowski": {
-    "xERA": 3.41,
-    "xwOBA": 0.288,
-    "ERA": 4.36,
-    "pa": 272
-  },
-  "Yuki Matsui": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 3.98,
-    "pa": 272
-  },
-  "Aaron Ashby": {
-    "xERA": 3.12,
-    "xwOBA": 0.276,
-    "ERA": 2.16,
-    "pa": 270
-  },
-  "Caleb Ferguson": {
-    "xERA": 3.48,
-    "xwOBA": 0.291,
-    "ERA": 3.58,
-    "pa": 270
-  },
-  "Emilio Pag\u00e1n": {
-    "xERA": 2.89,
-    "xwOBA": 0.266,
-    "ERA": 2.88,
-    "pa": 270
-  },
-  "Jason Adam": {
-    "xERA": 2.76,
-    "xwOBA": 0.26,
-    "ERA": 1.93,
-    "pa": 270
-  },
-  "Dennis Santana": {
-    "xERA": 3.51,
-    "xwOBA": 0.292,
-    "ERA": 2.17,
-    "pa": 270
-  },
-  "Carlos Est\u00e9vez": {
-    "xERA": 3.69,
-    "xwOBA": 0.299,
-    "ERA": 2.46,
-    "pa": 269
-  },
-  "Tim Hill": {
-    "xERA": 3.41,
-    "xwOBA": 0.288,
-    "ERA": 3.09,
-    "pa": 269
-  },
-  "Jordan Leasure": {
-    "xERA": 3.19,
-    "xwOBA": 0.279,
-    "ERA": 3.92,
-    "pa": 269
-  },
-  "Anthony Banda": {
-    "xERA": 3.61,
-    "xwOBA": 0.296,
-    "ERA": 3.19,
-    "pa": 269
-  },
-  "Robert Garcia": {
-    "xERA": 3.82,
-    "xwOBA": 0.304,
-    "ERA": 2.95,
-    "pa": 269
-  },
-  "Robert Suarez": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 2.97,
-    "pa": 269
-  },
-  "Jared Koenig": {
-    "xERA": 2.82,
-    "xwOBA": 0.263,
-    "ERA": 2.86,
-    "pa": 268
-  },
-  "Keegan Akin": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 3.41,
-    "pa": 268
-  },
-  "Justin Topa": {
-    "xERA": 4.42,
-    "xwOBA": 0.325,
-    "ERA": 3.9,
-    "pa": 268
-  },
-  "Tanner Banks": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 3.07,
-    "pa": 267
-  },
-  "Jacob Webb": {
-    "xERA": 3.23,
-    "xwOBA": 0.281,
-    "ERA": 3.0,
-    "pa": 267
-  },
-  "Raisel Iglesias": {
-    "xERA": 3.14,
-    "xwOBA": 0.277,
-    "ERA": 3.21,
-    "pa": 267
-  },
-  "Tommy Kahnle": {
-    "xERA": 4.51,
-    "xwOBA": 0.328,
-    "ERA": 4.43,
-    "pa": 267
-  },
-  "Ryan Walker": {
-    "xERA": 3.85,
-    "xwOBA": 0.305,
-    "ERA": 4.11,
-    "pa": 266
-  },
-  "Kolby Allard": {
-    "xERA": 3.36,
-    "xwOBA": 0.286,
-    "ERA": 2.63,
-    "pa": 266
-  },
-  "Orion Kerkering": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 3.3,
-    "pa": 266
-  },
-  "Reid Detmers": {
-    "xERA": 3.61,
-    "xwOBA": 0.296,
-    "ERA": 3.96,
-    "pa": 266
-  },
-  "Dylan Lee": {
-    "xERA": 2.93,
-    "xwOBA": 0.268,
-    "ERA": 3.29,
-    "pa": 266
-  },
-  "Justin Sterner": {
-    "xERA": 3.33,
-    "xwOBA": 0.285,
-    "ERA": 3.19,
-    "pa": 266
-  },
-  "Corbin Burnes": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 2.66,
-    "pa": 265
-  },
-  "John Schreiber": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 3.8,
-    "pa": 265
-  },
-  "Ryan Yarbrough": {
-    "xERA": 4.27,
-    "xwOBA": 0.32,
-    "ERA": 4.36,
-    "pa": 264
-  },
-  "Sean Manaea": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 5.64,
-    "pa": 263
-  },
-  "Luke Weaver": {
-    "xERA": 2.96,
-    "xwOBA": 0.269,
-    "ERA": 3.62,
-    "pa": 262
-  },
-  "Huascar Brazob\u00e1n": {
-    "xERA": 3.96,
-    "xwOBA": 0.309,
-    "ERA": 3.57,
-    "pa": 262
-  },
-  "Seranthony Dom\u00ednguez": {
-    "xERA": 3.26,
-    "xwOBA": 0.282,
-    "ERA": 3.16,
-    "pa": 261
-  },
-  "Juan Mejia": {
-    "xERA": 2.98,
-    "xwOBA": 0.27,
-    "ERA": 3.96,
-    "pa": 261
-  },
-  "Brenan Hanifee": {
-    "xERA": 4.13,
-    "xwOBA": 0.315,
-    "ERA": 3.0,
-    "pa": 260
-  },
-  "Devin Williams": {
-    "xERA": 3.02,
-    "xwOBA": 0.272,
-    "ERA": 4.79,
-    "pa": 259
-  },
-  "Edwin D\u00edaz": {
-    "xERA": 2.49,
-    "xwOBA": 0.247,
-    "ERA": 1.63,
-    "pa": 258
-  },
-  "Brandon Woodruff": {
-    "xERA": 2.22,
-    "xwOBA": 0.233,
-    "ERA": 3.2,
-    "pa": 257
-  },
-  "Cole Ragans": {
-    "xERA": 2.67,
-    "xwOBA": 0.256,
-    "ERA": 4.67,
-    "pa": 257
-  },
-  "Jorge Alcala": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 6.22,
-    "pa": 257
-  },
-  "Brock Burke": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 3.36,
-    "pa": 257
-  },
-  "Ryan Zeferjahn": {
-    "xERA": 4.3,
-    "xwOBA": 0.321,
-    "ERA": 4.74,
-    "pa": 256
-  },
-  "Brandon Young": {
-    "xERA": 4.27,
-    "xwOBA": 0.32,
-    "ERA": 6.24,
-    "pa": 256
-  },
-  "Matt Strahm": {
-    "xERA": 2.78,
-    "xwOBA": 0.261,
-    "ERA": 2.74,
-    "pa": 256
-  },
-  "Hunter Dobbins": {
-    "xERA": 3.96,
-    "xwOBA": 0.309,
-    "ERA": 4.13,
-    "pa": 256
-  },
-  "Calvin Faucher": {
-    "xERA": 4.36,
-    "xwOBA": 0.323,
-    "ERA": 3.28,
-    "pa": 255
-  },
-  "JoJo Romero": {
-    "xERA": 3.48,
-    "xwOBA": 0.291,
-    "ERA": 2.07,
-    "pa": 255
-  },
-  "Ryne Stanek": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 5.3,
-    "pa": 255
-  },
-  "Blake Snell": {
-    "xERA": 3.28,
-    "xwOBA": 0.283,
-    "ERA": 2.35,
-    "pa": 254
-  },
-  "Andr\u00e9s Mu\u00f1oz": {
-    "xERA": 2.82,
-    "xwOBA": 0.263,
-    "ERA": 1.73,
-    "pa": 254
-  },
-  "Rafael Montero": {
-    "xERA": 3.58,
-    "xwOBA": 0.295,
-    "ERA": 4.47,
-    "pa": 253
-  },
-  "Ryan Helsley": {
-    "xERA": 3.99,
-    "xwOBA": 0.31,
-    "ERA": 4.5,
-    "pa": 252
-  },
-  "Yennier Cano": {
-    "xERA": 3.69,
-    "xwOBA": 0.299,
-    "ERA": 5.12,
-    "pa": 251
-  },
-  "David Bednar": {
-    "xERA": 2.84,
-    "xwOBA": 0.264,
-    "ERA": 2.3,
-    "pa": 251
-  },
-  "Phil Maton": {
-    "xERA": 2.84,
-    "xwOBA": 0.264,
-    "ERA": 2.79,
-    "pa": 249
-  },
-  "Lucas Erceg": {
-    "xERA": 3.85,
-    "xwOBA": 0.305,
-    "ERA": 2.64,
-    "pa": 249
-  },
-  "Jake Bird": {
-    "xERA": 3.85,
-    "xwOBA": 0.305,
-    "ERA": 5.53,
-    "pa": 248
-  },
-  "Tyler Ferguson": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 4.66,
-    "pa": 246
-  },
-  "Jos\u00e9 Ure\u00f1a": {
-    "xERA": 6.73,
-    "xwOBA": 0.389,
-    "ERA": 4.58,
-    "pa": 245
-  },
-  "Luis Gil": {
-    "xERA": 4.96,
-    "xwOBA": 0.342,
-    "ERA": 3.32,
-    "pa": 244
-  },
-  "Pete Fairbanks": {
-    "xERA": 3.09,
-    "xwOBA": 0.275,
-    "ERA": 2.83,
-    "pa": 244
-  },
-  "Gabe Speier": {
-    "xERA": 2.49,
-    "xwOBA": 0.247,
-    "ERA": 2.61,
-    "pa": 243
-  },
-  "Garrett Cleavinger": {
-    "xERA": 3.23,
-    "xwOBA": 0.281,
-    "ERA": 2.35,
-    "pa": 243
-  },
-  "Ian Seymour": {
-    "xERA": 3.93,
-    "xwOBA": 0.308,
-    "ERA": 3.63,
-    "pa": 242
-  },
-  "Cole Henry": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 4.27,
-    "pa": 241
-  },
-  "Steven Wilson": {
-    "xERA": 3.77,
-    "xwOBA": 0.302,
-    "ERA": 3.42,
-    "pa": 241
-  },
-  "Reed Garrett": {
-    "xERA": 3.51,
-    "xwOBA": 0.292,
-    "ERA": 3.9,
-    "pa": 238
-  },
-  "Pierce Johnson": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 3.05,
-    "pa": 238
-  },
-  "Tanner Scott": {
-    "xERA": 4.19,
-    "xwOBA": 0.317,
-    "ERA": 4.74,
-    "pa": 237
-  },
-  "Alex Vesia": {
-    "xERA": 3.07,
-    "xwOBA": 0.274,
-    "ERA": 3.02,
-    "pa": 237
-  },
-  "Aaron Bummer": {
-    "xERA": 4.22,
-    "xwOBA": 0.318,
-    "ERA": 3.81,
-    "pa": 236
-  },
-  "Mason Miller": {
-    "xERA": 2.53,
-    "xwOBA": 0.249,
-    "ERA": 2.63,
-    "pa": 234
-  },
-  "Matt Svanson": {
-    "xERA": 3.09,
-    "xwOBA": 0.275,
-    "ERA": 1.94,
-    "pa": 234
-  },
-  "Kenley Jansen": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 2.59,
-    "pa": 234
-  },
-  "Luis Garc\u00eda": {
-    "xERA": 4.48,
-    "xwOBA": 0.327,
-    "ERA": 3.42,
-    "pa": 233
-  },
-  "Tristan Beck": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 4.61,
-    "pa": 232
-  },
-  "Jalen Beeks": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 3.77,
-    "pa": 231
-  },
-  "Cade Gibson": {
-    "xERA": 3.82,
-    "xwOBA": 0.304,
-    "ERA": 2.63,
-    "pa": 230
-  },
-  "Kyle Finnegan": {
-    "xERA": 3.16,
-    "xwOBA": 0.278,
-    "ERA": 3.47,
-    "pa": 229
-  },
-  "David Festa": {
-    "xERA": 4.86,
-    "xwOBA": 0.339,
-    "ERA": 5.4,
-    "pa": 229
-  },
-  "Hurston Waldrep": {
-    "xERA": 3.99,
-    "xwOBA": 0.31,
-    "ERA": 2.88,
-    "pa": 229
-  },
-  "Joe Ross": {
-    "xERA": 6.08,
-    "xwOBA": 0.373,
-    "ERA": 5.12,
-    "pa": 228
-  },
-  "Aroldis Chapman": {
-    "xERA": 2.11,
-    "xwOBA": 0.227,
-    "ERA": 1.17,
-    "pa": 228
-  },
-  "Mart\u00edn P\u00e9rez": {
-    "xERA": 5.37,
-    "xwOBA": 0.354,
-    "ERA": 3.54,
-    "pa": 228
-  },
-  "Joe Boyle": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 4.67,
-    "pa": 226
-  },
-  "Matt Festa": {
-    "xERA": 3.46,
-    "xwOBA": 0.29,
-    "ERA": 4.12,
-    "pa": 226
-  },
-  "Brennan Bernardino": {
-    "xERA": 3.38,
-    "xwOBA": 0.287,
-    "ERA": 3.13,
-    "pa": 225
-  },
-  "Bryse Wilson": {
-    "xERA": 8.26,
-    "xwOBA": 0.422,
-    "ERA": 6.66,
-    "pa": 224
-  },
-  "Nick Mears": {
-    "xERA": 4.42,
-    "xwOBA": 0.325,
-    "ERA": 3.49,
-    "pa": 222
-  },
-  "John King": {
-    "xERA": 4.8,
-    "xwOBA": 0.337,
-    "ERA": 4.66,
-    "pa": 222
-  },
-  "Taylor Rogers": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 3.38,
-    "pa": 221
-  },
-  "Caleb Thielbar": {
-    "xERA": 2.49,
-    "xwOBA": 0.247,
-    "ERA": 2.64,
-    "pa": 220
-  },
-  "Tobias Myers": {
-    "xERA": 4.39,
-    "xwOBA": 0.324,
-    "ERA": 3.55,
-    "pa": 220
-  },
-  "Casey Legumina": {
-    "xERA": 3.82,
-    "xwOBA": 0.304,
-    "ERA": 5.62,
-    "pa": 219
-  },
-  "Mark Leiter Jr.": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 4.84,
-    "pa": 219
-  },
-  "Cade Cavalli": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 4.25,
-    "pa": 219
-  },
-  "Luke Jackson": {
-    "xERA": 4.3,
-    "xwOBA": 0.321,
-    "ERA": 4.06,
-    "pa": 219
-  },
-  "Jackson Jobe": {
-    "xERA": 4.93,
-    "xwOBA": 0.341,
-    "ERA": 4.22,
-    "pa": 218
-  },
-  "Victor Vodnik": {
-    "xERA": 4.19,
-    "xwOBA": 0.317,
-    "ERA": 3.02,
-    "pa": 215
-  },
-  "Tyler Gilbert": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 3.88,
-    "pa": 215
-  },
-  "Mason Fluharty": {
-    "xERA": 3.31,
-    "xwOBA": 0.284,
-    "ERA": 4.44,
-    "pa": 215
-  },
-  "Daniel Palencia": {
-    "xERA": 3.26,
-    "xwOBA": 0.282,
-    "ERA": 2.9,
-    "pa": 215
-  },
-  "Brandon Walter": {
-    "xERA": 3.26,
-    "xwOBA": 0.282,
-    "ERA": 3.35,
-    "pa": 212
-  },
-  "Carlos Carrasco": {
-    "xERA": 5.37,
-    "xwOBA": 0.354,
-    "ERA": 7.09,
-    "pa": 212
-  },
-  "Mason Montgomery": {
-    "xERA": 4.58,
-    "xwOBA": 0.33,
-    "ERA": 5.67,
-    "pa": 209
-  },
-  "Andrew Kittredge": {
-    "xERA": 2.78,
-    "xwOBA": 0.261,
-    "ERA": 3.4,
-    "pa": 208
-  },
-  "Lou Trivino": {
-    "xERA": 5.09,
-    "xwOBA": 0.346,
-    "ERA": 3.96,
-    "pa": 207
-  },
-  "Justin Wilson": {
-    "xERA": 3.61,
-    "xwOBA": 0.296,
-    "ERA": 3.35,
-    "pa": 207
-  },
-  "Taylor Clarke": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 3.25,
-    "pa": 206
-  },
-  "Josh Hader": {
-    "xERA": 2.0,
-    "xwOBA": 0.221,
-    "ERA": 2.05,
-    "pa": 206
-  },
-  "Anthony Bender": {
-    "xERA": 3.56,
-    "xwOBA": 0.294,
-    "ERA": 2.16,
-    "pa": 204
-  },
-  "Tanner Houck": {
-    "xERA": 6.19,
-    "xwOBA": 0.376,
-    "ERA": 8.04,
-    "pa": 203
-  },
-  "Carlos Hern\u00e1ndez": {
-    "xERA": 5.55,
-    "xwOBA": 0.359,
-    "ERA": 6.23,
-    "pa": 203
-  },
-  "Drew Pomeranz": {
-    "xERA": 3.48,
-    "xwOBA": 0.291,
-    "ERA": 2.17,
-    "pa": 203
-  },
-  "Braydon Fisher": {
-    "xERA": 3.33,
-    "xwOBA": 0.285,
-    "ERA": 2.7,
-    "pa": 202
-  },
-  "Emmanuel Clase": {
-    "xERA": 3.14,
-    "xwOBA": 0.277,
-    "ERA": 3.23,
-    "pa": 201
-  },
-  "Fernando Cruz": {
-    "xERA": 3.41,
-    "xwOBA": 0.288,
-    "ERA": 3.56,
-    "pa": 200
-  },
-  "Dietrich Enns": {
-    "xERA": 3.41,
-    "xwOBA": 0.288,
-    "ERA": 4.08,
-    "pa": 200
-  },
-  "Ronel Blanco": {
-    "xERA": 3.19,
-    "xwOBA": 0.279,
-    "ERA": 4.1,
-    "pa": 199
-  },
-  "Bennett Sousa": {
-    "xERA": 2.89,
-    "xwOBA": 0.266,
-    "ERA": 2.84,
-    "pa": 199
-  },
-  "Connor Brogdon": {
-    "xERA": 3.85,
-    "xwOBA": 0.305,
-    "ERA": 5.55,
-    "pa": 199
-  },
-  "Riley O'Brien": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 2.06,
-    "pa": 199
-  },
-  "Matt Brash": {
-    "xERA": 3.26,
-    "xwOBA": 0.282,
-    "ERA": 2.47,
-    "pa": 199
-  },
-  "Luis Morales": {
-    "xERA": 4.42,
-    "xwOBA": 0.325,
-    "ERA": 3.14,
-    "pa": 199
-  },
-  "Randy Rodr\u00edguez": {
-    "xERA": 2.57,
-    "xwOBA": 0.251,
-    "ERA": 1.78,
-    "pa": 198
-  },
-  "Isaac Mattson": {
-    "xERA": 3.28,
-    "xwOBA": 0.283,
-    "ERA": 2.46,
-    "pa": 198
-  },
-  "Richard Fitts": {
-    "xERA": 5.62,
-    "xwOBA": 0.361,
-    "ERA": 5.0,
-    "pa": 195
-  },
-  "Scott Blewett": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 5.48,
-    "pa": 194
-  },
-  "Tim Herrin": {
-    "xERA": 4.42,
-    "xwOBA": 0.325,
-    "ERA": 4.85,
-    "pa": 194
-  },
-  "Kaleb Ort": {
-    "xERA": 3.41,
-    "xwOBA": 0.288,
-    "ERA": 4.89,
-    "pa": 194
-  },
-  "David Morgan": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 2.66,
-    "pa": 193
-  },
-  "Ryan Rolison": {
-    "xERA": 5.73,
-    "xwOBA": 0.364,
-    "ERA": 7.02,
-    "pa": 193
-  },
-  "Caleb Boushley": {
-    "xERA": 5.96,
-    "xwOBA": 0.37,
-    "ERA": 6.02,
-    "pa": 193
-  },
-  "Gordon Graceffo": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 6.28,
-    "pa": 193
-  },
-  "Trevor Megill": {
-    "xERA": 3.23,
-    "xwOBA": 0.281,
-    "ERA": 2.49,
-    "pa": 192
-  },
-  "AJ Smith-Shawver": {
-    "xERA": 6.31,
-    "xwOBA": 0.379,
-    "ERA": 3.86,
-    "pa": 191
-  },
-  "Chad Green": {
-    "xERA": 6.0,
-    "xwOBA": 0.371,
-    "ERA": 5.57,
-    "pa": 190
-  },
-  "Steven Cruz": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 3.75,
-    "pa": 189
-  },
-  "Sam Long": {
-    "xERA": 4.96,
-    "xwOBA": 0.342,
-    "ERA": 5.36,
-    "pa": 189
-  },
-  "Nolan McLean": {
-    "xERA": 3.53,
-    "xwOBA": 0.293,
-    "ERA": 2.06,
-    "pa": 188
-  },
-  "Chase Burns": {
-    "xERA": 3.48,
-    "xwOBA": 0.291,
-    "ERA": 4.57,
-    "pa": 188
-  },
-  "Jordan Romano": {
-    "xERA": 4.1,
-    "xwOBA": 0.314,
-    "ERA": 8.23,
-    "pa": 187
-  },
-  "G\u00e9nesis Cabrera": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 6.54,
-    "pa": 187
-  },
-  "Shohei Ohtani": {
-    "xERA": 2.55,
-    "xwOBA": 0.25,
-    "ERA": 2.87,
-    "pa": 187
-  },
-  "Shelby Miller": {
-    "xERA": 3.51,
-    "xwOBA": 0.292,
-    "ERA": 2.74,
-    "pa": 186
-  },
-  "Mason Englert": {
-    "xERA": 4.22,
-    "xwOBA": 0.318,
-    "ERA": 3.83,
-    "pa": 185
-  },
-  "Landon Knack": {
-    "xERA": 5.66,
-    "xwOBA": 0.362,
-    "ERA": 4.89,
-    "pa": 185
-  },
-  "Elvis Alvarado": {
-    "xERA": 3.82,
-    "xwOBA": 0.304,
-    "ERA": 3.19,
-    "pa": 183
-  },
-  "Kody Funderburk": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 3.51,
-    "pa": 183
-  },
-  "Ryan Pressly": {
-    "xERA": 5.23,
-    "xwOBA": 0.35,
-    "ERA": 4.36,
-    "pa": 182
-  },
-  "Chase Shugart": {
-    "xERA": 4.64,
-    "xwOBA": 0.332,
-    "ERA": 3.4,
-    "pa": 181
-  },
-  "Jonathan Bowlan": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 3.86,
-    "pa": 180
-  },
-  "Troy Melton": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 2.76,
-    "pa": 180
-  },
-  "Trent Thornton": {
-    "xERA": 4.86,
-    "xwOBA": 0.339,
-    "ERA": 4.68,
-    "pa": 180
-  },
-  "Kyle Hart": {
-    "xERA": 3.69,
-    "xwOBA": 0.299,
-    "ERA": 5.86,
-    "pa": 179
-  },
-  "Kirby Yates": {
-    "xERA": 4.22,
-    "xwOBA": 0.318,
-    "ERA": 5.23,
-    "pa": 179
-  },
-  "Chris Flexen": {
-    "xERA": 5.09,
-    "xwOBA": 0.346,
-    "ERA": 3.09,
-    "pa": 178
-  },
-  "Frankie Montas": {
-    "xERA": 5.34,
-    "xwOBA": 0.353,
-    "ERA": 6.28,
-    "pa": 178
-  },
-  "Ben Lively": {
-    "xERA": 4.64,
-    "xwOBA": 0.332,
-    "ERA": 3.22,
-    "pa": 178
-  },
-  "Eric Orze": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 3.02,
-    "pa": 178
-  },
-  "Danny Coulombe": {
-    "xERA": 3.96,
-    "xwOBA": 0.309,
-    "ERA": 2.3,
-    "pa": 176
-  },
-  "Paul Blackburn": {
-    "xERA": 3.99,
-    "xwOBA": 0.31,
-    "ERA": 6.23,
-    "pa": 175
-  },
-  "Marcus Stroman": {
-    "xERA": 5.88,
-    "xwOBA": 0.368,
-    "ERA": 6.23,
-    "pa": 175
-  },
-  "Carson Palmquist": {
-    "xERA": 6.31,
-    "xwOBA": 0.379,
-    "ERA": 8.91,
-    "pa": 175
-  },
-  "Ryan Thompson": {
-    "xERA": 3.61,
-    "xwOBA": 0.296,
-    "ERA": 3.92,
-    "pa": 175
-  },
-  "Mick Abel": {
-    "xERA": 5.09,
-    "xwOBA": 0.346,
-    "ERA": 6.23,
-    "pa": 174
-  },
-  "Shinnosuke Ogasawara": {
-    "xERA": 5.41,
-    "xwOBA": 0.355,
-    "ERA": 6.98,
-    "pa": 173
-  },
-  "Chris Martin": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 2.98,
-    "pa": 173
-  },
-  "George Soriano": {
-    "xERA": 7.34,
-    "xwOBA": 0.403,
-    "ERA": 8.35,
-    "pa": 173
-  },
-  "Lyon Richardson": {
-    "xERA": 5.06,
-    "xwOBA": 0.345,
-    "ERA": 4.54,
-    "pa": 172
-  },
-  "Seth Halvorsen": {
-    "xERA": 4.39,
-    "xwOBA": 0.324,
-    "ERA": 4.99,
-    "pa": 172
-  },
-  "Kevin Kelly": {
-    "xERA": 6.39,
-    "xwOBA": 0.381,
-    "ERA": 5.9,
-    "pa": 171
-  },
-  "Jake Woodford": {
-    "xERA": 5.06,
-    "xwOBA": 0.345,
-    "ERA": 6.44,
-    "pa": 170
-  },
-  "Max Lazar": {
-    "xERA": 6.0,
-    "xwOBA": 0.371,
-    "ERA": 4.79,
-    "pa": 170
-  },
-  "Johan Oviedo": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 3.57,
-    "pa": 170
-  },
-  "Anthony DeSclafani": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 5.12,
-    "pa": 169
-  },
-  "Kyle Nicolas": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 4.74,
-    "pa": 167
-  },
-  "Ian Hamilton": {
-    "xERA": 4.13,
-    "xwOBA": 0.315,
-    "ERA": 4.28,
-    "pa": 166
-  },
-  "Ryan Weathers": {
-    "xERA": 3.96,
-    "xwOBA": 0.309,
-    "ERA": 3.99,
-    "pa": 166
-  },
-  "Michael Kelly": {
-    "xERA": 4.83,
-    "xwOBA": 0.338,
-    "ERA": 3.18,
-    "pa": 166
-  },
-  "Joey Lucchesi": {
-    "xERA": 3.53,
-    "xwOBA": 0.293,
-    "ERA": 3.76,
-    "pa": 165
-  },
-  "Parker Messick": {
-    "xERA": 3.07,
-    "xwOBA": 0.274,
-    "ERA": 2.72,
-    "pa": 165
-  },
-  "Daysbel Hern\u00e1ndez": {
-    "xERA": 4.22,
-    "xwOBA": 0.318,
-    "ERA": 3.4,
-    "pa": 163
-  },
-  "Cole Winn": {
-    "xERA": 4.22,
-    "xwOBA": 0.318,
-    "ERA": 1.51,
-    "pa": 162
-  },
-  "Jack Perkins": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 4.19,
-    "pa": 161
-  },
-  "Roki Sasaki": {
-    "xERA": 5.7,
-    "xwOBA": 0.363,
-    "ERA": 4.46,
-    "pa": 161
-  },
-  "Yerry De los Santos": {
-    "xERA": 4.42,
-    "xwOBA": 0.325,
-    "ERA": 3.28,
-    "pa": 160
-  },
-  "Anthony Molina": {
-    "xERA": 7.44,
-    "xwOBA": 0.405,
-    "ERA": 7.27,
-    "pa": 160
-  },
-  "Brock Stewart": {
-    "xERA": 2.74,
-    "xwOBA": 0.259,
-    "ERA": 2.63,
-    "pa": 159
-  },
-  "Shane Bieber": {
-    "xERA": 4.51,
-    "xwOBA": 0.328,
-    "ERA": 3.57,
-    "pa": 159
-  },
-  "Travis Adams": {
-    "xERA": 6.9,
-    "xwOBA": 0.393,
-    "ERA": 7.49,
-    "pa": 158
-  },
-  "Grant Taylor": {
-    "xERA": 2.91,
-    "xwOBA": 0.267,
-    "ERA": 4.91,
-    "pa": 157
-  },
-  "Cristian Javier": {
-    "xERA": 3.36,
-    "xwOBA": 0.286,
-    "ERA": 4.62,
-    "pa": 157
-  },
-  "Nestor Cortes": {
-    "xERA": 6.98,
-    "xwOBA": 0.395,
-    "ERA": 6.29,
-    "pa": 157
-  },
-  "Tony Gonsolin": {
-    "xERA": 5.27,
-    "xwOBA": 0.351,
-    "ERA": 5.0,
-    "pa": 157
-  },
-  "Carson Seymour": {
-    "xERA": 5.84,
-    "xwOBA": 0.367,
-    "ERA": 4.75,
-    "pa": 156
-  },
-  "Kyle Harrison": {
-    "xERA": 4.16,
-    "xwOBA": 0.316,
-    "ERA": 4.04,
-    "pa": 156
-  },
-  "Spencer Arrighetti": {
-    "xERA": 5.44,
-    "xwOBA": 0.356,
-    "ERA": 5.35,
-    "pa": 156
-  },
-  "Yohan Ram\u00edrez": {
-    "xERA": 4.51,
-    "xwOBA": 0.328,
-    "ERA": 5.4,
-    "pa": 155
-  },
-  "DL Hall": {
-    "xERA": 3.56,
-    "xwOBA": 0.294,
-    "ERA": 3.49,
-    "pa": 155
-  },
-  "Javier Assad": {
-    "xERA": 4.86,
-    "xwOBA": 0.339,
-    "ERA": 3.65,
-    "pa": 153
-  },
-  "Nabil Crismatt": {
-    "xERA": 4.61,
-    "xwOBA": 0.331,
-    "ERA": 3.71,
-    "pa": 153
-  },
-  "Alek Jacob": {
-    "xERA": 5.03,
-    "xwOBA": 0.344,
-    "ERA": 5.13,
-    "pa": 153
-  },
-  "Jos\u00e9 Fermin": {
-    "xERA": 4.1,
-    "xwOBA": 0.314,
-    "ERA": 4.46,
-    "pa": 152
-  },
-  "Zack Kelly": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 4.58,
-    "pa": 152
-  },
-  "Thomas Hatch": {
-    "xERA": 4.83,
-    "xwOBA": 0.338,
-    "ERA": 5.82,
-    "pa": 152
-  },
-  "Juan Morillo": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 4.19,
-    "pa": 152
-  },
-  "Josh Simpson": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 7.34,
-    "pa": 151
-  },
-  "Eduardo Salazar": {
-    "xERA": 5.92,
-    "xwOBA": 0.369,
-    "ERA": 8.38,
-    "pa": 151
-  },
-  "Max Kranick": {
-    "xERA": 4.55,
-    "xwOBA": 0.329,
-    "ERA": 3.65,
-    "pa": 150
-  },
-  "Jos\u00e9 Castillo": {
-    "xERA": 4.13,
-    "xwOBA": 0.315,
-    "ERA": 3.94,
-    "pa": 149
-  },
-  "Chris Murphy": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 3.12,
-    "pa": 148
-  },
-  "Chase Lee": {
-    "xERA": 5.09,
-    "xwOBA": 0.346,
-    "ERA": 4.1,
-    "pa": 148
-  },
-  "Porter Hodge": {
-    "xERA": 4.19,
-    "xwOBA": 0.317,
-    "ERA": 6.27,
-    "pa": 147
-  },
-  "Shawn Dubin": {
-    "xERA": 3.77,
-    "xwOBA": 0.302,
-    "ERA": 5.08,
-    "pa": 145
-  },
-  "Ryan Borucki": {
-    "xERA": 4.93,
-    "xwOBA": 0.341,
-    "ERA": 4.63,
-    "pa": 145
-  },
-  "Cam Booser": {
-    "xERA": 4.45,
-    "xwOBA": 0.326,
-    "ERA": 5.52,
-    "pa": 143
-  },
-  "Andrew Chafin": {
-    "xERA": 3.46,
-    "xwOBA": 0.29,
-    "ERA": 2.41,
-    "pa": 143
-  },
-  "Rico Garcia": {
-    "xERA": 3.21,
-    "xwOBA": 0.28,
-    "ERA": 3.15,
-    "pa": 142
-  },
-  "F\u00e9lix Bautista": {
-    "xERA": 2.84,
-    "xwOBA": 0.264,
-    "ERA": 2.6,
-    "pa": 142
-  },
-  "John Curtiss": {
-    "xERA": 4.27,
-    "xwOBA": 0.32,
-    "ERA": 3.93,
-    "pa": 141
-  },
-  "Caden Dana": {
-    "xERA": 4.86,
-    "xwOBA": 0.339,
-    "ERA": 6.4,
-    "pa": 141
-  },
-  "Ryan Fernandez": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 7.71,
-    "pa": 140
-  },
-  "Gunnar Hoglund": {
-    "xERA": 7.58,
-    "xwOBA": 0.408,
-    "ERA": 6.4,
-    "pa": 139
-  },
-  "Adam Mazur": {
-    "xERA": 5.09,
-    "xwOBA": 0.346,
-    "ERA": 4.8,
-    "pa": 139
-  },
-  "Kai-Wei Teng": {
-    "xERA": 4.02,
-    "xwOBA": 0.311,
-    "ERA": 6.37,
-    "pa": 139
-  },
-  "Justin Slaten": {
-    "xERA": 3.51,
-    "xwOBA": 0.292,
-    "ERA": 4.24,
-    "pa": 137
-  },
-  "Zach Agnos": {
-    "xERA": 6.52,
-    "xwOBA": 0.384,
-    "ERA": 6.61,
-    "pa": 137
-  },
-  "Matt Gage": {
-    "xERA": 3.02,
-    "xwOBA": 0.272,
-    "ERA": 3.19,
-    "pa": 137
-  },
-  "Dylan Dodd": {
-    "xERA": 3.43,
-    "xwOBA": 0.289,
-    "ERA": 3.6,
-    "pa": 136
-  },
-  "Ryan Feltner": {
-    "xERA": 3.31,
-    "xwOBA": 0.284,
-    "ERA": 4.75,
-    "pa": 135
-  },
-  "Jonathan Lo\u00e1isiga": {
-    "xERA": 3.56,
-    "xwOBA": 0.294,
-    "ERA": 4.25,
-    "pa": 135
-  },
-  "Tayler Scott": {
-    "xERA": 6.43,
-    "xwOBA": 0.382,
-    "ERA": 7.9,
-    "pa": 134
-  },
-  "Brandon Waddell": {
-    "xERA": 5.59,
-    "xwOBA": 0.36,
-    "ERA": 3.45,
-    "pa": 134
-  },
-  "Sawyer Gipson-Long": {
-    "xERA": 6.23,
-    "xwOBA": 0.377,
-    "ERA": 7.18,
-    "pa": 133
-  },
-  "Grant Wolfram": {
-    "xERA": 3.58,
-    "xwOBA": 0.295,
-    "ERA": 5.4,
-    "pa": 133
-  },
-  "Pierson Ohl": {
-    "xERA": 4.8,
-    "xwOBA": 0.337,
-    "ERA": 5.1,
-    "pa": 133
-  },
-  "Hayden Wesneski": {
-    "xERA": 4.3,
-    "xwOBA": 0.321,
-    "ERA": 4.5,
-    "pa": 131
-  },
-  "Jaden Hill": {
-    "xERA": 3.33,
-    "xwOBA": 0.285,
-    "ERA": 3.38,
-    "pa": 129
-  },
-  "Matt Sauer": {
-    "xERA": 4.9,
-    "xwOBA": 0.34,
-    "ERA": 6.37,
-    "pa": 129
-  },
-  "Blake Treinen": {
-    "xERA": 3.74,
-    "xwOBA": 0.301,
-    "ERA": 5.4,
-    "pa": 129
-  },
-  "Erik Miller": {
-    "xERA": 4.58,
-    "xwOBA": 0.33,
-    "ERA": 1.5,
-    "pa": 128
-  },
-  "Nic Enright": {
-    "xERA": 3.79,
-    "xwOBA": 0.303,
-    "ERA": 2.03,
-    "pa": 127
-  },
-  "McCade Brown": {
-    "xERA": 6.52,
-    "xwOBA": 0.384,
-    "ERA": 7.36,
-    "pa": 126
-  },
-  "Kyle Bradish": {
-    "xERA": 3.09,
-    "xwOBA": 0.275,
-    "ERA": 2.53,
-    "pa": 126
-  },
-  "Tommy Nance": {
-    "xERA": 3.88,
-    "xwOBA": 0.306,
-    "ERA": 1.99,
-    "pa": 126
-  },
-  "AJ Blubaugh": {
-    "xERA": 3.21,
-    "xwOBA": 0.28,
-    "ERA": 1.69,
-    "pa": 125
-  },
-  "Colin Holderman": {
-    "xERA": 5.73,
-    "xwOBA": 0.364,
-    "ERA": 7.01,
-    "pa": 125
-  },
-  "H\u00e9ctor Neris": {
-    "xERA": 4.61,
-    "xwOBA": 0.331,
-    "ERA": 6.75,
-    "pa": 124
-  },
-  "Bubba Chandler": {
-    "xERA": 3.66,
-    "xwOBA": 0.298,
-    "ERA": 4.02,
-    "pa": 124
-  },
-  "Connor Gillispie": {
-    "xERA": 5.37,
-    "xwOBA": 0.354,
-    "ERA": 8.65,
-    "pa": 123
-  },
-  "Konnor Pilkington": {
-    "xERA": 6.43,
-    "xwOBA": 0.382,
-    "ERA": 4.45,
-    "pa": 123
-  },
-  "Carson Fulmer": {
-    "xERA": 3.96,
-    "xwOBA": 0.309,
-    "ERA": 5.83,
-    "pa": 123
-  },
-  "Erik Sabrowski": {
-    "xERA": 3.36,
-    "xwOBA": 0.286,
-    "ERA": 1.84,
-    "pa": 121
-  },
-  "Manuel Rodr\u00edguez": {
-    "xERA": 3.07,
-    "xwOBA": 0.274,
-    "ERA": 2.08,
-    "pa": 121
-  },
-  "Kevin Ginkel": {
-    "xERA": 4.58,
-    "xwOBA": 0.33,
-    "ERA": 7.36,
-    "pa": 121
-  },
-  "Dan Altavilla": {
-    "xERA": 4.67,
-    "xwOBA": 0.333,
-    "ERA": 2.48,
-    "pa": 120
-  },
-  "Orlando Ribalta": {
-    "xERA": 5.48,
-    "xwOBA": 0.357,
-    "ERA": 7.03,
-    "pa": 120
-  },
-  "Collin Snider": {
-    "xERA": 5.62,
-    "xwOBA": 0.361,
-    "ERA": 5.47,
-    "pa": 119
-  },
-  "Sean Reynolds": {
-    "xERA": 6.31,
-    "xwOBA": 0.379,
-    "ERA": 5.33,
-    "pa": 117
-  },
-  "JT Brubaker": {
-    "xERA": 4.24,
-    "xwOBA": 0.319,
-    "ERA": 3.77,
-    "pa": 117
-  },
-  "Joel Payamps": {
-    "xERA": 6.81,
-    "xwOBA": 0.391,
-    "ERA": 6.83,
-    "pa": 117
-  },
-  "Anthony Veneziano": {
-    "xERA": 5.48,
-    "xwOBA": 0.357,
-    "ERA": 4.68,
-    "pa": 117
-  },
-  "Kyle Backhus": {
-    "xERA": 4.51,
-    "xwOBA": 0.328,
-    "ERA": 4.62,
-    "pa": 115
-  },
-  "John Brebbia": {
-    "xERA": 4.58,
-    "xwOBA": 0.33,
-    "ERA": 7.71,
-    "pa": 115
-  },
-  "Matt Bowman": {
-    "xERA": 5.16,
-    "xwOBA": 0.348,
-    "ERA": 6.2,
-    "pa": 114
-  },
-  "Jos\u00e9 Alvarado": {
-    "xERA": 3.64,
-    "xwOBA": 0.297,
-    "ERA": 3.81,
-    "pa": 114
-  },
-  "Andrew Saalfrank": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 1.24,
-    "pa": 113
-  },
-  "Paxton Schultz": {
-    "xERA": 3.77,
-    "xwOBA": 0.302,
-    "ERA": 4.38,
-    "pa": 110
-  },
-  "Cionel P\u00e9rez": {
-    "xERA": 3.93,
-    "xwOBA": 0.308,
-    "ERA": 8.31,
-    "pa": 110
-  },
-  "PJ Poulin": {
-    "xERA": 3.93,
-    "xwOBA": 0.308,
-    "ERA": 3.65,
-    "pa": 110
-  },
-  "Zach Brzykcy": {
-    "xERA": 5.84,
-    "xwOBA": 0.367,
-    "ERA": 9.0,
-    "pa": 110
-  },
-  "Ian Gibaut": {
-    "xERA": 4.04,
-    "xwOBA": 0.312,
-    "ERA": 4.62,
-    "pa": 109
-  },
-  "Easton Lucas": {
-    "xERA": 5.96,
-    "xwOBA": 0.37,
-    "ERA": 6.66,
-    "pa": 108
-  },
-  "Mitch Farris": {
-    "xERA": 5.62,
-    "xwOBA": 0.361,
-    "ERA": 6.66,
-    "pa": 107
-  },
-  "Jorge L\u00f3pez": {
-    "xERA": 5.37,
-    "xwOBA": 0.354,
-    "ERA": 6.57,
-    "pa": 105
-  },
-  "Ryan Brasier": {
-    "xERA": 4.9,
-    "xwOBA": 0.34,
-    "ERA": 4.5,
-    "pa": 105
-  },
-  "Kade Strowd": {
-    "xERA": 2.8,
-    "xwOBA": 0.262,
-    "ERA": 1.71,
-    "pa": 105
-  },
-  "Clayton Beeter": {
-    "xERA": 3.77,
-    "xwOBA": 0.302,
-    "ERA": 4.26,
-    "pa": 104
-  },
-  "Chris Stratton": {
-    "xERA": 5.06,
-    "xwOBA": 0.345,
-    "ERA": 7.71,
-    "pa": 104
-  },
-  "Mason Barnett": {
-    "xERA": 3.9,
-    "xwOBA": 0.307,
-    "ERA": 6.85,
-    "pa": 104
-  },
-  "Beau Brieske": {
-    "xERA": 4.07,
-    "xwOBA": 0.313,
-    "ERA": 6.54,
-    "pa": 103
-  },
-  "Grant Holman": {
-    "xERA": 5.3,
-    "xwOBA": 0.352,
-    "ERA": 5.09,
-    "pa": 103
-  },
-  "Michael Tonkin": {
-    "xERA": 5.41,
-    "xwOBA": 0.355,
-    "ERA": 4.88,
-    "pa": 103
-  },
-  "Austin Cox": {
-    "xERA": 5.96,
-    "xwOBA": 0.37,
-    "ERA": 8.86,
-    "pa": 102
-  },
-  "Carson Whisenhunt": {
-    "xERA": 6.6,
-    "xwOBA": 0.386,
-    "ERA": 5.01,
-    "pa": 102
-  },
-  "Luis Peralta": {
-    "xERA": 9.11,
-    "xwOBA": 0.438,
-    "ERA": 9.47,
-    "pa": 101
-  },
-  "Chris Roycroft": {
-    "xERA": 5.77,
-    "xwOBA": 0.365,
-    "ERA": 7.84,
-    "pa": 101
-  }
-};
-
-// Park factors (by full team name)
-var PARK_FACTORS_V11B = {"Colorado Rockies": 1.25, "Cincinnati Reds": 1.08, "Texas Rangers": 1.06, "Boston Red Sox": 1.05, "Philadelphia Phillies": 1.04, "Chicago Cubs": 1.03, "Milwaukee Brewers": 1.02, "Atlanta Braves": 1.02, "Minnesota Twins": 1.01, "Baltimore Orioles": 1.01, "Toronto Blue Jays": 1.01, "New York Yankees": 1.0, "Detroit Tigers": 1.0, "Arizona Diamondbacks": 1.0, "Cleveland Guardians": 0.99, "Los Angeles Angels": 0.99, "Houston Astros": 0.99, "Kansas City Royals": 0.98, "Chicago White Sox": 0.98, "Washington Nationals": 0.98, "St. Louis Cardinals": 0.97, "New York Mets": 0.97, "San Francisco Giants": 0.96, "Pittsburgh Pirates": 0.96, "San Diego Padres": 0.95, "Los Angeles Dodgers": 0.95, "Tampa Bay Rays": 0.94, "Seattle Mariners": 0.93, "Miami Marlins": 0.92, "Oakland Athletics": 0.93};
-
-// Team timezones (by full team name)  
-var TEAM_TZ_V11B = {"New York Yankees": 0, "New York Mets": 0, "Boston Red Sox": 0, "Philadelphia Phillies": 0, "Baltimore Orioles": 0, "Washington Nationals": 0, "Pittsburgh Pirates": 0, "Atlanta Braves": 0, "Miami Marlins": 0, "Tampa Bay Rays": 0, "Toronto Blue Jays": 0, "Detroit Tigers": 0, "Cleveland Guardians": 0, "Cincinnati Reds": 0, "Chicago Cubs": 1, "Chicago White Sox": 1, "Milwaukee Brewers": 1, "Minnesota Twins": 1, "St. Louis Cardinals": 1, "Kansas City Royals": 1, "Houston Astros": 1, "Texas Rangers": 1, "Colorado Rockies": 2, "Arizona Diamondbacks": 2, "Los Angeles Dodgers": 3, "Los Angeles Angels": 3, "San Diego Padres": 3, "San Francisco Giants": 3, "Oakland Athletics": 3, "Seattle Mariners": 3};
-
-var MLB_BET_THRESHOLD = 0.12; // 12% edge (backtested optimal for v11b)
-
-function v11bPredict(homeTeam, awayTeam, homePitcher, awayPitcher, homeRoll, awayRoll) {
-    // Get team stats (fall back to league average)
-    var hb = TEAM_BAT[homeTeam] || {wRC:100,OPS:0.720,xwOBA:0.320,Barrel:0.07,EV:88.5};
-    var ab = TEAM_BAT[awayTeam] || {wRC:100,OPS:0.720,xwOBA:0.320,Barrel:0.07,EV:88.5};
-    var hp = TEAM_PIT[homeTeam] || {ERA:4.0,FIP:4.0,BB9:3.2,xwOBA:0.320};
-    var ap = TEAM_PIT[awayTeam] || {ERA:4.0,FIP:4.0,BB9:3.2,xwOBA:0.320};
-    
-    // Get pitcher Statcast
-    var hsp = PITCHER_XS[homePitcher] || {xERA:4.2,xwOBA:0.320,ERA:4.2};
-    var asp = PITCHER_XS[awayPitcher] || {xERA:4.2,xwOBA:0.320,ERA:4.2};
-    
-    // Rolling records (from app's fatigue/schedule data)
-    var hr = homeRoll || {l10_wp:0.5,l30_wp:0.5,l10_rd:0,srs:0,sra:0,sg:0,rest:3,g_in_3:2};
-    var ar = awayRoll || {l10_wp:0.5,l30_wp:0.5,l10_rd:0,srs:0,sra:0,sg:0,rest:3,g_in_3:2};
-    
-    // Pythagorean
-    function pyth(rs,ra){if(rs+ra===0)return 0.5;var e=1.83;return Math.pow(rs,e)/(Math.pow(rs,e)+Math.pow(ra,e));}
-    
-    // Park factor
-    var park = PARK_FACTORS_V11B[homeTeam] || 1.0;
-    
-    // Travel
-    var travel = Math.abs((TEAM_TZ_V11B[homeTeam]||1) - (TEAM_TZ_V11B[awayTeam]||1)) / 3;
-    
-    // Bullpen ERA proxy
-    var hPen = Math.max(2, Math.min(7, (hp.ERA - 0.55*hsp.ERA) / 0.45));
-    var aPen = Math.max(2, Math.min(7, (ap.ERA - 0.55*asp.ERA) / 0.45));
-    
-    // Build feature vector
-    var f = {
-        f_home: 1.0,
-        f_pyth: pyth(hr.srs,hr.sra) - pyth(ar.srs,ar.sra),
-        f_l10: hr.l10_wp - ar.l10_wp,
-        f_l30: hr.l30_wp - ar.l30_wp,
-        f_l10_rd: (hr.l10_rd - ar.l10_rd) / 5,
-        f_wrc: (hb.wRC - ab.wRC) / 100,
-        f_ops: hb.OPS - ab.OPS,
-        f_xwoba_bat: hb.xwOBA - ab.xwOBA,
-        f_barrel: hb.Barrel - ab.Barrel,
-        f_ev: (hb.EV - ab.EV) / 10,
-        f_era: ap.ERA - hp.ERA,
-        f_fip: ap.FIP - hp.FIP,
-        f_bb9: (ap.BB9 - hp.BB9) / 3,
-        f_sp_xera: (asp.xERA - hsp.xERA) / 2,
-        f_sp_xwoba: (asp.xwOBA - hsp.xwOBA) * 5,
-        f_matchup: (asp.xwOBA * hb.wRC / 100) - (hsp.xwOBA * ab.wRC / 100),
-        f_pen: (aPen - hPen) / 2,
-        f_park: park,
-        f_rest_diff: Math.min(3, (hr.rest - ar.rest)) / 3,
-        f_sched: (ar.g_in_3 - hr.g_in_3) / 3,
-        f_travel: travel,
-        f_sp_x_bat: ((asp.xERA - hsp.xERA) / 2) * ((hb.wRC - ab.wRC) / 100),
-        f_pen_x_sched: ((aPen - hPen) / 3) * ((ar.g_in_3 - hr.g_in_3) / 3),
-        f_form_x_rd: (hr.l10_wp - ar.l10_wp) * ((hr.l10_rd - ar.l10_rd) / 5),
-    };
-    
-    // Logistic regression
-    var z = V11B_BIAS;
-    V11B_FEATURES.forEach(function(feat) {
-        z += (V11B_WEIGHTS[feat] || 0) * (f[feat] || 0);
-    });
-    return 1.0 / (1.0 + Math.exp(-Math.max(-500, Math.min(500, z))));
-}
-
-
 // ── STATE ──
 var S={
   mode:(function(){try{var m=localStorage.getItem("de_mode");if(m==="dark"||m==="light")return m;}catch(e){}var h=new Date().getHours();return h>=7&&h<19?"light":"dark";})(),
@@ -3916,7 +239,7 @@ var S={
   showBooks:false,
   bankroll:(function(){try{var b=localStorage.getItem("de_bankroll");if(b)return parseFloat(b);}catch(e){}return 1000;})(),
   // Per-league data
-  mlb:{games:[],loading:false,error:null,lastFetch:null,lineups:{},weather:{},fatigue:{},props:{},propsLoading:false,propsLoaded:false,playerStats:{},statcastRates:{},pitcherStatcast:{}},
+  mlb:{games:[],loading:false,error:null,lastFetch:null,lineups:{},weather:{},fatigue:{},props:{},propsLoading:false,propsLoaded:false,playerStats:{},statcastRates:{},pitcherStatcast:{},teamStats:{}},
   nhl:{games:[],loading:false,error:null,lastFetch:null,schedule:{},standings:{},fatigue:{},goalies:{},props:{},propsLoading:false,propsLoaded:false,playerStats:{}},
   // Active pointers
   games:[],loading:true,error:null,remaining:null,lastFetch:null,
@@ -4547,6 +870,168 @@ async function fetchStatcastPitcherRates(){
   return prates;
 }
 
+// ═══════════════════════════════════════════════════════════
+// v11c: LIVE TEAM STATS + MODEL ADJUSTMENTS
+// ═══════════════════════════════════════════════════════════
+
+// 2025 baseline team stats (used for blending early in season)
+var MLB_TEAM_BASELINE={
+  "New York Yankees":{wRC:108,OPS:.748,ERA:3.68,FIP:3.72},"New York Mets":{wRC:105,OPS:.738,ERA:3.81,FIP:3.85},
+  "Los Angeles Dodgers":{wRC:112,OPS:.762,ERA:3.45,FIP:3.50},"Atlanta Braves":{wRC:103,OPS:.732,ERA:3.92,FIP:3.88},
+  "Houston Astros":{wRC:106,OPS:.744,ERA:3.58,FIP:3.62},"Philadelphia Phillies":{wRC:107,OPS:.745,ERA:3.72,FIP:3.75},
+  "Baltimore Orioles":{wRC:104,OPS:.735,ERA:3.85,FIP:3.80},"San Diego Padres":{wRC:101,OPS:.725,ERA:3.78,FIP:3.82},
+  "Milwaukee Brewers":{wRC:102,OPS:.728,ERA:3.65,FIP:3.70},"Tampa Bay Rays":{wRC:98,OPS:.710,ERA:3.95,FIP:3.90},
+  "Texas Rangers":{wRC:100,OPS:.720,ERA:4.05,FIP:4.00},"Minnesota Twins":{wRC:103,OPS:.730,ERA:3.88,FIP:3.85},
+  "Boston Red Sox":{wRC:104,OPS:.738,ERA:4.12,FIP:4.08},"Seattle Mariners":{wRC:95,OPS:.698,ERA:3.55,FIP:3.60},
+  "Cleveland Guardians":{wRC:99,OPS:.715,ERA:3.70,FIP:3.75},"Arizona Diamondbacks":{wRC:105,OPS:.740,ERA:4.02,FIP:3.98},
+  "Chicago Cubs":{wRC:100,OPS:.722,ERA:4.08,FIP:4.05},"Toronto Blue Jays":{wRC:101,OPS:.725,ERA:3.90,FIP:3.88},
+  "San Francisco Giants":{wRC:97,OPS:.708,ERA:4.15,FIP:4.10},"Detroit Tigers":{wRC:96,OPS:.702,ERA:3.62,FIP:3.68},
+  "St. Louis Cardinals":{wRC:98,OPS:.712,ERA:4.10,FIP:4.05},"Kansas City Royals":{wRC:99,OPS:.718,ERA:3.98,FIP:3.95},
+  "Cincinnati Reds":{wRC:102,OPS:.728,ERA:4.22,FIP:4.18},"Los Angeles Angels":{wRC:97,OPS:.705,ERA:4.30,FIP:4.25},
+  "Pittsburgh Pirates":{wRC:94,OPS:.695,ERA:4.18,FIP:4.15},"Washington Nationals":{wRC:96,OPS:.700,ERA:4.35,FIP:4.30},
+  "Miami Marlins":{wRC:92,OPS:.685,ERA:4.45,FIP:4.40},"Chicago White Sox":{wRC:88,OPS:.670,ERA:4.60,FIP:4.55},
+  "Oakland Athletics":{wRC:90,OPS:.678,ERA:4.50,FIP:4.48},"Colorado Rockies":{wRC:101,OPS:.725,ERA:5.10,FIP:4.90},
+};
+
+async function fetchMLBTeamStats(){
+  // Pull current-year team stats from MLB Stats API
+  // Returns: {teamName: {wRC, OPS, ERA, FIP, gp}}
+  var stats={};
+  var year=new Date().getFullYear();
+  try{
+    // Team batting
+    var bUrl=MLB_BASE+"/teams/stats?stats=season&group=hitting&season="+year+"&sportIds=1";
+    var bR=await fetch(bUrl);
+    if(bR.ok){
+      var bD=await bR.json();
+      ((bD.stats||[])[0]||{}).splits&&((bD.stats||[])[0]).splits.forEach(function(sp){
+        var tn2=sp.team?sp.team.name:"";
+        var st=sp.stat||{};
+        if(!stats[tn2])stats[tn2]={gp:0};
+        stats[tn2].OPS=parseFloat(st.ops)||0;
+        stats[tn2].gp=parseInt(st.gamesPlayed)||0;
+      });
+    }
+    // Team pitching
+    var pUrl=MLB_BASE+"/teams/stats?stats=season&group=pitching&season="+year+"&sportIds=1";
+    var pR=await fetch(pUrl);
+    if(pR.ok){
+      var pD=await pR.json();
+      ((pD.stats||[])[0]||{}).splits&&((pD.stats||[])[0]).splits.forEach(function(sp){
+        var tn2=sp.team?sp.team.name:"";
+        var st=sp.stat||{};
+        if(!stats[tn2])stats[tn2]={gp:0};
+        stats[tn2].ERA=parseFloat(st.era)||0;
+      });
+    }
+    console.log("[Diamond Edge] Team stats loaded: "+Object.keys(stats).length+" teams");
+  }catch(e){console.log("[Diamond Edge] Team stats error:",e);}
+  return stats;
+}
+
+function blendTeamStats(live,baseline,teamName){
+  // Blend current-year stats with 2025 baseline (weighted by games played)
+  var bl=baseline[teamName]||{wRC:100,OPS:.720,ERA:4.00,FIP:4.00};
+  var lv=live[teamName];
+  if(!lv||!lv.gp||lv.gp<10)return bl;
+  // Weight: after 50 games, 80% live; after 100, 95% live
+  var w=Math.min(0.95,lv.gp/60);
+  return{
+    wRC:bl.wRC, // wRC+ not in basic API, keep baseline
+    OPS:+(bl.OPS*(1-w)+lv.OPS*w).toFixed(3),
+    ERA:+(bl.ERA*(1-w)+lv.ERA*w).toFixed(2),
+    FIP:bl.FIP, // FIP not in basic API, keep baseline
+    gp:lv.gp,live:true
+  };
+}
+
+// ── v11c: Weather → Model Adjustment ──
+// Research: every 10°F above 70° adds ~0.3 runs, wind out 15+ mph adds ~0.5 runs
+function calcWeatherAdj(wx){
+  if(!wx||wx.indoor)return{totalAdj:0,mlAdj:0,desc:"Dome — no adjustment"};
+  var totalAdj=0;var desc=[];
+  // Temperature adjustment
+  if(wx.temp>70){
+    totalAdj+=(wx.temp-70)/10*0.3;
+    desc.push("🌡 "+wx.temp+"°F: +"+(((wx.temp-70)/10*0.3).toFixed(1))+" runs");
+  }else if(wx.temp<55){
+    totalAdj-=(55-wx.temp)/10*0.2;
+    desc.push("🥶 "+wx.temp+"°F: "+(((55-wx.temp)/10*-0.2).toFixed(1))+" runs");
+  }
+  // Wind adjustment (crude — assumes "out" when wind > 15mph)
+  if(wx.wind>=15){
+    totalAdj+=0.5;
+    desc.push("🌬 "+wx.wind+"mph: +0.5 runs");
+  }
+  // ML adjustment: hot/windy conditions slightly favor better offense
+  var mlAdj=totalAdj*0.008; // ~0.8% per run of total adjustment
+  return{totalAdj:+totalAdj.toFixed(1),mlAdj:+mlAdj.toFixed(3),desc:desc.join(" · ")||"Neutral"};
+}
+
+// ── v11c: Umpire → Model Adjustment ──
+// High-K umps favor pitchers → boost the side with better pitching
+function calcUmpAdj(umpTendency,homePitchAdv){
+  // homePitchAdv: positive means home has better pitching
+  if(umpTendency==="high"){
+    // High-K ump: amplify pitching advantage by ~1.5%
+    var adj=homePitchAdv>0?0.015:-0.015;
+    return{mlAdj:adj,desc:"⬆️ High-K ump: "+(adj>0?"+":"")+((adj*100).toFixed(1))+"% to pitching side"};
+  }else if(umpTendency==="low"){
+    // Low-K ump: slightly favor hitting side
+    var adj2=homePitchAdv>0?-0.008:0.008;
+    return{mlAdj:adj2,desc:"⬇️ Low-K ump: "+(adj2>0?"+":"")+((adj2*100).toFixed(1))+"% to hitting side"};
+  }
+  return{mlAdj:0,desc:"Neutral ump"};
+}
+
+// ── v11c: Enrichment — apply model adjustments to MLB games ──
+function enrichMLBGames(games){
+  return games.map(function(g){
+    var info=S.mlb.lineups[g.home]||{};
+    var wx=S.mlb.weather[g.home];
+    var teamStats=S.mlb.teamStats||{};
+
+    // Weather adjustment
+    var wxAdj=calcWeatherAdj(wx);
+    g.wxTotalAdj=wxAdj.totalAdj;
+    g.wxMLAdj=wxAdj.mlAdj;
+    g.wxDesc=wxAdj.desc;
+
+    // Team stats blending
+    var hStats=blendTeamStats(teamStats,MLB_TEAM_BASELINE,g.home);
+    var aStats=blendTeamStats(teamStats,MLB_TEAM_BASELINE,g.away);
+    g.homeStats=hStats;g.awayStats=aStats;
+
+    // Pitching advantage (ERA diff: lower is better, so away-home = positive means home is better)
+    var homePitchAdv=(aStats.ERA-hStats.ERA)/2;
+
+    // Umpire adjustment
+    var umpAdj=calcUmpAdj(info.umpTendency||"neutral",homePitchAdv);
+    g.umpMLAdj=umpAdj.mlAdj;
+    g.umpDesc=umpAdj.desc;
+
+    // Combined model adjustment to fairH/fairA
+    var totalMLAdj=wxAdj.mlAdj+umpAdj.mlAdj;
+    if(totalMLAdj!==0){
+      var adjFairH=Math.min(75,Math.max(25,g.fairH+totalMLAdj*100));
+      var adjFairA=+(100-adjFairH).toFixed(1);
+      g.modelFairH=+adjFairH.toFixed(1);
+      g.modelFairA=adjFairA;
+      // Recalculate edges with adjusted fair values
+      g.modelHEdge=+((1/ml2p(g.bestHML))*(g.modelFairH/100)*100-100).toFixed(1);
+      g.modelAEdge=+((1/ml2p(g.bestAML))*(g.modelFairA/100)*100-100).toFixed(1);
+      g.modelTopEdge=Math.max(g.modelHEdge,g.modelAEdge);
+    }else{
+      g.modelFairH=g.fairH;g.modelFairA=g.fairA;
+      g.modelHEdge=g.hEdge;g.modelAEdge=g.aEdge;
+      g.modelTopEdge=g.topEdge;
+    }
+    g.modelBetSide=g.modelTopEdge>3?(g.modelHEdge>=g.modelAEdge?"HOME":"AWAY"):null;
+
+    return g;
+  });
+}
+
 // ── Map prop market key to stat rate key ──
 var RATE_MAP_NHL={
   player_goals:"goalsPerGame",player_assists:"assistsPerGame",
@@ -4906,20 +1391,22 @@ function enrichNHLGames(games){
 async function loadMLB(){
   S.mlb.loading=true;S.mlb.error=null;syncActive();render();
   try{
-    var results=await Promise.allSettled([fetchMLBOdds(),fetchMLBSchedule(),fetchMLBFatigue()]);
+    var results=await Promise.allSettled([fetchMLBOdds(),fetchMLBSchedule(),fetchMLBFatigue(),fetchMLBTeamStats()]);
     if(results[0].status==="fulfilled"){S.mlb.games=processOdds(results[0].value||[]);}
     else{S.mlb.error=results[0].reason?results[0].reason.message:"Failed";S.mlb.games=[];}
     if(results[1].status==="fulfilled")S.mlb.lineups=results[1].value||{};
     if(results[2].status==="fulfilled")S.mlb.fatigue=results[2].value||{};
+    if(results[3].status==="fulfilled")S.mlb.teamStats=results[3].value||{};
     S.mlb.games.forEach(function(g){
       if(!S.mlb.weather[g.home]){
-        fetchWeather(g.home).then(function(w){if(w){S.mlb.weather[g.home]=w;render()}});
+        fetchWeather(g.home).then(function(w){if(w){S.mlb.weather[g.home]=w;S.mlb.games=enrichMLBGames(S.mlb.games);syncActive();render()}});
       }
     });
+    // Apply v11c model enrichment (weather+umpire+team stats)
+    S.mlb.games=enrichMLBGames(S.mlb.games);
     S.mlb.lastFetch=new Date();
   }catch(e){S.mlb.error=e.message;S.mlb.games=[];}
   S.mlb.loading=false;syncActive();render();
-  // Fetch bet365 odds async (doesn't block main load)
 }
 
 async function loadNHL(){
@@ -4964,14 +1451,14 @@ function loadCurrent(){
 async function refreshAll(){
   // Refresh EVERY sport + all props in one click
   S.mlb.lastFetch=null;S.nhl.lastFetch=null;
-  
+  S.mlb.propsLoaded=false;S.nhl.propsLoaded=false;
   syncActive();render();
 
   // Load both sports in parallel
   await Promise.allSettled([loadMLB(),loadNHL()]);
 
   // Then load props for both in parallel
-  // Props removed in v11b
+  await Promise.allSettled([loadMLBProps(),loadNHLProps()]);
 
   render();
 }
@@ -5012,51 +1499,19 @@ function render(){
   var abAll=PA; // ALL books for calculations — toggles only affect display
   var games=S.games.slice();
   // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
-  if(S.evOnly&&S.tab!=="props")games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.topEdge)>3});
-  if(S.sortBy==="edge")games.sort(function(a,b){return(isNHL?(b.adjEdge||b.topEdge):(b.topEdge))-(isNHL?(a.adjEdge||a.topEdge):(a.topEdge))});
+  if(S.evOnly&&S.tab!=="props")games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.modelTopEdge||g.topEdge)>3});
+  if(S.sortBy==="edge")games.sort(function(a,b){return(isNHL?(b.adjEdge||b.topEdge):(b.modelTopEdge||b.topEdge))-(isNHL?(a.adjEdge||a.topEdge):(a.modelTopEdge||a.topEdge))});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
-  var edgeOf=function(g){return isNHL?(g.adjEdge||g.topEdge):g.topEdge};
-  
-    // ── v11b MODEL INTEGRATION (MLB only) ──
-    if(!isNHL && typeof v11bPredict === 'function' && S.mlb.lineups){
-      games.forEach(function(g){
-        var info=S.mlb.lineups[g.home]||{};
-        var hRoll={l10_wp:0.5,l30_wp:0.5,l10_rd:0,srs:0,sra:0,sg:0,rest:3,g_in_3:2};
-        var aRoll={l10_wp:0.5,l30_wp:0.5,l10_rd:0,srs:0,sra:0,sg:0,rest:3,g_in_3:2};
-        var hFat=S.mlb.fatigue[g.home]||{};
-        var aFat=S.mlb.fatigue[g.away]||{};
-        if(hFat.minRest)hRoll.rest=hFat.minRest;
-        if(aFat.minRest)aRoll.rest=aFat.minRest;
-        if(hFat.games)hRoll.g_in_3=hFat.games;
-        if(aFat.games)aRoll.g_in_3=aFat.games;
-        var hP=info.homePitcher||'TBD';
-        var aP=info.awayPitcher||'TBD';
-        var mp=v11bPredict(g.home,g.away,hP,aP,hRoll,aRoll);
-        g.modelHome=+(mp*100).toFixed(1);
-        g.modelAway=+((1-mp)*100).toFixed(1);
-        // Blend: 60% model + 40% consensus
-        if(g.fairH>0){
-          g.fairH=+(0.6*g.modelHome+0.4*g.fairH).toFixed(1);
-          g.fairA=+(0.6*g.modelAway+0.4*g.fairA).toFixed(1);
-        }
-        // Recalculate edges
-        var bHI=ml2p(g.bestHML),bAI=ml2p(g.bestAML);
-        if(bHI&&bAI){
-          g.hEdge=+((1/bHI)*(g.fairH/100)*100-100).toFixed(1);
-          g.aEdge=+((1/bAI)*(g.fairA/100)*100-100).toFixed(1);
-          g.topEdge=Math.max(g.hEdge,g.aEdge);
-          g.betSide=g.topEdge>3?(g.hEdge>=g.aEdge?"HOME":"AWAY"):null;
-        }
-      });
-    }
-
-// Recount bets/watches using ALL books for calculations
+  var edgeOf=function(g){return isNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge)};
+  // Recount bets/watches using ALL books for calculations
   var betCount=0,watchCount=0;
   S.games.forEach(function(g){
     var ahml=-9999,aaml=-9999;
     abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
-    var he2=(ahml>-9999&&g.fairH)?+((1/ml2p(ahml))*(g.fairH/100)*100-100).toFixed(1):0;
-    var ae2=(aaml>-9999&&g.fairA)?+((1/ml2p(aaml))*(g.fairA/100)*100-100).toFixed(1):0;
+    var fH=isNHL?g.fairH:(g.modelFairH||g.fairH);
+    var fA=isNHL?g.fairA:(g.modelFairA||g.fairA);
+    var he2=(ahml>-9999&&fH)?+((1/ml2p(ahml))*(fH/100)*100-100).toFixed(1):0;
+    var ae2=(aaml>-9999&&fA)?+((1/ml2p(aaml))*(fA/100)*100-100).toFixed(1):0;
     var te=Math.max(+he2,+ae2);
     if(isNHL)te=+(te+(g.contextAdj||0)).toFixed(1);
     // Side-aware threshold: NHL home 5%, NHL away 7%, MLB 10%
@@ -5064,6 +1519,8 @@ function render(){
     var statThresh=isNHL?(bestSide2==="HOME"?5:7):10;
     if(te>=statThresh)betCount++;
     else if(te>=3)watchCount++;
+    // v11c: count run line bets (12%+ edge on fav -1.5 or dog +1.5)
+    if(!isNHL&&te>=12)betCount++;
   });
   var ptypes=isNHL?NHL_PTYPES:MLB_PTYPES;
   var curProp=isNHL?S.nhlPropType:S.propType;
@@ -5071,7 +1528,7 @@ function render(){
   var h="";
 
   // ── LEAGUE BAR ──
-  h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">v11b</span></div></div>';
+  h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">v11c</span></div></div>';
   LEAGUES.forEach(function(lg){
     var cls="lbtn"+(S.league===lg.key?" on":"")+(lg.on?"":" off");
     h+='<button class="'+cls+'" onclick="'+(lg.on?"switchLeague('"+lg.key+"')":"")+'"><span style="font-size:14px">'+lg.icon+'</span>'+lg.label+(lg.on?"":'<span class="soon">SOON</span>')+'</button>';
@@ -5111,7 +1568,7 @@ function render(){
     var b2bCount=S.games.filter(function(g){return g.homeB2B||g.awayB2B}).length;
     h+='<div class="sbox"><span class="sval mono" style="color:var(--neg)">'+b2bCount+'</span><span class="slbl">B2B</span></div>';
   }
-  h+='<div class="sbox"><span style="font-size:9px;font-weight:600;color:var(--warn)">'+(isNHL?"ROI +14.8%":"v11b +26% ROI")+'</span><span style="font-size:8px;color:var(--tf);margin-left:4px">'+(isNHL?"at 5%+ edge":"12%+ edge")+'</span></div>';
+  h+='<div class="sbox"><span style="font-size:9px;font-weight:600;color:var(--warn)">'+(isNHL?"ROI +14.8%":"RL +18.7%")+'</span><span style="font-size:8px;color:var(--tf);margin-left:4px">'+(isNHL?"at 5%+ edge":"fav -1.5 @ 12%+")+'</span></div>';
   h+='<div style="flex:1"></div>';
   if(S.remaining)h+='<span class="mono" style="font-size:9px;color:var(--tf)">API: '+S.remaining+'</span>';
   if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
@@ -5120,7 +1577,7 @@ function render(){
 
   // ── TABS (skip for global bets view) ──
   if(S.league!=="bets"){
-  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":"Run Line",i:"🏒"},{k:"ou",l:"Over / Under",i:"📊"},{k:"books",l:"Books",i:"📚"}];
+  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":"Run Line",i:"🏒"},{k:"ou",l:"Over / Under",i:"📊"},{k:"props",l:"Player Props",i:"🎯"},{k:"books",l:"Books",i:"📚"}];
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
@@ -5137,7 +1594,7 @@ function render(){
     h+='<button class="cb" onclick="S.showBooks=!S.showBooks;render()">📚 '+abApi+' active / '+ab.length+' on</button>';
     h+='</div>';
   }
-  if(false){
+  if(S.tab==="props"){
     h+='<div class="prow">';
     ptypes.forEach(function(p){
       var isOn=curProp===p;
@@ -5183,7 +1640,7 @@ function render(){
       h+='<div class="empty-d">MLB Opening Day is late March. Once games start, this dashboard populates with live odds, backtested edge calculations, and player prop projections from all 11 PA sportsbooks.</div>';
       h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">MLB Model Status</div><div style="font-size:12px;line-height:1.8">';
       h+='<div>✅ Direct Odds API connected</div><div>✅ MLB Stats API connected</div><div>✅ Weather API connected</div>';
-      h+='<div>✅ Backtested on 40,996 real games</div><div>✅ CLV +0.46% (opening lines)</div><div>✅ ROI +9.8% at 5%+ edge</div><div>⏳ Awaiting game odds...</div></div></div>';
+      h+='<div>✅ Backtested on 2,055+ games</div><div>✅ Fav -1.5 ROI +18.7% at 12%+ edge</div><div>✅ Dog +1.5 ROI +22.4% at 12%+ edge</div><div>✅ Weather + Umpire model adjustments</div><div>✅ Live team stats integration</div><div>⏳ Awaiting game odds...</div></div></div>';
     }
     h+='</div>';
   }
@@ -5216,27 +1673,56 @@ function render(){
 
       // ML bets
       gms.forEach(function(g){
-        var de2=sNHL?(g.adjEdge||g.topEdge):g.topEdge;
+        var de2=sNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge);
         var ahml2=-9999,aaml2=-9999,ahb2=null,aab2=null;
         abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml2){ahml2=d.homeML;ahb2=bk;}if(d.awayML!=null&&d.awayML>aaml2){aaml2=d.awayML;aab2=bk;}});
-        var he3=(ahml2>-9999&&g.fairH)?+((1/ml2p(ahml2))*(g.fairH/100)*100-100).toFixed(1):0;
-        var ae3=(aaml2>-9999&&g.fairA)?+((1/ml2p(aaml2))*(g.fairA/100)*100-100).toFixed(1):0;
+        var fH3=sNHL?g.fairH:(g.modelFairH||g.fairH);
+        var fA3=sNHL?g.fairA:(g.modelFairA||g.fairA);
+        var he3=(ahml2>-9999&&fH3)?+((1/ml2p(ahml2))*(fH3/100)*100-100).toFixed(1):0;
+        var ae3=(aaml2>-9999&&fA3)?+((1/ml2p(aaml2))*(fA3/100)*100-100).toFixed(1):0;
         var side3=(+he3>=+ae3)?"HOME":"AWAY";
         var edge3=Math.max(+he3,+ae3);
         if(sNHL)edge3=+(edge3+(g.contextAdj||0)).toFixed(1);
-        var thresh3=sNHL?(side3==="HOME"?5:7):12;
+        var thresh3=sNHL?(side3==="HOME"?5:7):10;
         if(edge3>=thresh3){
           var ml3=side3==="HOME"?ahml2:aaml2;
           var bk3=side3==="HOME"?ahb2:aab2;
-          var fp3=side3==="HOME"?g.fairH/100:g.fairA/100;
+          var fp3=side3==="HOME"?fH3/100:fA3/100;
           var b3=ml3>0?ml3/100:100/(-ml3);
           var kf3=(b3*fp3-(1-fp3))/b3;
           allBets.push({sport:sport,icon:icon,type:"ML",player:side3==="HOME"?g.home:g.away,market:"Moneyline",line:fml(ml3),book:bk3?bk3.n:"—",edge:edge3,kelly:Math.max(0,+(kf3*100).toFixed(2)),fairProb:+(fp3*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:sNHL&&g.b2bStack&&edge3>3,projSource:"model",highVar:false,paperTrade:false,edgeUnit:"%"});
         }
+        // v11c: Add run line bets to bet sheet
+        if(!sNHL&&edge3>=12){
+          var hasSpread3=false;
+          abAll.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)hasSpread3=true;});
+          if(hasSpread3){
+            var homeFav3=fH3>=50;
+            var favTeam3=homeFav3?g.home:g.away;
+            var dogTeam3=homeFav3?g.away:g.home;
+            // Fav -1.5
+            var bstFS=-9999,bstFBk=null;
+            abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d||d.hSpread==null)return;
+              var fOdds=homeFav3?d.hSpreadOdds:d.aSpreadOdds;
+              if(fOdds!=null&&fOdds>bstFS){bstFS=fOdds;bstFBk=bk;}
+            });
+            if(bstFS>-9999&&bstFBk){
+              allBets.push({sport:sport,icon:icon,type:"RL",player:favTeam3,market:"Fav -1.5",line:fml(bstFS),book:bstFBk.n,edge:edge3,kelly:Math.max(0,+((0.516*(bstFS>0?bstFS/100:100/(-bstFS))-0.484)/(bstFS>0?bstFS/100:100/(-bstFS))*50).toFixed(2)),fairProb:51.6,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
+            }
+            // Dog +1.5
+            var bstDS=-9999,bstDBk=null;
+            abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d||d.hSpread==null)return;
+              var dOdds=homeFav3?d.aSpreadOdds:d.hSpreadOdds;
+              if(dOdds!=null&&dOdds>bstDS){bstDS=dOdds;bstDBk=bk;}
+            });
+            if(bstDS>-9999&&bstDBk){
+              allBets.push({sport:sport,icon:icon,type:"RL",player:dogTeam3,market:"Dog +1.5",line:fml(bstDS),book:bstDBk.n,edge:edge3,kelly:Math.max(0,+((0.733*(bstDS>0?bstDS/100:100/(-bstDS))-0.267)/(bstDS>0?bstDS/100:100/(-bstDS))*50).toFixed(2)),fairProb:73.3,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
+            }
+          }
+        }
       });
 
-      // Prop bets DISABLED in v11b
-      if(false) // was: prop bets
+      // Prop bets from ALL markets (if loaded)
       if(ld.propsLoaded){
         var allMkeys=sNHL?["player_goals","player_goal_scorer_anytime","player_assists","player_points","player_shots_on_goal","player_saves"]:["batter_hits","batter_total_bases","batter_home_runs","pitcher_strikeouts"];
         gms.forEach(function(g){
@@ -5294,7 +1780,7 @@ function render(){
       h+='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"+(nhlProps?" · props ✓":" · no props")):"not loaded")+'</div>';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(mlbLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(mlbLoaded?"var(--acc)":"var(--neg)")+'">⚾ MLB '+(mlbLoaded?(S.mlb.games.length+" games"+(mlbProps?" · props ✓":" · no props")):"not loaded")+'</div>';
-      
+      if(!nhlProps||!mlbProps)h+='<div style="padding:3px 10px;border-radius:5px;background:var(--alt);font-size:10px;color:var(--td)">💡 Load props in each league\'s Props tab to include prop bets</div>';
       h+='</div>';
 
       if(!allBets.length){
@@ -5463,7 +1949,7 @@ function render(){
     }
 
     games.forEach(function(g){
-      var rawEdge=isNHL?(g.adjEdge||g.topEdge):g.topEdge;
+      var rawEdge=isNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge);
       
       // Calculate best lines from ALL books for edge calculation
       var actHML=-9999,actAML=-9999,actHBook=null,actABook=null;
@@ -5474,12 +1960,14 @@ function render(){
         if(d.awayML!=null&&d.awayML>actAML){actAML=d.awayML;actABook=bk.id;}
       });
 
-      // Determine edge from ALL books
+      // Determine edge from ALL books — v11c: use model-adjusted fair values for MLB
+      var useFairH2=isNHL?g.fairH:(g.modelFairH||g.fairH);
+      var useFairA2=isNHL?g.fairA:(g.modelFairA||g.fairA);
       var betSide=null;
       var displayEdge=rawEdge;
       if(rawEdge>3){
-        var actHEdge=(actHML>-9999&&g.fairH)?+((1/ml2p(actHML))*(g.fairH/100)*100-100).toFixed(1):0;
-        var actAEdge=(actAML>-9999&&g.fairA)?+((1/ml2p(actAML))*(g.fairA/100)*100-100).toFixed(1):0;
+        var actHEdge=(actHML>-9999&&useFairH2)?+((1/ml2p(actHML))*(useFairH2/100)*100-100).toFixed(1):0;
+        var actAEdge=(actAML>-9999&&useFairA2)?+((1/ml2p(actAML))*(useFairA2/100)*100-100).toFixed(1):0;
         var actTopEdge=Math.max(+actHEdge,+actAEdge);
         betSide=(+actHEdge>=+actAEdge)?"HOME":"AWAY";
         if(actTopEdge>3){
@@ -5499,7 +1987,7 @@ function render(){
       if(betSide&&displayEdge>3){
         var dispML=betSide==="HOME"?dispHML:dispAML;
         var dispBk=betSide==="HOME"?dispHBook:dispABook;
-        var fairP=betSide==="HOME"?g.fairH/100:g.fairA/100;
+        var fairP=betSide==="HOME"?useFairH2/100:useFairA2/100;
         if(dispML>-9999){
           var dispEdge=+((1/ml2p(dispML))*fairP*100-100).toFixed(1);
           if(isNHL)dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
@@ -5516,7 +2004,7 @@ function render(){
       //   NHL Home: BET at 5%+ (test ROI +17.6%), WATCH at 3%+
       //   NHL Away: BET at 7%+ (test ROI +7.2% at 7, +20.2% at 10), WATCH at 3%+
       //   Deep analysis: Home bets 2-3x more profitable than away bets
-      var betThresh=12; // MLB v11b optimal
+      var betThresh=10; // MLB default
       if(isNHL){
         betThresh=(betSide==="HOME")?5:7;
       }
@@ -5605,22 +2093,35 @@ function render(){
         }
       }
 
-      // MLB Context row
+      // MLB Context row — v11c: show model adjustments
       if(!isNHL){
         var info=S.mlb.lineups[g.home]||{};
         var wx=S.mlb.weather[g.home];
         var fat=S.mlb.fatigue[g.home]||{};
         var afat=S.mlb.fatigue[g.away]||{};
         var ctxItems=[];
-        if(wx){if(wx.indoor)ctxItems.push("🏟 Dome");else ctxItems.push("🌡 "+wx.temp+"°F"+(wx.wind>10?" · 🌬 "+wx.wind+"mph":""));}
-        if(info.umpire){var uIcon=info.umpTendency==="high"?"⬆️":info.umpTendency==="low"?"⬇️":"";ctxItems.push("👤 "+info.umpire+(uIcon?" "+uIcon+" K":""));}
+        if(wx){
+          if(wx.indoor)ctxItems.push("🏟 Dome");
+          else{
+            var wxTag="🌡 "+wx.temp+"°F"+(wx.wind>10?" · 🌬 "+wx.wind+"mph":"");
+            if(g.wxTotalAdj&&g.wxTotalAdj!==0)wxTag+=" ("+(g.wxTotalAdj>0?"+":"")+g.wxTotalAdj+"r)";
+            ctxItems.push(wxTag);
+          }
+        }
+        if(info.umpire){
+          var uIcon=info.umpTendency==="high"?"⬆️":info.umpTendency==="low"?"⬇️":"";
+          var umpTag="👤 "+info.umpire+(uIcon?" "+uIcon+" K":"");
+          if(g.umpMLAdj&&g.umpMLAdj!==0)umpTag+=" ("+(g.umpMLAdj>0?"+":"")+((g.umpMLAdj*100).toFixed(1))+"%)";
+          ctxItems.push(umpTag);
+        }
         if(fat.games>=3)ctxItems.push("💤 "+g.home+" pen tired");
         if(afat.games>=3)ctxItems.push("💤 "+g.away+" pen tired");
+        if(g.homeStats&&g.homeStats.live)ctxItems.push("📊 Live stats ("+g.homeStats.gp+"gp)");
         if(ctxItems.length){h+='<div class="ctx">';ctxItems.forEach(function(ci){h+='<span class="ctx-item">'+ci+'</span>'});h+='</div>';}
       }
 
       // ── BET RECOMMENDATION ──
-      var betFairProb=betTeam===g.home?g.fairH:betTeam===g.away?g.fairA:null;
+      var betFairProb=betTeam===g.home?(isNHL?g.fairH:(g.modelFairH||g.fairH)):betTeam===g.away?(isNHL?g.fairA:(g.modelFairA||g.fairA)):null;
       var betFairOdds=betFairProb?fImp(betFairProb):null;
       var isB2BStack=isNHL&&g.b2bStack&&displayEdge>3;
 
@@ -5669,7 +2170,7 @@ function render(){
     var plLabel=isNHL?"Puck Line":"Run Line";
     var plSpreadVal=isNHL?"±1.5":"±1.5";
     if(!isNHL){
-      h+='<div class="ib ice"><span style="font-size:14px">⚾</span><strong>Backtested on 40,996 games (2009-2025):</strong> Only favorite -1.5 at 10%+ ML edge is profitable. Underdog +1.5 loses to juice every year. Bets shown are from your active books only.</div>';
+      h+='<div class="ib ice"><span style="font-size:14px">⚾</span><strong>v11c Backtested on 2,055 games:</strong> Fav -1.5 at 12%+ edge: 186 bets, 51.6% cover, <span style="color:var(--acc)">+18.7% ROI</span>. Dog +1.5 at 12%+ edge: 206 bets, 73.3% cover, <span style="color:var(--acc)">+22.4% ROI</span>. Weather + umpire adjustments applied.</div>';
     }else{
       h+='<div class="ib ice"><span style="font-size:14px">🏒</span>'+plLabel+' ('+plSpreadVal+') — favorite must win by 2+. NHL puck line not yet backtested — using MLB-derived thresholds (10%+ edge on fav side). Best odds from your active books.</div>';
     }
@@ -5690,38 +2191,51 @@ function render(){
         if(d.aSpreadOdds!=null&&d.aSpreadOdds>actBestASO){actBestASO=d.aSpreadOdds;actASBook=bk;}
       });
 
-      // ── BACKTESTED LOGIC ──
-      // Recalculate ML edge from ALL books
+      // ── v11c BACKTESTED LOGIC ──
+      // Use model-adjusted edges for MLB
       var actHML2=-9999,actAML2=-9999;
       abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>actHML2)actHML2=d.homeML;if(d.awayML!=null&&d.awayML>actAML2)actAML2=d.awayML;});
-      var mlEdgeH=(actHML2>-9999&&g.fairH)?+((1/ml2p(actHML2))*(g.fairH/100)*100-100).toFixed(1):0;
-      var mlEdgeA=(actAML2>-9999&&g.fairA)?+((1/ml2p(actAML2))*(g.fairA/100)*100-100).toFixed(1):0;
+      var useFairH=isNHL?g.fairH:(g.modelFairH||g.fairH);
+      var useFairA=isNHL?g.fairA:(g.modelFairA||g.fairA);
+      var mlEdgeH=(actHML2>-9999&&useFairH)?+((1/ml2p(actHML2))*(useFairH/100)*100-100).toFixed(1):0;
+      var mlEdgeA=(actAML2>-9999&&useFairA)?+((1/ml2p(actAML2))*(useFairA/100)*100-100).toFixed(1):0;
       if(isNHL){mlEdgeH=+(+mlEdgeH+(g.contextAdj>0?g.contextAdj:0)).toFixed(1);mlEdgeA=+(+mlEdgeA-(g.contextAdj>0?0:g.contextAdj)).toFixed(1);}
 
-      // Determine favorite: the side with higher fair prob
-      var homeFav=g.fairH>=50;
+      // Determine favorite and underdog
+      var homeFav=useFairH>=50;
       var favTeam=homeFav?g.home:g.away;
+      var dogTeam=homeFav?g.away:g.home;
       var favEdge=homeFav?+mlEdgeH:+mlEdgeA;
+      var dogEdge=homeFav?+mlEdgeA:+mlEdgeH;
       var favSpread=homeFav?hSpreadShow:aSpreadShow;
+      var dogSpread=homeFav?aSpreadShow:hSpreadShow;
       var favOdds=homeFav?(actBestHSO>-9999?actBestHSO:null):(actBestASO>-9999?actBestASO:null);
+      var dogOdds=homeFav?(actBestASO>-9999?actBestASO:null):(actBestHSO>-9999?actBestHSO:null);
       var favBook=homeFav?actHSBook:actASBook;
-      var favFairProb=homeFav?g.fairH:g.fairA;
+      var dogBook=homeFav?actASBook:actHSBook;
+      var favFairProb=homeFav?useFairH:useFairA;
+      var dogFairProb=homeFav?useFairA:useFairH;
 
-      // Bet recommendation: ONLY favorite -1.5 at 10%+ edge (backtested rule)
-      var rlBetQualifies=favEdge>=10&&favSpread!=null&&favSpread<0;
-      var rlWatchQualifies=favEdge>=5&&favEdge<10&&favSpread!=null&&favSpread<0;
+      // v11c thresholds: Fav -1.5 at 12%+ BET, 8%+ WATCH
+      var rlFavBet=favEdge>=12&&favSpread!=null&&favSpread<0;
+      var rlFavWatch=favEdge>=8&&favEdge<12&&favSpread!=null&&favSpread<0;
+      // v11c NEW: Dog +1.5 at 12%+ edge (73.3% cover, +22.4% ROI in backtest)
+      var rlDogBet=!isNHL&&favEdge>=12&&dogSpread!=null&&dogSpread>0;
+      var rlDogWatch=!isNHL&&favEdge>=8&&favEdge<12&&dogSpread!=null&&dogSpread>0;
 
       // Tags
       var tagH="";
-      if(rlBetQualifies)tagH='<span class="tag tag-e">RL BET</span>';
-      else if(rlWatchQualifies)tagH='<span class="tag tag-w">RL WATCH</span>';
+      if(rlFavBet)tagH='<span class="tag tag-e">FAV -1.5 BET</span>';
+      else if(rlFavWatch)tagH='<span class="tag tag-w">FAV -1.5 WATCH</span>';
+      if(rlDogBet)tagH+=' <span class="tag tag-e" style="background:rgba(0,201,255,.1);color:var(--ac2);border-color:rgba(0,201,255,.2)">DOG +1.5 BET</span>';
+      else if(rlDogWatch)tagH+=' <span class="tag tag-w">DOG +1.5 WATCH</span>';
       if(isNHL){
         if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
         if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
       }
 
-      // +EV filter: on PL tab, only show games with RL BET or WATCH
-      if(S.evOnly&&!rlBetQualifies&&!rlWatchQualifies)return;
+      // +EV filter: only show games with signals
+      if(S.evOnly&&!rlFavBet&&!rlFavWatch&&!rlDogBet&&!rlDogWatch)return;
 
       h+='<div class="pl-card"><div class="gh">';
       h+='<div style="flex:1 1 180px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">';
@@ -5730,6 +2244,16 @@ function render(){
       h+='<div class="mono" style="font-size:10px;color:var(--td)">'+fd(g.time)+' · '+ft(g.time)+'</div>';
       if(isNHL&&(g.homeGoalie||g.awayGoalie)){
         h+='<div style="font-size:10px;color:var(--tm);margin-top:2px">🥅 '+(g.awayGoalie||"TBD")+' vs '+(g.homeGoalie||"TBD")+'</div>';
+      }
+      // v11c: Show model adjustments
+      if(!isNHL){
+        var adjItems=[];
+        if(g.wxTotalAdj&&g.wxTotalAdj!==0)adjItems.push(g.wxDesc);
+        if(g.umpMLAdj&&g.umpMLAdj!==0)adjItems.push(g.umpDesc);
+        if(g.homeStats&&g.homeStats.live)adjItems.push("📊 Live stats ("+g.homeStats.gp+"gp)");
+        if(adjItems.length){
+          h+='<div style="font-size:9px;color:var(--ac2);margin-top:3px">'+adjItems.join(' · ')+'</div>';
+        }
       }
       h+='</div>';
 
@@ -5751,34 +2275,54 @@ function render(){
 
       // Fav edge display
       h+='<div style="text-align:center;min-width:80px"><div class="sh">Fav Edge</div>';
-      var edgeCls=favEdge>=10?"ev-p":favEdge>=5?"ev-p":"ev-0";
+      var edgeCls=favEdge>=12?"ev-p":favEdge>=8?"ev-p":"ev-0";
       h+='<div class="ev '+edgeCls+'">'+(favEdge>0?"+":"")+favEdge+'%</div>';
       h+='<div style="font-size:9px;color:var(--td);margin-top:2px">'+favTeam+'</div>';
       h+='</div>';
 
       h+='</div>';
 
-      // ── RUN LINE BET RECOMMENDATION ──
-      if(rlBetQualifies&&favBook&&favOdds!=null){
+      // ── FAV -1.5 BET RECOMMENDATION ──
+      if(rlFavBet&&favBook&&favOdds!=null){
         h+='<div class="bet-rec" style="margin-top:0;border-top:none;border-top-left-radius:0;border-top-right-radius:0">';
-        h+='<div><div class="bet-label">Backtested '+plLabel+' Bet</div><div class="bet-team" style="font-size:14px">'+favTeam+' -1.5</div></div>';
+        h+='<div><div class="bet-label">v11c '+plLabel+' BET</div><div class="bet-team" style="font-size:14px">'+favTeam+' -1.5</div></div>';
         h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(favOdds)+'</div></div>';
         h+='<div><div class="bet-label">Book</div><div class="bet-book">'+favBook.n+'</div></div>';
         h+='<div><div class="bet-label">ML Edge</div><div class="bet-edge">+'+favEdge+'%</div></div>';
-        h+='<div style="font-size:9px;color:var(--td)">Fair: '+favFairProb+'%'+(isNHL?"":" · 45% cover rate at this edge")+'</div>';
+        h+='<div style="font-size:9px;color:var(--td)">Fair: '+favFairProb+'% · 51.6% cover @ 12%+ · ROI +18.7%</div>';
         h+='</div>';
-      }else if(rlWatchQualifies&&favBook&&favOdds!=null){
+      }else if(rlFavWatch&&favBook&&favOdds!=null){
         h+='<div class="bet-watch" style="margin-top:0;border-top:none;border-top-left-radius:0;border-top-right-radius:0">';
-        h+='<div><div class="bet-label">Watch '+plLabel+'</div><div class="bet-team" style="font-size:13px">'+favTeam+' -1.5</div></div>';
+        h+='<div><div class="bet-label">Watch Fav -1.5</div><div class="bet-team" style="font-size:13px">'+favTeam+' -1.5</div></div>';
         h+='<div class="bet-line">'+fml(favOdds)+'</div>';
         h+='<div class="bet-book">@ '+favBook.n+'</div>';
         h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+favEdge+'%</div>';
-        h+='<div style="font-size:9px;color:var(--td)">Below 10% threshold'+(isNHL?"":" (backtest marginal)")+'</div>';
+        h+='<div style="font-size:9px;color:var(--td)">Below 12% threshold (50.3% cover @ 8%+)</div>';
         h+='</div>';
-      }else if(favEdge<5){
-        // No recommendation — show why
+      }
+
+      // ── v11c: DOG +1.5 BET RECOMMENDATION ──
+      if(rlDogBet&&dogBook&&dogOdds!=null){
+        h+='<div class="bet-rec" style="margin-top:4px;border-top-left-radius:8px;border-top-right-radius:8px;background:rgba(0,201,255,.07);border-color:rgba(0,201,255,.25)">';
+        h+='<div><div class="bet-label" style="color:var(--ac2)">v11c Dog +1.5 BET</div><div class="bet-team" style="font-size:14px;color:var(--ac2)">'+dogTeam+' +1.5</div></div>';
+        h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(dogOdds)+'</div></div>';
+        h+='<div><div class="bet-label">Book</div><div class="bet-book" style="color:var(--ac2);background:rgba(0,201,255,.1)">'+dogBook.n+'</div></div>';
+        h+='<div><div class="bet-label">Fav Edge</div><div class="bet-edge" style="color:var(--ac2)">+'+favEdge+'%</div></div>';
+        h+='<div style="font-size:9px;color:var(--td)">73.3% cover @ 12%+ · ROI +22.4% · Covers if dog wins OR loses by 1</div>';
+        h+='</div>';
+      }else if(rlDogWatch&&dogBook&&dogOdds!=null){
+        h+='<div class="bet-watch" style="margin-top:4px;border-top-left-radius:8px;border-top-right-radius:8px">';
+        h+='<div><div class="bet-label">Watch Dog +1.5</div><div class="bet-team" style="font-size:13px">'+dogTeam+' +1.5</div></div>';
+        h+='<div class="bet-line">'+fml(dogOdds)+'</div>';
+        h+='<div class="bet-book">@ '+dogBook.n+'</div>';
+        h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+favEdge+'%</div>';
+        h+='<div style="font-size:9px;color:var(--td)">Below 12% threshold (74.1% cover @ 8%+)</div>';
+        h+='</div>';
+      }
+
+      if(!rlFavBet&&!rlFavWatch&&!rlDogBet&&!rlDogWatch&&favEdge<8){
         h+='<div style="margin-top:0;padding:6px 12px;font-size:10px;color:var(--td);background:var(--alt);border:1px solid var(--bdL);border-top:none;border-radius:0 0 8px 8px">';
-        h+='No '+plLabel+' signal — fav edge +'+favEdge+'% is below 5% threshold. '+(isNHL?"":"Underdog +1.5 is not recommended (negative ROI in backtest).");
+        h+='No '+plLabel+' signal — fav edge +'+favEdge+'% is below 8% threshold.';
         h+='</div>';
       }
 
@@ -6309,7 +2853,7 @@ function render(){
   h+='</div>';
 
   // ── FOOTER ──
-  h+='<div class="ft">DIAMOND EDGE v11b · '+(isNHL?"NHL: 22,991 games backtested · Home 5% / Away 7% · B2B+CLV stacking · Opening lines only":"MLB: v11b model · 24 features · 59% accuracy · +26% ROI at 12%+")+' · 21+ · 1-800-GAMBLER</div>';
+  h+='<div class="ft">DIAMOND EDGE v11c · '+(isNHL?"NHL: 22,991 games backtested · Home 5% / Away 7% · B2B+CLV stacking · Opening lines only":"MLB: v11c model · RL fav -1.5 +18.7% ROI · Dog +1.5 +22.4% ROI · Weather+Umpire+Live Stats · 12%+ edge")+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
