@@ -1145,7 +1145,7 @@ async function fetchMoneyPuck(){
     rows.forEach(function(row){
       var team=(row.team||row.name||"").toString().trim();
       var sit=(row.situation||"all").toString().trim();
-      if(sit==="5on5"){
+      if(sit.indexOf("5on5")>=0){
         mpTeams[team]=row;
       }
     });
