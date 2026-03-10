@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Diamond Edge v11d — MLB + NHL Betting Model</title>
+<title>Diamond Edge v11d — MLB + NHL v5 Betting Model</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0c0e17;--card:#141724;--alt:#111320;--head:#111422;--bd:#1f2338;--bdL:#181c30;--acc:#00ffa3;--ac2:#00c9ff;--tx:#e5e8f2;--tm:#9ca1b8;--td:#5e6380;--tf:#3c4058;--neg:#ff4d6a;--warn:#ff9f43;--ovBg:rgba(0,255,163,0.07);--unBg:rgba(255,77,106,0.07);--ice:#38bdf8;--iceBg:rgba(56,189,248,0.07)}
@@ -1047,6 +1047,313 @@ function computeFeatures(g){
   };
 }
 
+
+// ═══ NHL V5 TRAINED MODEL ═══════════════════════════════
+// 27 features, trained 2017-2022, blended current-year stats
+// Test: 57.5% acc, CLV@8% +9.1% ROI (9/10 years profitable)
+var NHL_V5_MODEL = {
+  bias: 0.055,
+  features: ["f_home","f_power","f_gd_pace","f_season_wp","f_l20","f_b2b",
+    "f_reg_win","f_rest","f_gsax","f_xgf","f_pp_pk","f_hd_diff",
+    "f_xg_luck","f_sva_xg","f_faceoff","f_turnovers","f_rebounds",
+    "f_rebound_goals","f_hd_share","f_corsi","f_shots",
+    "f_goalie_sv","f_goalie_hd_sv","f_goalie_depth",
+    "f_b2b_x_backup","f_gsax_x_xgf"],
+  weights: {
+    f_sva_xg:0.3189, f_b2b:0.2242, f_xg_luck:-0.1991,
+    f_gd_pace:0.1718, f_faceoff:0.1214, f_hd_diff:-0.0897,
+    f_season_wp:0.0794, f_turnovers:0.0776, f_home:0.0549,
+    f_power:0.0525, f_l20:0.0505, f_reg_win:0.0447,
+    f_goalie_sv:0.0418, f_gsax:0.0326, f_corsi:-0.0303,
+    f_xgf:-0.0286, f_gsax_x_xgf:-0.0277, f_rebounds:-0.0225,
+    f_shots:-0.0172, f_hd_share:-0.0144, f_goalie_depth:0.0119,
+    f_b2b_x_backup:-0.0108, f_rebound_goals:0.0079,
+    f_goalie_hd_sv:-0.0035, f_rest:0.012, f_pp_pk:0.017
+  }
+};
+
+function predictNHLv5(features){
+  var z=NHL_V5_MODEL.bias;
+  NHL_V5_MODEL.features.forEach(function(f){z+=(NHL_V5_MODEL.weights[f]||0)*(features[f]||0);});
+  return sigmoid(z);
+}
+
+// ═══ MONEYPUCK DATA FETCH ═══════════════════════════════
+// Fetches current-season team + goalie CSVs from MoneyPuck
+var MP_TO_APP = {
+  "ANA":"Anaheim Ducks","ARI":"Arizona Coyotes","BOS":"Boston Bruins","BUF":"Buffalo Sabres",
+  "CAR":"Carolina Hurricanes","CBJ":"Columbus Blue Jackets","CGY":"Calgary Flames",
+  "CHI":"Chicago Blackhawks","COL":"Colorado Avalanche","DAL":"Dallas Stars",
+  "DET":"Detroit Red Wings","EDM":"Edmonton Oilers","FLA":"Florida Panthers",
+  "L.A":"Los Angeles Kings","MIN":"Minnesota Wild","MTL":"Montréal Canadiens",
+  "N.J":"New Jersey Devils","NSH":"Nashville Predators","NYI":"New York Islanders",
+  "NYR":"New York Rangers","OTT":"Ottawa Senators","PHI":"Philadelphia Flyers",
+  "PIT":"Pittsburgh Penguins","S.J":"San Jose Sharks","SEA":"Seattle Kraken",
+  "STL":"St. Louis Blues","T.B":"Tampa Bay Lightning","TOR":"Toronto Maple Leafs",
+  "UTA":"Utah Hockey Club","VAN":"Vancouver Canucks","VGK":"Vegas Golden Knights",
+  "WPG":"Winnipeg Jets","WSH":"Washington Capitals"
+};
+// Reverse: app team name → MP code
+var APP_TO_MP = {};
+Object.keys(MP_TO_APP).forEach(function(k){APP_TO_MP[MP_TO_APP[k]]=k;});
+// Also map NHL_ABBREVS (3-letter) to MP codes
+var ABBR_TO_MP = {
+  "ANA":"ANA","ARI":"ARI","BOS":"BOS","BUF":"BUF","CAR":"CAR","CBJ":"CBJ",
+  "CGY":"CGY","CHI":"CHI","COL":"COL","DAL":"DAL","DET":"DET","EDM":"EDM",
+  "FLA":"FLA","LAK":"L.A","MIN":"MIN","MTL":"MTL","NJD":"N.J","NSH":"NSH",
+  "NYI":"NYI","NYR":"NYR","OTT":"OTT","PHI":"PHI","PIT":"PIT","SJS":"S.J",
+  "SEA":"SEA","STL":"STL","TBL":"T.B","TOR":"TOR","UTA":"UTA","VAN":"VAN",
+  "VGK":"VGK","WPG":"WPG","WSH":"WSH"
+};
+
+function parseCSV(text){
+  var lines=text.trim().split("\n");
+  if(lines.length<2)return[];
+  var headers=lines[0].split(",").map(function(h){return h.trim();});
+  var rows=[];
+  for(var i=1;i<lines.length;i++){
+    var vals=lines[i].split(",");
+    if(vals.length<headers.length)continue;
+    var obj={};
+    headers.forEach(function(h,j){
+      var v=vals[j]?vals[j].trim():"";
+      var n=parseFloat(v);
+      obj[h]=isNaN(n)?v:n;
+    });
+    rows.push(obj);
+  }
+  return rows;
+}
+
+async function fetchMoneyPuck(){
+  // Determine current NHL season (Oct-June)
+  var now=new Date();
+  var yr=now.getFullYear();
+  var mo=now.getMonth()+1;
+  var season=(mo>=9)?yr:yr-1;
+  console.log("[DE] Fetching MoneyPuck data for season "+season);
+
+  var mpTeams={};  // mpCode → {5on5 stats}
+  var mpGoalies={};  // mpCode → [{goalie stats sorted by GP}]
+
+  // Fetch team stats
+  try{
+    var tUrl="https://moneypuck.com/moneypuck/playerData/seasonSummary/"+season+"/regular/teams.csv";
+    var r=await corsProxyFetch(tUrl);
+    var text=await r.text();
+    var rows=parseCSV(text);
+    rows.forEach(function(row){
+      var team=(row.team||row.name||"").toString().trim();
+      var sit=(row.situation||"all").toString().trim();
+      if(sit==="5on5"){
+        mpTeams[team]=row;
+      }
+    });
+    console.log("[DE] MoneyPuck teams loaded: "+Object.keys(mpTeams).length+" (5on5)");
+  }catch(e){
+    console.log("[DE] MoneyPuck teams fetch failed:",e.message);
+  }
+
+  // Fetch goalie stats
+  try{
+    var gUrl="https://moneypuck.com/moneypuck/playerData/seasonSummary/"+season+"/regular/goalies.csv";
+    var r2=await corsProxyFetch(gUrl);
+    var text2=await r2.text();
+    var grows=parseCSV(text2);
+    grows.forEach(function(row){
+      var sit=(row.situation||"all").toString().trim();
+      if(sit!=="all")return;
+      var team=(row.team||"").toString().trim();
+      if(!mpGoalies[team])mpGoalies[team]=[];
+      var gp=row.games_played||0;
+      var xga=row.xGoals||0;
+      var ga=row.goals||0;
+      var gsax=xga-ga; // positive = saved more than expected
+      var shots=row.ongoal||row.onGoal||0;
+      var sv=shots>0?1-(ga/shots):0.910;
+      var hdShots=row.highDangerShots||0;
+      var hdGoals=row.highDangerGoals||0;
+      var hdSv=hdShots>0?1-(hdGoals/hdShots):0.850;
+      mpGoalies[team].push({
+        name:row.name||"",gp:gp,gsax:gsax,gsax_pg:gp>0?gsax/gp:0,
+        sv_pct:sv,hd_sv_pct:hdSv
+      });
+    });
+    // Sort each team's goalies by GP (starter first)
+    Object.keys(mpGoalies).forEach(function(t){
+      mpGoalies[t].sort(function(a,b){return b.gp-a.gp;});
+    });
+    console.log("[DE] MoneyPuck goalies loaded: "+Object.keys(mpGoalies).length+" teams");
+  }catch(e){
+    console.log("[DE] MoneyPuck goalies fetch failed:",e.message);
+  }
+
+  // Also try prior season for blending
+  var priorTeams={};
+  var priorGoalies={};
+  try{
+    var ptUrl="https://moneypuck.com/moneypuck/playerData/seasonSummary/"+(season-1)+"/regular/teams.csv";
+    var rp=await corsProxyFetch(ptUrl);
+    var tp=await rp.text();
+    parseCSV(tp).forEach(function(row){
+      var team=(row.team||row.name||"").toString().trim();
+      if((row.situation||"all").toString().trim()==="5on5") priorTeams[team]=row;
+    });
+    console.log("[DE] MoneyPuck prior-year teams: "+Object.keys(priorTeams).length);
+  }catch(e){console.log("[DE] Prior-year teams failed:",e.message);}
+
+  try{
+    var pgUrl="https://moneypuck.com/moneypuck/playerData/seasonSummary/"+(season-1)+"/regular/goalies.csv";
+    var rg=await corsProxyFetch(pgUrl);
+    var tg=await rg.text();
+    parseCSV(tg).forEach(function(row){
+      if((row.situation||"all").toString().trim()!=="all")return;
+      var team=(row.team||"").toString().trim();
+      if(!priorGoalies[team])priorGoalies[team]=[];
+      var gp=row.games_played||0;var xga=row.xGoals||0;var ga=row.goals||0;
+      var shots=row.ongoal||row.onGoal||0;var sv=shots>0?1-(ga/shots):0.910;
+      var hdS=row.highDangerShots||0;var hdG=row.highDangerGoals||0;
+      priorGoalies[team].push({gp:gp,gsax:xga-ga,gsax_pg:gp>0?(xga-ga)/gp:0,
+        sv_pct:sv,hd_sv_pct:hdS>0?1-(hdG/hdS):0.850});
+    });
+    Object.keys(priorGoalies).forEach(function(t){
+      priorGoalies[t].sort(function(a,b){return b.gp-a.gp;});
+    });
+    console.log("[DE] MoneyPuck prior-year goalies: "+Object.keys(priorGoalies).length);
+  }catch(e){}
+
+  S.nhl.mp={teams:mpTeams,goalies:mpGoalies,priorTeams:priorTeams,priorGoalies:priorGoalies,loaded:true};
+  console.log("[DE] MoneyPuck data stored in S.nhl.mp");
+}
+
+// ═══ V5 FEATURE COMPUTATION WITH MONEYPUCK ═════════════
+function computeNHLv5Features(g){
+  var standings=S.nhl.standings||{};
+  var fatigue=S.nhl.fatigue||{};
+  var mp=S.nhl.mp||{teams:{},goalies:{},priorTeams:{},priorGoalies:{}};
+  var hAbbr=NHL_ABBREVS[g.home]||"";
+  var aAbbr=NHL_ABBREVS[g.away]||"";
+  var hMP=ABBR_TO_MP[hAbbr]||hAbbr;
+  var aMP=ABBR_TO_MP[aAbbr]||aAbbr;
+
+  // Standings
+  var hS=standings[hAbbr]||{};var aS=standings[aAbbr]||{};
+  var hF=fatigue[hAbbr]||{b2b:false,restDays:3};
+  var aF=fatigue[aAbbr]||{b2b:false,restDays:3};
+  var hGP=Math.max((hS.wins||0)+(hS.losses||0)+(hS.otl||0),1);
+  var aGP=Math.max((aS.wins||0)+(aS.losses||0)+(aS.otl||0),1);
+  var hWP=(hS.wins||0)/hGP;var aWP=(aS.wins||0)/aGP;
+  var hGF=(hS.goalsFor||hS.goalFor||0)/hGP;
+  var hGA=(hS.goalsAgainst||hS.goalAgainst||0)/hGP;
+  var aGF=(aS.goalsFor||aS.goalFor||0)/aGP;
+  var aGA=(aS.goalsAgainst||aS.goalAgainst||0)/aGP;
+  function pyth2(gf,ga){return gf*gf/(gf*gf+ga*ga)||0.5;}
+  var hPyth=pyth2(hGF,hGA);var aPyth=pyth2(aGF,aGA);
+  var hL10W=hS.l10W||0;var hL10T=Math.max(hL10W+(hS.l10L||0)+(hS.l10OTL||0),1);
+  var aL10W=aS.l10W||0;var aL10T=Math.max(aL10W+(aS.l10L||0)+(aS.l10OTL||0),1);
+  var hB2B=hF.b2b?1:0;var aB2B=aF.b2b?1:0;
+  var hRegRate=Math.max(0,(hS.wins||0)-Math.round(hGP*0.08))/hGP;
+  var aRegRate=Math.max(0,(aS.wins||0)-Math.round(aGP*0.08))/aGP;
+
+  // MoneyPuck team stats (current season, blended with prior)
+  // Blend: if <20 GP use prior, 20-50 blend, >50 current
+  function blendStat(cur,prior,key,def){
+    var cv=cur?parseFloat(cur[key])||def:def;
+    var pv=prior?parseFloat(prior[key])||def:def;
+    if(hGP<20)return pv;
+    if(hGP>=50)return cv;
+    var w=(hGP-20)/30;
+    return pv*(1-w)+cv*w;
+  }
+  var hT=mp.teams[hMP]||{};var aT=mp.teams[aMP]||{};
+  var hTP=mp.priorTeams[hMP]||{};var aTP=mp.priorTeams[aMP]||{};
+  var hasMP=Object.keys(hT).length>5&&Object.keys(aT).length>5;
+
+  // Goalie data (current + prior, B2B-aware)
+  var hGoalies=mp.goalies[hMP]||[];var aGoalies=mp.goalies[aMP]||[];
+  var hPGoalies=mp.priorGoalies[hMP]||[];var aPGoalies=mp.priorGoalies[aMP]||[];
+  function getGoalie(cur,prior,idx){
+    var c=cur[idx]||null;var p=prior[idx]||{gsax:0,gsax_pg:0,sv_pct:0.910,hd_sv_pct:0.850};
+    if(!c)return p;
+    if((c.gp||0)<10)return p;
+    if((c.gp||0)>=30)return c;
+    var w=((c.gp||0)-10)/20;
+    return{gsax_pg:(p.gsax_pg||0)*(1-w)+(c.gsax_pg||0)*w,
+           sv_pct:(p.sv_pct||0.910)*(1-w)+(c.sv_pct||0.910)*w,
+           hd_sv_pct:(p.hd_sv_pct||0.850)*(1-w)+(c.hd_sv_pct||0.850)*w};
+  }
+  var hStarter=getGoalie(hGoalies,hPGoalies,0);
+  var aStarter=getGoalie(aGoalies,aPGoalies,0);
+  var hBackup=getGoalie(hGoalies,hPGoalies,1);
+  var aBackup=getGoalie(aGoalies,aPGoalies,1);
+  // Effective goalie (backup if B2B)
+  var hEff=hB2B?hBackup:hStarter;
+  var aEff=aB2B?aBackup:aStarter;
+
+  // MoneyPuck feature helpers
+  var hMGP=Math.max(blendStat(hT,hTP,"games_played",82),1);
+  var aMGP=Math.max(blendStat(aT,aTP,"games_played",82),1);
+
+  function mpDiff(key,def){
+    return (blendStat(hT,hTP,key,def)-blendStat(aT,aTP,key,def));
+  }
+  function mpRate(teamCur,teamPrior,keyFor,keyAgainst,def){
+    var f=blendStat(teamCur,teamPrior,keyFor,def);
+    var a=blendStat(teamCur,teamPrior,keyAgainst,def);
+    return f-a;
+  }
+
+  // PP/PK
+  var hPP=(hS.ppPct||20)/100;var aPP=(aS.ppPct||20)/100;
+  var hPK=(hS.pkPct||80)/100;var aPK=(aS.pkPct||80)/100;
+
+  var features = {
+    f_home: 1.0,
+    f_power: hPyth-aPyth,
+    f_gd_pace: ((hGF-hGA)-(aGF-aGA))/2,
+    f_season_wp: hWP-aWP,
+    f_l20: hL10W/hL10T-aL10W/aL10T,
+    f_b2b: aB2B-hB2B,
+    f_reg_win: hRegRate-aRegRate,
+    f_rest: Math.min(3,((hF.restDays||3)-(aF.restDays||3)))/3,
+    f_pp_pk: ((hPP-(1-aPK))+((1-hPK)-aPP))/0.2,
+
+    // MoneyPuck advanced features
+    f_gsax: (hEff.gsax_pg-aEff.gsax_pg)*10,
+    f_xgf: hasMP?(blendStat(hT,hTP,"xGoalsPercentage",50)-blendStat(aT,aTP,"xGoalsPercentage",50))/10:0,
+    f_hd_diff: hasMP?((mpRate(hT,hTP,"highDangerShotsFor","highDangerShotsAgainst",0)-mpRate(aT,aTP,"highDangerShotsFor","highDangerShotsAgainst",0))/hMGP/0.5):0,
+    f_xg_luck: hasMP?(-((blendStat(hT,hTP,"goalsFor",0)-blendStat(hT,hTP,"xGoalsFor",0))-(blendStat(aT,aTP,"goalsFor",0)-blendStat(aT,aTP,"xGoalsFor",0)))/hMGP/0.3):0,
+    f_sva_xg: hasMP?((mpRate(hT,hTP,"scoreVenueAdjustedxGoalsFor","scoreVenueAdjustedxGoalsAgainst",0)-mpRate(aT,aTP,"scoreVenueAdjustedxGoalsFor","scoreVenueAdjustedxGoalsAgainst",0))/hMGP/0.3):0,
+    f_faceoff: hasMP?((blendStat(hT,hTP,"faceOffsWonFor",50)/(blendStat(hT,hTP,"faceOffsWonFor",50)+blendStat(hT,hTP,"faceOffsWonAgainst",50)||1))-(blendStat(aT,aTP,"faceOffsWonFor",50)/(blendStat(aT,aTP,"faceOffsWonFor",50)+blendStat(aT,aTP,"faceOffsWonAgainst",50)||1)))*10:0,
+    f_turnovers: hasMP?(((blendStat(hT,hTP,"takeawaysFor",0)-blendStat(hT,hTP,"giveawaysFor",0))/hMGP-(blendStat(aT,aTP,"takeawaysFor",0)-blendStat(aT,aTP,"giveawaysFor",0))/aMGP)/3):0,
+    f_rebounds: hasMP?((blendStat(hT,hTP,"reboundsFor",0)/hMGP-blendStat(aT,aTP,"reboundsFor",0)/aMGP)/3):0,
+    f_rebound_goals: hasMP?((blendStat(hT,hTP,"reboundGoalsFor",0)/hMGP-blendStat(aT,aTP,"reboundGoalsFor",0)/aMGP)*5):0,
+    f_hd_share: hasMP?((blendStat(hT,hTP,"highDangerShotsFor",10)/Math.max(blendStat(hT,hTP,"shotsOnGoalFor",30),1)-blendStat(aT,aTP,"highDangerShotsFor",10)/Math.max(blendStat(aT,aTP,"shotsOnGoalFor",30),1))*10):0,
+    f_corsi: hasMP?(blendStat(hT,hTP,"corsiPercentage",50)-blendStat(aT,aTP,"corsiPercentage",50))/10:0,
+    f_shots: hasMP?((mpRate(hT,hTP,"shotsOnGoalFor","shotsOnGoalAgainst",0)-mpRate(aT,aTP,"shotsOnGoalFor","shotsOnGoalAgainst",0))/hMGP):0,
+
+    // Goalie features
+    f_goalie_sv: (hEff.sv_pct-aEff.sv_pct)*100,
+    f_goalie_hd_sv: (hEff.hd_sv_pct-aEff.hd_sv_pct)*50,
+    f_goalie_depth: ((aStarter.sv_pct-aBackup.sv_pct)-(hStarter.sv_pct-hBackup.sv_pct))*50,
+
+    // Interactions
+    f_b2b_x_backup: (aB2B-hB2B)*(hEff.gsax_pg-aEff.gsax_pg)*10,
+    f_gsax_x_xgf: (hEff.gsax_pg-aEff.gsax_pg)*(hasMP?(blendStat(hT,hTP,"xGoalsPercentage",50)-blendStat(aT,aTP,"xGoalsPercentage",50))/10:0)
+  };
+
+  // Store MP status on game for display
+  g.mpLoaded=hasMP;
+  g.mpFeatureCount=hasMP?27:10;
+  // Store goalie names for display
+  if(hGoalies[0])g.mpHomeGoalie=hGoalies[0].name||"";
+  if(aGoalies[0])g.mpAwayGoalie=aGoalies[0].name||"";
+  if(hGoalies[0])g.mpHomeGSAx=hGoalies[0].gsax||0;
+  if(aGoalies[0])g.mpAwayGSAx=aGoalies[0].gsax||0;
+
+  return features;
+}
+
 function predictV11b(features){
   // Run sigmoid(weights · features + bias)
   var z=V11B_MODEL.bias;
@@ -1208,125 +1515,64 @@ function processOdds(apiData){
 //   travel:         0.10 — cross-timezone penalty
 
 function enrichNHLGames(games){
-  var sched=S.nhl.schedule||{};
-  var standings=S.nhl.standings||{};
-  var fatigue=S.nhl.fatigue||{};
-
+  var sched=S.nhl.schedule||{};var standings=S.nhl.standings||{};var fatigue=S.nhl.fatigue||{};
   return games.map(function(g){
-    var hAbbr=NHL_ABBREVS[g.home]||"";
-    var aAbbr=NHL_ABBREVS[g.away]||"";
-
-    // Schedule context
+    var hAbbr=NHL_ABBREVS[g.home]||"";var aAbbr=NHL_ABBREVS[g.away]||"";
     var schedInfo=sched[hAbbr]||{};
-    g.homeGoalie=schedInfo.homeGoalie||null;
-    g.awayGoalie=schedInfo.awayGoalie||null;
-    g.homeGoalieConfirmed=schedInfo.homeGoalieConfirmed||false;
-    g.awayGoalieConfirmed=schedInfo.awayGoalieConfirmed||false;
-
-    // Fatigue / B2B
+    g.homeGoalie=schedInfo.homeGoalie||null;g.awayGoalie=schedInfo.awayGoalie||null;
+    g.homeGoalieConfirmed=schedInfo.homeGoalieConfirmed||false;g.awayGoalieConfirmed=schedInfo.awayGoalieConfirmed||false;
     var hFat=fatigue[hAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
     var aFat=fatigue[aAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
-    g.homeB2B=hFat.b2b;
-    g.awayB2B=aFat.b2b;
-    g.homeRest=hFat.restDays;
-    g.awayRest=aFat.restDays;
-    g.homeGamesIn3=hFat.gamesIn3Days;
-    g.awayGamesIn3=aFat.gamesIn3Days;
-    g.restDiff=aFat.restDays-hFat.restDays; // positive = home more rested
-
-    // Standings context
-    var hStand=standings[hAbbr]||{};
-    var aStand=standings[aAbbr]||{};
+    g.homeB2B=hFat.b2b;g.awayB2B=aFat.b2b;g.homeRest=hFat.restDays;g.awayRest=aFat.restDays;
+    g.homeGamesIn3=hFat.gamesIn3Days;g.awayGamesIn3=aFat.gamesIn3Days;
+    g.restDiff=aFat.restDays-hFat.restDays;
+    var hStand=standings[hAbbr]||{};var aStand=standings[aAbbr]||{};
     g.homeRecord=(hStand.wins||0)+"-"+(hStand.losses||0)+"-"+(hStand.otl||0);
     g.awayRecord=(aStand.wins||0)+"-"+(aStand.losses||0)+"-"+(aStand.otl||0);
     g.homeL10=(hStand.l10W||0)+"-"+(hStand.l10L||0)+"-"+(hStand.l10OTL||0);
     g.awayL10=(aStand.l10W||0)+"-"+(aStand.l10L||0)+"-"+(aStand.l10OTL||0);
     g.homeStreak=(hStand.streak||"")+(hStand.streakCount||"");
     g.awayStreak=(aStand.streak||"")+(aStand.streakCount||"");
-    g.homeGD=hStand.goalDiff||0;
-    g.awayGD=aStand.goalDiff||0;
-    g.homePts=hStand.points||0;
-    g.awayPts=aStand.points||0;
+    g.homeGD=hStand.goalDiff||0;g.awayGD=aStand.goalDiff||0;
+    g.homePts=hStand.points||0;g.awayPts=aStand.points||0;
+    g.tzDiff=Math.abs((NHL_TZ[hAbbr]||0)-(NHL_TZ[aAbbr]||0));
 
-    // Travel factor
-    var hTz=NHL_TZ[hAbbr]||0;
-    var aTz=NHL_TZ[aAbbr]||0;
-    g.tzDiff=Math.abs(hTz-aTz);
+    // ═══ NHL V5 MODEL ═══
+    var features=computeNHLv5Features(g);
+    var modelProb=predictNHLv5(features);
+    g.modelProb=+modelProb.toFixed(4);g.modelFairH=+(modelProb*100).toFixed(1);g.modelFairA=+(100-g.modelFairH).toFixed(1);
+    g.features=features;
 
-    // ── NHL Edge Adjustment ──
-    // Start with market-derived edge, then layer context signals
-    var contextAdj=0;
+    var hImp=ml2p(g.bestHML)||0.5;var aImp=ml2p(g.bestAML)||0.5;
+    var vigT=hImp+aImp;var fairH=hImp/vigT;var fairA=aImp/vigT;
+    g.modelHEdge=+((modelProb-fairH)*100).toFixed(1);
+    g.modelAEdge=+(((1-modelProb)-fairA)*100).toFixed(1);
+    g.modelTopEdge=Math.max(g.modelHEdge,g.modelAEdge);
+    g.modelBetSide=g.modelTopEdge>5?(g.modelHEdge>=g.modelAEdge?"HOME":"AWAY"):null;
+
     var signals=[];
-
-    // Back-to-back penalty (~2% disadvantage)
-    if(g.awayB2B&&!g.homeB2B){
-      contextAdj+=2.0;
-      signals.push({icon:"🔴",text:g.away+" on B2B ("+g.awayRest+"d rest) — fade away",type:"boost"});
-    }
-    if(g.homeB2B&&!g.awayB2B){
-      contextAdj-=2.0;
-      signals.push({icon:"🔴",text:g.home+" on B2B ("+g.homeRest+"d rest) — fade home",type:"fade"});
-    }
-    if(g.homeB2B&&g.awayB2B){
-      signals.push({icon:"🟡",text:"Both teams on B2B — fatigue wash",type:"neutral"});
-    }
-
-    // Rest advantage (beyond B2B)
-    if(!g.homeB2B&&!g.awayB2B){
-      if(g.homeRest>=3&&g.awayRest<=1){
-        contextAdj+=1.5;
-        signals.push({icon:"💤",text:g.home+" well-rested ("+g.homeRest+"d) vs "+g.away+" ("+g.awayRest+"d)",type:"boost"});
-      }else if(g.awayRest>=3&&g.homeRest<=1){
-        contextAdj-=1.5;
-        signals.push({icon:"💤",text:g.away+" well-rested ("+g.awayRest+"d) vs "+g.home+" ("+g.homeRest+"d)",type:"fade"});
-      }
-    }
-
-    // Travel penalty (cross-timezone away team)
-    if(g.tzDiff>=2&&g.awayRest<=1){
-      contextAdj+=1.0;
-      signals.push({icon:"✈️",text:g.away+" crossed "+g.tzDiff+" time zones on short rest",type:"boost"});
-    }
-
-    // Heavy schedule (3+ games in 3 days)
-    if(g.awayGamesIn3>=3){
-      contextAdj+=0.5;
-      signals.push({icon:"📅",text:g.away+" heavy schedule ("+g.awayGamesIn3+" games in 3 days)",type:"boost"});
-    }
-    if(g.homeGamesIn3>=3){
-      contextAdj-=0.5;
-      signals.push({icon:"📅",text:g.home+" heavy schedule ("+g.homeGamesIn3+" games in 3 days)",type:"fade"});
-    }
-
-    // Goalie not confirmed (uncertainty flag)
-    if(!g.homeGoalieConfirmed&&!g.awayGoalieConfirmed){
-      signals.push({icon:"🥅",text:"Goalies TBD — check morning skate",type:"neutral"});
-    }
-
-    if(!signals.length){
-      signals.push({icon:"📊",text:"No strong situational signals",type:"neutral"});
-    }
-
-    g.contextAdj=+contextAdj.toFixed(1);
-    g.adjEdge=+(g.topEdge+contextAdj).toFixed(1);
+    if(g.awayB2B&&!g.homeB2B)signals.push({icon:"🔴",text:g.away+" on B2B — model penalty applied",type:"boost"});
+    if(g.homeB2B&&!g.awayB2B)signals.push({icon:"🔴",text:g.home+" on B2B — model penalty applied",type:"fade"});
+    if(g.homeB2B&&g.awayB2B)signals.push({icon:"🟡",text:"Both on B2B — fatigue wash",type:"neutral"});
+    if(!g.homeB2B&&!g.awayB2B&&Math.abs(g.restDiff)>=2){
+      signals.push({icon:"💤",text:(g.restDiff>0?g.home:g.away)+" rest advantage",type:g.restDiff>0?"boost":"fade"});}
+    if(g.tzDiff>=2&&(g.awayRest||99)<=1)signals.push({icon:"✈️",text:g.away+" crossed "+g.tzDiff+" TZ on short rest",type:"boost"});
+    if(g.mpLoaded){
+      signals.push({icon:"📊",text:"MoneyPuck advanced stats loaded ("+g.mpFeatureCount+" features)",type:"neutral"});
+      if(Math.abs(features.f_xg_luck)>0.1)signals.push({icon:"📉",text:(features.f_xg_luck>0?g.away:g.home)+" overperforming xG — regression likely",type:features.f_xg_luck>0?"boost":"fade"});
+      if(Math.abs(features.f_gsax)>0.02)signals.push({icon:"🥅",text:(features.f_gsax>0?"Home":"Away")+" goalie GSAx advantage: "+(features.f_gsax>0?"+":"")+features.f_gsax.toFixed(2),type:features.f_gsax>0?"boost":"fade"});
+    }else{
+      signals.push({icon:"⚠️",text:"MoneyPuck data not loaded — using "+g.mpFeatureCount+" features",type:"neutral"});}
+    if(!g.homeGoalieConfirmed&&!g.awayGoalieConfirmed)signals.push({icon:"🥅",text:"Goalies TBD — check morning skate",type:"neutral"});
+    if(!signals.length)signals.push({icon:"📊",text:"No strong signals",type:"neutral"});
     g.signals=signals;
 
-    // Re-evaluate bet side with context
-    var adjHEdge=+(g.hEdge+(contextAdj>0?contextAdj:0)).toFixed(1);
-    var adjAEdge=+(g.aEdge-(contextAdj>0?0:contextAdj)).toFixed(1);
-    g.adjBetSide=g.adjEdge>3?(adjHEdge>=adjAEdge?"HOME":"AWAY"):null;
+    g.contextAdj=0;g.adjEdge=g.modelTopEdge;g.adjBetSide=g.modelBetSide;
+    g.hEdge=g.modelHEdge;g.aEdge=g.modelAEdge;g.topEdge=g.modelTopEdge;
 
-    // ── BACKTESTED: B2B + CLV Stacking (22,991 games) ──
-    // When opponent is on B2B AND model has CLV edge → premium signal
-    // Test data: +21.8% ROI at 3%+, +32.1% at 5%+, +81.8% at 10%+
-    g.b2bStack=false;
-    g.b2bStackSide=null;
-    if(g.awayB2B&&!g.homeB2B&&g.hEdge>0){
-      g.b2bStack=true;g.b2bStackSide="HOME";
-    }else if(g.homeB2B&&!g.awayB2B&&g.aEdge>0){
-      g.b2bStack=true;g.b2bStackSide="AWAY";
-    }
-
+    g.b2bStack=false;g.b2bStackSide=null;
+    if(g.awayB2B&&!g.homeB2B&&g.modelHEdge>3){g.b2bStack=true;g.b2bStackSide="HOME";}
+    else if(g.homeB2B&&!g.awayB2B&&g.modelAEdge>3){g.b2bStack=true;g.b2bStackSide="AWAY";}
     return g;
   });
 }
@@ -1369,7 +1615,7 @@ async function loadMLB(){
 async function loadNHL(){
   S.nhl.loading=true;S.nhl.error=null;syncActive();render();
   try{
-    var results=await Promise.allSettled([fetchNHLOdds(),fetchNHLSchedule(),fetchNHLStandings(),fetchNHLFatigue()]);
+    var results=await Promise.allSettled([fetchNHLOdds(),fetchNHLSchedule(),fetchMoneyPuck(),fetchNHLStandings(),fetchNHLFatigue()]);
     if(results[0].status==="fulfilled"){
       S.nhl.games=processOdds(results[0].value||[]);
     }else{
@@ -1856,7 +2102,7 @@ function render(){
   else if(S.tab==="ml"){
     if(isNHL){
       // NHL info bar
-      h+='<div class="ib ice"><span style="font-size:14px">🏒</span><strong>Backtested 22,991 games:</strong> Home bets BET at 5%+ (ROI +27%), away at 7%+ (ROI +20%). B2B+CLV stacking: +32% ROI. <strong style="color:var(--neg)">⚡ Bet opening lines only — edge gone by close.</strong></div>';
+      h+='<div class="ib ice"><span style="font-size:14px">🏒</span><strong>v5 Model (27 features, 9/10 years profitable):</strong> CLV@5% +12.7% ROI | CLV@8% +9.1% ROI | Dog+1.5 +4% ROI | B2B +12% ROI. <strong style="color:var(--neg)">⚡ Bet opening lines only.</strong></div>';
     }
 
     games.forEach(function(g){
@@ -2374,7 +2620,7 @@ function render(){
   h+='</div>';
 
   // ── FOOTER ──
-  h+='<div class="ft">DIAMOND EDGE v11d · '+(isNHL?"NHL: 22,991 games backtested · Home 5% / Away 7% · B2B+CLV stacking · Opening lines only":"MLB: v11d model (no bias) · 56.5% acc · ML +9.9% ROI @ 10%+ · Dog +1.5 +7.7% @ 8%+")+' · 21+ · 1-800-GAMBLER</div>';
+  h+='<div class="ft">DIAMOND EDGE v11d · '+(isNHL?"NHL v5: 57.5% acc · CLV@8% +9.1% ROI · xG luck + GSAx + MoneyPuck · Opening lines only":"MLB: v11d model (no bias) · 56.5% acc · ML +9.9% ROI @ 10%+ · Dog +1.5 +7.7% @ 8%+")+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
