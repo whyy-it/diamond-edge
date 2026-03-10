@@ -36,9 +36,6 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .cb{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--td);font-size:11px;font-weight:600}
 .cb.on{border-color:var(--acc);background:rgba(0,255,163,.08);color:var(--acc)}.cb .d{width:7px;height:7px;border-radius:50%;background:var(--tf)}.cb.on .d{background:var(--acc)}
 .sep{width:1px;height:18px;background:var(--bd)}
-.pill{padding:5px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--td);font-size:10px;font-weight:600}
-.pill.on{border-color:var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2)}
-.prow{padding:6px 16px 8px;display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid var(--bdL)}
 .brow{padding:6px 16px;display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid var(--bdL);background:var(--card)}
 .bchip{padding:3px 9px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid var(--bd);background:0;color:var(--tf)}
 .bchip.on{border-color:var(--acc);background:rgba(0,255,163,.08);color:var(--acc)}
@@ -69,8 +66,6 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .bet-watch .bet-team{font-size:14px;font-weight:700;color:var(--warn);font-family:'Space Grotesk',sans-serif}
 .bet-watch .bet-line{font-size:15px;font-weight:700;color:var(--tm);font-family:'JetBrains Mono',monospace}
 .bet-watch .bet-book{font-size:9px;color:var(--warn);font-weight:600}
-.prop-ev{background:var(--ovBg);border-left:2px solid var(--acc)}
-.prop-ev td{color:var(--acc) !important}
 .blr{margin-top:8px;display:flex;gap:5px;overflow-x:auto;padding-top:8px;border-top:1px solid var(--bdL)}
 .bl{background:var(--alt);border:1px solid var(--bdL);border-radius:6px;padding:4px 8px;min-width:80px;text-align:center}
 .bl.best{border-color:rgba(0,255,163,.35)}
@@ -92,15 +87,6 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .xbtn{width:100%;padding:12px 14px;background:var(--card);border:1px solid var(--bd);text-align:left;border-radius:10px;margin-bottom:8px;transition:.15s;color:var(--tx)}
 .xbtn:hover{border-color:var(--acc);background:var(--alt)}
 .xbtn .tm{color:var(--tx)}
-.prop-table{width:100%;border-collapse:collapse;margin-top:8px}
-.prop-table th{text-align:left;font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid var(--bdL);font-weight:600}
-.prop-table td{padding:6px 8px;font-size:11px;border-bottom:1px solid var(--bdL)}
-.prop-table tr:last-child td{border-bottom:none}
-.prop-player{font-weight:700;color:var(--tx)}
-.prop-line{font-weight:700;color:var(--ac2);font-family:'JetBrains Mono',monospace}
-.prop-over{color:var(--acc);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px}
-.prop-under{color:var(--neg);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px}
-.prop-book{font-size:9px;color:var(--td)}
 .pl-card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:8px}
 .pl-spread{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace}
 .pl-fav{color:var(--neg)}.pl-dog{color:var(--acc)}
@@ -181,7 +167,6 @@ var LEAGUES=[
 ];
 
 // ── MLB DATA ──
-var MLB_PTYPES=["Hits","Total Bases","Home Runs","Strikeouts","RBI","Runs","Walks"];
 var UMP_HIGH_K=["Nic Lentz","Manny Gonzalez","Marvin Hudson","Chad Whitson","Tripp Gibson","Shane Livensparger","Pat Hoberg"];
 var UMP_LOW_K=["Angel Hernandez","CB Bucknor","Hunter Wendelstedt","Tom Hallion","Laz Diaz","Jerry Meals","Bill Miller"];
 var PARKS={
@@ -203,7 +188,6 @@ var PARKS={
 };
 
 // ── NHL DATA ──
-var NHL_PTYPES=["Goals","Assists","Points","Shots on Goal","Saves","Power Play Points"];
 
 // NHL team name → abbreviation mapping (for NHL API cross-reference)
 var NHL_ABBREVS={
@@ -234,13 +218,12 @@ var NHL_TZ={
 var S={
   mode:(function(){try{var m=localStorage.getItem("de_mode");if(m==="dark"||m==="light")return m;}catch(e){}var h=new Date().getHours();return h>=7&&h<19?"light":"dark";})(),
   league:"nhl",tab:"ml",sortBy:"time",evOnly:false,
-  propType:"Hits",nhlPropType:"Goals",
   booksOn:(function(){try{var s=localStorage.getItem("de_books");if(s)return JSON.parse(s);}catch(e){}return Object.fromEntries(PA.map(function(b){return[b.id,true]}));})(),
   showBooks:false,
   bankroll:(function(){try{var b=localStorage.getItem("de_bankroll");if(b)return parseFloat(b);}catch(e){}return 1000;})(),
   // Per-league data
-  mlb:{games:[],loading:false,error:null,lastFetch:null,lineups:{},weather:{},fatigue:{},props:{},propsLoading:false,propsLoaded:false,playerStats:{},statcastRates:{},pitcherStatcast:{},teamStats:{},standings:{},recentScores:{},fangraphs:{},savantTeam:{}},
-  nhl:{games:[],loading:false,error:null,lastFetch:null,schedule:{},standings:{},fatigue:{},goalies:{},props:{},propsLoading:false,propsLoaded:false,playerStats:{}},
+  mlb:{games:[],loading:false,error:null,lastFetch:null,lineups:{},weather:{},fatigue:{},pitcherStatcast:{},teamStats:{},standings:{},recentScores:{},fangraphs:{},savantTeam:{}},
+  nhl:{games:[],loading:false,error:null,lastFetch:null,schedule:{},standings:{},fatigue:{},goalies:{}},
   // Active pointers
   games:[],loading:true,error:null,remaining:null,lastFetch:null,
   expanded:{},
@@ -537,289 +520,6 @@ async function fetchNHLFatigue(){
   return result;
 }
 
-// ═══════════════════════════════════════════════════════════
-// PLAYER PROPS FETCHER (NHL + MLB)
-// ═══════════════════════════════════════════════════════════
-
-async function fetchPlayerProps(sport,markets){
-  // Player props must be fetched ONE MARKET AT A TIME (multi-market returns 422)
-  var ld=S[sport==="icehockey_nhl"?"nhl":"mlb"];
-  var games=ld.games||[];
-  if(!games.length)return[];
-  
-  var allResults=[];
-  var marketList=markets.split(",");
-  
-  // Only fetch props for games that haven't started yet
-  var now=new Date();
-  var toFetch=games.filter(function(g){return new Date(g.time)>now});
-  var skipped=games.length-toFetch.length;
-  console.log("[Diamond Edge] Props: "+toFetch.length+" upcoming games, "+skipped+" started (skipped), "+marketList.length+" markets each");
-  
-  for(var i=0;i<toFetch.length;i++){
-    var g=toFetch[i];
-    var gameData={id:g.id,home_team:g.home,away_team:g.away,bookmakers:[]};
-    var gotData=false;
-    
-    for(var m=0;m<marketList.length;m++){
-      try{
-        var url=ODDS_BASE+"/"+sport+"/events/"+g.id+"/odds?apiKey="+API_KEY+"&regions=us&markets="+marketList[m]+"&oddsFormat=american";
-        var r=await fetch(url);
-        if(r.status===422){continue;}
-        if(r.status===429){
-          console.log("[Diamond Edge] Rate limited — pausing 5s");
-          await new Promise(function(res){setTimeout(res,5000)});
-          m--;continue;
-        }
-        if(!r.ok){continue;}
-        var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
-        var data=await r.json();
-        (data.bookmakers||[]).forEach(function(bm){
-          var existing=gameData.bookmakers.find(function(b){return b.key===bm.key});
-          if(existing){
-            (bm.markets||[]).forEach(function(mk){existing.markets.push(mk)});
-          }else{
-            gameData.bookmakers.push(JSON.parse(JSON.stringify(bm)));
-          }
-        });
-        if(data.bookmakers&&data.bookmakers.length>0)gotData=true;
-      }catch(e){}
-    }
-    
-    if(gotData)allResults.push(gameData);
-    if((i+1)%3===0||i===toFetch.length-1){
-      console.log("[Diamond Edge] Props: "+(i+1)+"/"+toFetch.length+" games done ("+allResults.length+" with data)");
-    }
-  }
-  console.log("[Diamond Edge] Props: "+allResults.length+"/"+toFetch.length+" games returned data");
-  return allResults;
-}
-
-function processPlayerProps(apiData){
-  // apiData is array of per-event responses (each has .id, .bookmakers)
-  var result={};
-  (apiData||[]).forEach(function(ev){
-    var id=ev.id;
-    if(!result[id])result[id]={home:ev.home_team,away:ev.away_team};
-    (ev.bookmakers||[]).forEach(function(bm){
-      var pa=PA.find(function(b){return b.key===bm.key});
-      if(!pa)return;
-      (bm.markets||[]).forEach(function(mkt){
-        if(!result[id][mkt.key])result[id][mkt.key]=[];
-        // Group outcomes by player name
-        var byPlayer={};
-        var isAnytime=mkt.key.indexOf("anytime")>=0||mkt.key.indexOf("scorer")>=0;
-        (mkt.outcomes||[]).forEach(function(o){
-          var name=o.description||o.name||"Unknown";
-          if(!byPlayer[name])byPlayer[name]={player:name,line:o.point,overOdds:null,underOdds:null,book:pa.n,bookId:pa.id};
-          if(o.name==="Over")byPlayer[name].overOdds=o.price;
-          else if(o.name==="Under")byPlayer[name].underOdds=o.price;
-          else if(isAnytime||o.name==="Yes"||(o.name!=="Over"&&o.name!=="Under"&&!o.point)){
-            // Anytime goalscorer / yes-no market: treat as Over 0.5
-            byPlayer[name].overOdds=o.price;
-            byPlayer[name].line=0.5;
-          }
-          if(o.point!=null)byPlayer[name].line=o.point;
-        });
-        Object.values(byPlayer).forEach(function(p){
-          // Check if player already exists for this market from another book — keep best odds
-          var existing=result[id][mkt.key].find(function(e){return e.player===p.player});
-          if(existing){
-            // Track all books
-            if(!existing.books)existing.books=[{book:existing.book,bookId:existing.bookId,over:existing.overOdds,under:existing.underOdds}];
-            existing.books.push({book:p.book,bookId:p.bookId,over:p.overOdds,under:p.underOdds});
-            if(p.overOdds!=null&&(existing.bestOver==null||p.overOdds>existing.bestOver)){existing.bestOver=p.overOdds;existing.bestOverBook=p.book;}
-            if(p.underOdds!=null&&(existing.bestUnder==null||p.underOdds>existing.bestUnder)){existing.bestUnder=p.underOdds;existing.bestUnderBook=p.book;}
-          }else{
-            p.bestOver=p.overOdds;p.bestUnder=p.underOdds;
-            p.bestOverBook=p.book;p.bestUnderBook=p.book;
-            p.books=[{book:p.book,bookId:p.bookId,over:p.overOdds,under:p.underOdds}];
-            result[id][mkt.key].push(p);
-          }
-        });
-      });
-    });
-  });
-  return result;
-}
-
-async function loadNHLProps(){
-  if(S.nhl.propsLoading)return;
-  S.nhl.propsLoading=true;render();
-  try{
-    // Fetch props AND player stats in parallel
-    var results=await Promise.allSettled([
-      fetchPlayerProps("icehockey_nhl","player_goals,player_assists,player_shots_on_goal,player_points,player_saves,player_goal_scorer_anytime"),
-      fetchNHLPlayerStats()
-    ]);
-    if(results[0].status==="fulfilled")S.nhl.props=processPlayerProps(results[0].value);
-    if(results[1].status==="fulfilled")S.nhl.playerStats=results[1].value||{};
-    S.nhl.propsLoaded=true;
-    console.log("[Diamond Edge] NHL player stats loaded:",Object.keys(S.nhl.playerStats||{}).length,"players");
-  }catch(e){console.log("NHL props error:",e);}
-  S.nhl.propsLoading=false;render();
-}
-
-async function loadMLBProps(){
-  if(S.mlb.propsLoading)return;
-  S.mlb.propsLoading=true;render();
-  try{
-    var results=await Promise.allSettled([
-      fetchPlayerProps("baseball_mlb","batter_hits,batter_total_bases,batter_home_runs,pitcher_strikeouts,batter_rbis,batter_runs_scored,batter_walks"),
-      fetchMLBPlayerStats(),
-      fetchStatcastRates(),
-      fetchStatcastPitcherRates()
-    ]);
-    if(results[0].status==="fulfilled")S.mlb.props=processPlayerProps(results[0].value);
-    if(results[1].status==="fulfilled")S.mlb.playerStats=results[1].value||{};
-    if(results[2].status==="fulfilled")S.mlb.statcastRates=results[2].value||{};
-    if(results[3].status==="fulfilled")S.mlb.pitcherStatcast=results[3].value||{};
-    S.mlb.propsLoaded=true;
-    console.log("[Diamond Edge] MLB props loaded. Stats:",Object.keys(S.mlb.playerStats||{}).length,
-      "Statcast batters:",Object.keys(S.mlb.statcastRates||{}).length,
-      "Statcast pitchers:",Object.keys(S.mlb.pitcherStatcast||{}).length);
-  }catch(e){console.log("MLB props error:",e);}
-  S.mlb.propsLoading=false;render();
-}
-
-// ═══════════════════════════════════════════════════════════
-// POISSON PROJECTION ENGINE
-// ═══════════════════════════════════════════════════════════
-// Our own projections based on player season rates — NOT book odds
-
-function logFact(n){var s=0;for(var i=2;i<=n;i++)s+=Math.log(i);return s;}
-function poissonPMF(k,lam){if(lam<=0)return k===0?1:0;return Math.exp(-lam+k*Math.log(lam)-logFact(k));}
-function poissonCDF(k,lam){var s=0;for(var i=0;i<=Math.floor(k);i++)s+=poissonPMF(i,lam);return Math.min(1,s);}
-// P(X > line) — probability of going OVER a line
-function pOver(line,lam){return 1-poissonCDF(Math.floor(line),lam);}
-// P(X < line) — probability of going UNDER a line (excludes push)
-function pUnder(line,lam){return poissonCDF(Math.ceil(line)-1,lam);}
-
-// ── Fetch NHL player season stats (skaters + goalies) ──
-async function fetchNHLPlayerStats(){
-  var stats={};
-  try{
-    // Skater stats (goals, assists, points per game)
-    var skUrl="https://api-web.nhle.com/v1/skater-stats-leaders/20252026/2?categories=goals&limit=-1";
-    var sk=await fetchNHL("/skater-stats-leaders/20252026/2?categories=goals&limit=-1");
-    (sk.goals||[]).forEach(function(p){
-      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
-      var gp=p.gamesPlayed||1;
-      if(!stats[name])stats[name]={gp:gp};
-      stats[name].goals=p.value||0;
-      stats[name].goalsPerGame=(p.value||0)/gp;
-    });
-    // Assists
-    var sk2=await fetchNHL("/skater-stats-leaders/20252026/2?categories=assists&limit=-1");
-    (sk2.assists||[]).forEach(function(p){
-      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
-      var gp=p.gamesPlayed||1;
-      if(!stats[name])stats[name]={gp:gp};
-      stats[name].assists=p.value||0;
-      stats[name].assistsPerGame=(p.value||0)/gp;
-      stats[name].pointsPerGame=(stats[name].goalsPerGame||0)+(p.value||0)/gp;
-    });
-    // Shots
-    var sk3=await fetchNHL("/skater-stats-leaders/20252026/2?categories=shots&limit=-1");
-    (sk3.shots||[]).forEach(function(p){
-      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
-      var gp=p.gamesPlayed||1;
-      if(!stats[name])stats[name]={gp:gp};
-      stats[name].shots=p.value||0;
-      stats[name].shotsPerGame=(p.value||0)/gp;
-    });
-    // Goalie saves
-    var gk=await fetchNHL("/goalie-stats-leaders/20252026/2?categories=saves&limit=-1");
-    (gk.saves||[]).forEach(function(p){
-      var name=(p.firstName?.default||"")+" "+(p.lastName?.default||"");
-      var gp=p.gamesPlayed||1;
-      if(!stats[name])stats[name]={gp:gp};
-      stats[name].saves=p.value||0;
-      stats[name].savesPerGame=(p.value||0)/gp;
-    });
-  }catch(e){console.log("[Diamond Edge] NHL stats fetch error:",e);}
-  return stats;
-}
-
-// ── Fetch MLB player season stats ──
-async function fetchMLBPlayerStats(){
-  var stats={};
-  try{
-    var cats=["hits","homeRuns","strikeouts","rbi","runs","walks","totalBases"];
-    for(var i=0;i<cats.length;i++){
-      var cat=cats[i];
-      var url=MLB_BASE+"/stats/leaders?leaderCategories="+cat+"&season=2026&sportId=1&limit=200";
-      var r=await fetch(url);if(!r.ok)continue;
-      var d=await r.json();
-      var leaders=(d.leagueLeaders||[])[0];
-      if(!leaders)continue;
-      (leaders.leaders||[]).forEach(function(entry){
-        var name=entry.person?.fullName;
-        var gp=entry.stat?.gamesPlayed||1;
-        var val=parseFloat(entry.value)||0;
-        if(!name)return;
-        if(!stats[name])stats[name]={gp:gp};
-        stats[name][cat]=val;
-        stats[name][cat+"PerGame"]=val/gp;
-        stats[name].gp=Math.max(stats[name].gp||0,gp);
-      });
-    }
-  }catch(e){console.log("[Diamond Edge] MLB stats fetch error:",e);}
-  return stats;
-}
-
-async function fetchStatcastRates(){
-  // Fetch Statcast xBA/xSLG from Baseball Savant (via CORS proxy if needed)
-  // Returns: {playerName: {xHitsPerGame, xTBPerGame, xHRPerGame}}
-  var xrates={};
-  var year=new Date().getFullYear();
-  var savantUrl="https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year="+year+"&position=&team=&min=25&csv=true";
-  
-  try{
-    var r=await corsProxyFetch(savantUrl);
-    if(!r||!r.ok){console.log("[Diamond Edge] Statcast fetch failed");return xrates;}
-    
-    var text=await r.text();
-    var lines=text.trim().split("\n");
-    if(lines.length<2){console.log("[Diamond Edge] Statcast: no data");return xrates;}
-    
-    // Parse CSV — handle "LastName, FirstName" quoted field
-    var count=0;
-    for(var i=1;i<lines.length;i++){
-      var m=lines[i].match(/^"([^"]+)"\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*"?(\d+)"?\s*,\s*([\d.]+)\s*,\s*([\d.\-]+)/);
-      if(!m)continue;
-      var nameRaw=m[1].trim();
-      var parts=nameRaw.split(",");
-      var fullName=parts.length>=2?(parts[1].trim().replace(/"/g,"")+" "+parts[0].trim()):nameRaw;
-      var pa=parseInt(m[4])||0;
-      var bip=parseInt(m[5])||0;
-      var ba=parseFloat(m[6])||0;
-      var xba=parseFloat(m[7])||0;
-      
-      // Parse more fields: slg(col9), xslg(col10)
-      var allVals=lines[i].match(/[\d.\-]+/g)||[];
-      // After the name field, numeric values are: player_id, year, pa, bip, ba, xba, xba_diff, slg, xslg, ...
-      var xslg=parseFloat(allVals[7])||0; // approximate position
-      
-      if(!fullName||xba<=0||pa<25)continue;
-      
-      // We need AB/game from our MLB stats to convert rates
-      // Use PA and estimate: ~4.2 PA/game average, ~87% are AB
-      var gamesEst=pa/4.2;
-      var abPerGame=pa*0.87/gamesEst;
-      
-      xrates[fullName]={
-        xHitsPerGame: xba*abPerGame,
-        xTBPerGame: xslg*abPerGame,
-        xHRPerGame: Math.max(0,(xslg-xba)*abPerGame*0.15), // ISO-based HR estimate
-        xba:xba, xslg:xslg, pa:pa,
-      };
-      count++;
-    }
-    console.log("[Diamond Edge] Statcast loaded: "+count+" players");
-  }catch(e){console.log("[Diamond Edge] Statcast error:",e);}
-  return xrates;
-}
 
 async function fetchStatcastPitcherRates(){
   // Fetch Statcast pitcher expected stats: xwOBA-against, xERA, K rates
@@ -1433,160 +1133,6 @@ function enrichMLBGames(games){
   });
 }
 
-// ── Map prop market key to stat rate key ──
-var RATE_MAP_NHL={
-  player_goals:"goalsPerGame",player_assists:"assistsPerGame",
-  player_points:"pointsPerGame",player_shots_on_goal:"shotsPerGame",
-  player_saves:"savesPerGame"
-};
-var RATE_MAP_MLB={
-  batter_hits:"hitsPerGame",batter_total_bases:"totalBasesPerGame",
-  batter_home_runs:"homeRunsPerGame",pitcher_strikeouts:"strikeoutsPerGame",
-  batter_rbis:"rbiPerGame",batter_runs_scored:"runsPerGame",
-  batter_walks:"walksPerGame"
-};
-
-// ── Shared: project prop EV using Poisson stats + book prices ──
-function calcPropEV(p,marketKey,isNHL){
-  // ALWAYS uses ALL books for edge calculation — book toggles only affect display
-  // Backtested on 77K real prop lines (197 MLB games, 2024-25)
-  p.overEV=0;p.underEV=0;p.bestSide=null;p.bestSideEV=0;p.kelly=0;p.fairProb=0;p.projRate=null;p.projSource="none";p.highVar=false;
-  
-  // Skip RBI — negative ROI in backtest across all methods
-  if(marketKey==="batter_rbis"){p.projSource="excluded";return;}
-  
-  // Find best odds across ALL books (no filtering)
-  var actBO=null,actBU=null,actOBk=null,actUBk=null;
-  (p.books||[]).forEach(function(bk){
-    if(bk.over!=null&&(actBO==null||bk.over>actBO)){actBO=bk.over;actOBk=bk.book;}
-    if(bk.under!=null&&(actBU==null||bk.under>actBU)){actBU=bk.under;actUBk=bk.book;}
-  });
-  p.bestOver=actBO;p.bestUnder=actBU;p.bestOverBook=actOBk;p.bestUnderBook=actUBk;
-  if(actBO==null||actBU==null)return;
-
-  // ── Get Poisson lambda from player stats ──
-  var rateMap=isNHL?RATE_MAP_NHL:RATE_MAP_MLB;
-  var rateKey=rateMap[marketKey];
-  var ld=S[isNHL?"nhl":"mlb"]||{};
-  var pStats=(ld.playerStats||{})[p.player];
-  var lambda=null;
-  
-  // Priority 1: Statcast xBA rates (MLB hits/TB/HR only — luck-adjusted)
-  var xRates=(ld.statcastRates||{})[p.player];
-  var xKey=null;
-  if(marketKey==="batter_hits")xKey="xHitsPerGame";
-  else if(marketKey==="batter_total_bases")xKey="xTBPerGame";
-  else if(marketKey==="batter_home_runs")xKey="xHRPerGame";
-  if(xRates&&xKey&&xRates[xKey]>0){
-    lambda=xRates[xKey];
-    p.projRate=lambda;p.projSource="statcast";
-  }
-  
-  // Priority 1b: Statcast pitcher K projection (for pitcher_strikeouts)
-  if(lambda==null&&marketKey==="pitcher_strikeouts"&&!isNHL){
-    var pitcherSC=(ld.pitcherStatcast||{})[p.player];
-    var pitcherStats=(ld.playerStats||{})[p.player];
-    if(pitcherSC&&pitcherStats&&pitcherStats.strikeoutsPerGame>0){
-      // Use season K/game adjusted by Statcast xBA-against
-      // Lower xBA-against → pitcher is better → boost K rate
-      var kpg=pitcherStats.strikeoutsPerGame;
-      var xbaA=pitcherSC.xbaAgainst||0;
-      var baA=pitcherSC.baAgainst||0;
-      if(xbaA>0&&baA>0){
-        // If xBA < BA, pitcher is unlucky (expected to be better) → boost Ks
-        // If xBA > BA, pitcher is lucky (regress down) → reduce Ks
-        var luckAdj=1+(baA-xbaA)*2.5; // ~2.5x multiplier on BA diff
-        lambda=kpg*Math.max(0.75,Math.min(1.25,luckAdj));
-      }else{
-        lambda=kpg;
-      }
-      p.projRate=+lambda.toFixed(3);p.projSource="statcast-k";
-    }
-  }
-  
-  // Priority 2: Season per-game rates from stats API
-  if(lambda==null&&pStats&&rateKey&&pStats[rateKey]!=null&&pStats.gp>=5){
-    lambda=pStats[rateKey];
-    p.projRate=lambda;p.projSource="stats";
-  }
-
-  var fairO,fairU;
-  if(lambda!=null&&lambda>0&&p.line!=null){
-    fairO=pOver(p.line,lambda);
-    fairU=pUnder(p.line,lambda);
-    if(fairO+fairU>1){var s2=fairO+fairU;fairO/=s2;fairU/=s2;}
-    if(p.projSource==="stats")p.projSource="poisson";
-  }else{
-    // FALLBACK: cross-book consensus (needs 2+ books) — uses ALL books
-    var fOs=[],fUs=[];
-    (p.books||[]).forEach(function(bk){
-      if(bk.over==null||bk.under==null)return;
-      var oi=ml2p(bk.over),ui=ml2p(bk.under),t=oi+ui;
-      fOs.push(oi/t);fUs.push(ui/t);
-    });
-    if(fOs.length<2)return;
-    fairO=fOs.reduce(function(a,b){return a+b},0)/fOs.length;
-    fairU=fUs.reduce(function(a,b){return a+b},0)/fUs.length;
-    p.projSource="consensus";
-  }
-
-  // Edge in PROBABILITY POINTS (pp) — not EV%
-  var bstOImp=ml2p(actBO),bstUImp=ml2p(actBU);
-  if(!bstOImp||!bstUImp)return;
-  var bookTotal=bstOImp+bstUImp;
-  var overEdge=(fairO-bstOImp/bookTotal)*100;   // pp
-  var underEdge=(fairU-bstUImp/bookTotal)*100;   // pp
-  p.overEV=+overEdge.toFixed(1);
-  p.underEV=+underEdge.toFixed(1);
-
-  // Backtested thresholds: 3pp min, 15pp max (above is model overconfidence)
-  var MIN_PP=3.0, MAX_PP=15.0;
-  if(overEdge>underEdge&&overEdge>=MIN_PP&&overEdge<=MAX_PP){
-    p.bestSide="OVER";p.bestSideEV=+overEdge.toFixed(1);p.fairProb=fairO;
-  }else if(underEdge>=MIN_PP&&underEdge<=MAX_PP){
-    p.bestSide="UNDER";p.bestSideEV=+underEdge.toFixed(1);p.fairProb=fairU;
-  }
-  
-  // Flag HR as high-variance (real edge but huge swings)
-  if(marketKey==="batter_home_runs"||marketKey==="player_goals"){
-    p.highVar=true;
-  }
-
-  // Kelly criterion (half-Kelly for props — less certain than ML model)
-  if(p.bestSide&&p.fairProb>0){
-    var bOdds=p.bestSide==="OVER"?actBO:actBU;
-    var b=bOdds>0?bOdds/100:100/(-bOdds);
-    var kf=(b*p.fairProb-(1-p.fairProb))/b;
-    p.kelly=Math.max(0,+(kf*50).toFixed(2)); // HALF Kelly for props
-  }
-}
-
-// After calcPropEV (which uses ALL books for edge), apply active-book display filter
-function applyActiveBookDisplay(p,activeBooks){
-  // Find best odds from only the user's ACTIVE (toggled-on) books
-  var abIds={};activeBooks.forEach(function(bk){abIds[bk.id]=true;});
-  var dBO=null,dBU=null,dOBk=null,dUBk=null;
-  (p.books||[]).forEach(function(bk){
-    if(!abIds[bk.bookId])return;
-    if(bk.over!=null&&(dBO==null||bk.over>dBO)){dBO=bk.over;dOBk=bk.book;}
-    if(bk.under!=null&&(dBU==null||bk.under>dBU)){dBU=bk.under;dUBk=bk.book;}
-  });
-  p.dispOver=dBO;p.dispUnder=dBU;p.dispOverBook=dOBk;p.dispUnderBook=dUBk;
-  // Check if the recommended side is still +EV at the active-book odds
-  p.dispSide=null;p.dispSideEV=0;
-  if(p.bestSide&&p.fairProb>0){
-    var dispOdds=p.bestSide==="OVER"?dBO:dBU;
-    if(dispOdds!=null){
-      var dispImp=ml2p(dispOdds);
-      var dispEdge=(p.fairProb-dispImp)*100;
-      if(dispEdge>0){
-        p.dispSide=p.bestSide;p.dispSideEV=+dispEdge.toFixed(1);
-        p.dispBook=p.bestSide==="OVER"?dOBk:dUBk;
-        p.dispOdds=dispOdds;
-      }
-    }
-  }
-}
 
 function processOdds(apiData){
   var now=new Date();
@@ -1905,7 +1451,7 @@ function render(){
   var abAll=PA; // ALL books for calculations — toggles only affect display
   var games=S.games.slice();
   // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
-  if(S.evOnly&&S.tab!=="props")games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.modelTopEdge||g.topEdge)>3});
+  if(S.evOnly)games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.modelTopEdge||g.topEdge)>3});
   if(S.sortBy==="edge")games.sort(function(a,b){return(isNHL?(b.adjEdge||b.topEdge):(b.modelTopEdge||b.topEdge))-(isNHL?(a.adjEdge||a.topEdge):(a.modelTopEdge||a.topEdge))});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
   var edgeOf=function(g){return isNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge)};
@@ -1928,8 +1474,6 @@ function render(){
     // v11d: count dog +1.5 bets (8%+ edge)
     if(!isNHL&&te>=8)betCount++;
   });
-  var ptypes=isNHL?NHL_PTYPES:MLB_PTYPES;
-  var curProp=isNHL?S.nhlPropType:S.propType;
 
   var h="";
 
@@ -2061,7 +1605,6 @@ function render(){
     window.allBets=allBets; // expose for tracking buttons
     var abAll2=PA; // ALL books for calculations
     var activeIds={};abAll2.forEach(function(bk){activeIds[bk.id]=true;});
-    var mktLabels={player_goals:"Goals",player_goal_scorer_anytime:"Anytime GS",player_assists:"Assists",player_points:"Points",player_shots_on_goal:"SOG",player_saves:"Saves",batter_hits:"Hits",batter_total_bases:"TB",batter_home_runs:"HR",pitcher_strikeouts:"K",batter_rbis:"RBI",batter_runs_scored:"Runs",batter_walks:"BB"};
 
     ["nhl","mlb"].forEach(function(sport){
       var ld=S[sport]||{};
@@ -2153,7 +1696,7 @@ function render(){
 
       if(!allBets.length){
         h+='<div class="empty"><div class="empty-i">📋</div><div class="empty-t sg">No Bets Today</div>';
-        h+='<div class="empty-d">No ML or prop edges meet the backtested thresholds. Check back when lines move or load player props for more opportunities.</div></div>';
+        h+='<div class="empty-d">No ML edges meet the backtested thresholds. Check back when lines move.</div></div>';
       }else{
         // Summary
         h+='<div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">';
@@ -2224,7 +1767,7 @@ function render(){
         h+='<div style="font-size:11px;color:var(--tm);line-height:1.8">';
         h+='<div><strong>Sources:</strong> 🧠 = backtested CLV model · 🔬 = Statcast xBA / pitcher xBA-against projection · 📊 = Poisson season rates · 📚 = book consensus</div>';
         h+='<div><strong>Flags:</strong> 🔥 = B2B+CLV stacked · ⚡ = high variance (HR/goals) · 🧪 = paper trade (prop model validating)</div>';
-        h+='<div><strong>Edge:</strong> All edges shown in %. Prop Kelly at half-Kelly.</div>';
+        h+='<div><strong>Edge:</strong> All edges shown in %. Kelly criterion for position sizing.</div>';
         h+='<div><strong>Kelly:</strong> <span class="mono">f = (b×p − q) / b</span> · Scaled so total daily risk ≤ 25% of bankroll.</div>';
         if(kellyScale<1)h+='<div><strong>Today:</strong> Raw Kelly totaled '+totalRawKelly.toFixed(1)+'%, scaled to '+allBets.reduce(function(s,b){return s+b.scaledKelly},0).toFixed(1)+'% across '+allBets.length+' bets.</div>';
         h+='</div></div>';
