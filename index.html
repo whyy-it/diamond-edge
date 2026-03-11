@@ -3761,23 +3761,28 @@ function computeFeatures(g){
 // 27 features, trained 2017-2022, blended current-year stats
 // Test: 57.5% acc, CLV@8% +9.1% ROI (9/10 years profitable)
 var NHL_V5_MODEL = {
-  bias: 0.055,
+  bias: 0.0739779027601472,
   features: ["f_home","f_power","f_gd_pace","f_season_wp","f_l20","f_b2b",
     "f_reg_win","f_rest","f_gsax","f_xgf","f_pp_pk","f_hd_diff",
     "f_xg_luck","f_sva_xg","f_faceoff","f_turnovers","f_rebounds",
     "f_rebound_goals","f_hd_share","f_corsi","f_shots",
     "f_goalie_sv","f_goalie_hd_sv","f_goalie_depth",
-    "f_b2b_x_backup","f_gsax_x_xgf"],
+    "f_b2b_x_backup","f_gsax_x_xgf","f_pp_x_draw"],
   weights: {
-    f_sva_xg:0.3189, f_b2b:0.2242, f_xg_luck:-0.1991,
-    f_gd_pace:0.1718, f_faceoff:0.1214, f_hd_diff:-0.0897,
-    f_season_wp:0.0794, f_turnovers:0.0776, f_home:0.0549,
-    f_power:0.0525, f_l20:0.0505, f_reg_win:0.0447,
-    f_goalie_sv:0.0418, f_gsax:0.0326, f_corsi:-0.0303,
-    f_xgf:-0.0286, f_gsax_x_xgf:-0.0277, f_rebounds:-0.0225,
-    f_shots:-0.0172, f_hd_share:-0.0144, f_goalie_depth:0.0119,
-    f_b2b_x_backup:-0.0108, f_rebound_goals:0.0079,
-    f_goalie_hd_sv:-0.0035, f_rest:0.012, f_pp_pk:0.017
+    f_home:0.054908106504554736, f_power:0.05245175805151694,
+    f_gd_pace:0.1718432371852378, f_season_wp:0.07939411233596334,
+    f_l20:0.050503576089289785, f_b2b:0.22416182389671,
+    f_reg_win:0.044663858852203885, f_rest:0.002282017751958079,
+    f_gsax:0.032636269495668495, f_xgf:-0.02864903481499692,
+    f_pp_pk:0.0025777853772400807, f_hd_diff:-0.08968907695763018,
+    f_xg_luck:-0.19907740605213053, f_sva_xg:0.3189067245819004,
+    f_faceoff:0.12139363477464074, f_turnovers:0.07760200182608427,
+    f_rebounds:-0.022502632949810294, f_rebound_goals:0.007878079123241472,
+    f_hd_share:-0.014378846728550037, f_corsi:-0.030311005750240275,
+    f_shots:-0.017246020494789214, f_goalie_sv:0.04177418189555452,
+    f_goalie_hd_sv:-0.0035163198882624527, f_goalie_depth:0.011862901947837248,
+    f_b2b_x_backup:-0.010805869862740488, f_gsax_x_xgf:-0.02771743723876621,
+    f_pp_x_draw:0.0004602539183208882
   }
 };
 
@@ -3818,14 +3823,31 @@ var ABBR_TO_MP = {
 function parseCSV(text){
   var lines=text.trim().split("\n");
   if(lines.length<2)return[];
-  var headers=lines[0].split(",").map(function(h){return h.trim();});
+  // Robust CSV field splitter (handles quoted fields with commas)
+  function splitCSVLine(line){
+    var fields=[];var field="";var inQ=false;
+    for(var c=0;c<line.length;c++){
+      var ch=line[c];
+      if(ch==='"'){
+        if(inQ&&c+1<line.length&&line[c+1]==='"'){field+='"';c++;}
+        else{inQ=!inQ;}
+      }else if(ch===','&&!inQ){fields.push(field.trim());field="";}
+      else{field+=ch;}
+    }
+    fields.push(field.trim());
+    return fields;
+  }
+  var headers=splitCSVLine(lines[0]);
+  // Normalize headers: trim whitespace, BOM, quotes
+  headers=headers.map(function(h){return h.replace(/^\uFEFF/,'').replace(/^"|"$/g,'').trim();});
   var rows=[];
   for(var i=1;i<lines.length;i++){
-    var vals=lines[i].split(",");
-    if(vals.length<headers.length)continue;
+    if(!lines[i].trim())continue;
+    var vals=splitCSVLine(lines[i]);
+    if(vals.length<headers.length*0.8)continue; // allow minor mismatches
     var obj={};
     headers.forEach(function(h,j){
-      var v=vals[j]?vals[j].trim():"";
+      var v=vals[j]!=null?vals[j].replace(/^"|"$/g,'').trim():"";
       var n=parseFloat(v);
       obj[h]=isNaN(n)?v:n;
     });
@@ -3851,14 +3873,41 @@ async function fetchMoneyPuck(){
     var r=await corsProxyFetch(tUrl);
     var text=await r.text();
     var rows=parseCSV(text);
+    console.log("[DE] MoneyPuck teams CSV: "+rows.length+" total rows parsed");
+    // Log first row columns and situation values for debugging
+    if(rows.length>0){
+      var cols=Object.keys(rows[0]);
+      console.log("[DE] MP teams columns: "+cols.slice(0,10).join(", ")+"...");
+      var sits={};rows.forEach(function(row){
+        var s=(row.situation||row.Situation||row.SITUATION||"unknown").toString().trim();
+        sits[s]=(sits[s]||0)+1;
+      });
+      console.log("[DE] MP teams situation values: "+JSON.stringify(sits));
+    }
+    // Try 5on5 first (preferred for advanced analytics)
     rows.forEach(function(row){
-      var team=(row.team||row.name||"").toString().trim();
-      var sit=(row.situation||"all").toString().trim();
-      if(sit.indexOf("5on5")>=0){
+      var team=(row.team||row.name||row.Team||row.Name||"").toString().trim();
+      var sit=(row.situation||row.Situation||row.SITUATION||"").toString().trim().toLowerCase();
+      if(sit==="5on5"){
         mpTeams[team]=row;
       }
     });
-    console.log("[DE] MoneyPuck teams loaded: "+Object.keys(mpTeams).length+" (5on5)");
+    // If 5on5 gave 0 results, fall back to "all" situation
+    if(Object.keys(mpTeams).length===0){
+      console.log("[DE] No 5on5 rows found — falling back to 'all' situation");
+      rows.forEach(function(row){
+        var team=(row.team||row.name||row.Team||row.Name||"").toString().trim();
+        var sit=(row.situation||row.Situation||row.SITUATION||"").toString().trim().toLowerCase();
+        if(sit==="all"||sit===""){
+          mpTeams[team]=row;
+        }
+      });
+    }
+    console.log("[DE] MoneyPuck teams loaded: "+Object.keys(mpTeams).length+" teams");
+    if(Object.keys(mpTeams).length>0){
+      var sample=Object.keys(mpTeams)[0];
+      console.log("[DE] Sample team key: '"+sample+"', cols: "+Object.keys(mpTeams[sample]).slice(0,8).join(", "));
+    }
   }catch(e){
     console.log("[DE] MoneyPuck teams fetch failed:",e.message);
   }
@@ -3870,7 +3919,7 @@ async function fetchMoneyPuck(){
     var text2=await r2.text();
     var grows=parseCSV(text2);
     grows.forEach(function(row){
-      var sit=(row.situation||"all").toString().trim();
+      var sit=(row.situation||row.Situation||row.SITUATION||"all").toString().trim().toLowerCase();
       if(sit!=="all")return;
       var team=(row.team||"").toString().trim();
       if(!mpGoalies[team])mpGoalies[team]=[];
@@ -3905,9 +3954,18 @@ async function fetchMoneyPuck(){
     var rp=await corsProxyFetch(ptUrl);
     var tp=await rp.text();
     parseCSV(tp).forEach(function(row){
-      var team=(row.team||row.name||"").toString().trim();
-      if((row.situation||"all").toString().trim()==="5on5") priorTeams[team]=row;
+      var team=(row.team||row.name||row.Team||row.Name||"").toString().trim();
+      var sit=(row.situation||row.Situation||row.SITUATION||"").toString().trim().toLowerCase();
+      if(sit==="5on5") priorTeams[team]=row;
     });
+    // Fallback to "all" if no 5on5 rows
+    if(Object.keys(priorTeams).length===0){
+      parseCSV(tp).forEach(function(row){
+        var team=(row.team||row.name||row.Team||row.Name||"").toString().trim();
+        var sit=(row.situation||row.Situation||row.SITUATION||"").toString().trim().toLowerCase();
+        if(sit==="all"||sit==="") priorTeams[team]=row;
+      });
+    }
     console.log("[DE] MoneyPuck prior-year teams: "+Object.keys(priorTeams).length);
   }catch(e){console.log("[DE] Prior-year teams failed:",e.message);}
 
@@ -3916,7 +3974,7 @@ async function fetchMoneyPuck(){
     var rg=await corsProxyFetch(pgUrl);
     var tg=await rg.text();
     parseCSV(tg).forEach(function(row){
-      if((row.situation||"all").toString().trim()!=="all")return;
+      if((row.situation||row.Situation||row.SITUATION||"all").toString().trim().toLowerCase()!=="all")return;
       var team=(row.team||"").toString().trim();
       if(!priorGoalies[team])priorGoalies[team]=[];
       var gp=row.games_played||0;var xga=row.xGoals||0;var ga=row.goals||0;
@@ -4048,7 +4106,8 @@ function computeNHLv5Features(g){
 
     // Interactions
     f_b2b_x_backup: (aB2B-hB2B)*(hEff.gsax_pg-aEff.gsax_pg)*10,
-    f_gsax_x_xgf: (hEff.gsax_pg-aEff.gsax_pg)*(hasMP?(blendStat(hT,hTP,"xGoalsPercentage",50)-blendStat(aT,aTP,"xGoalsPercentage",50))/10:0)
+    f_gsax_x_xgf: (hEff.gsax_pg-aEff.gsax_pg)*(hasMP?(blendStat(hT,hTP,"xGoalsPercentage",50)-blendStat(aT,aTP,"xGoalsPercentage",50))/10:0),
+    f_pp_x_draw: hasMP?((hPP-(1-aPK))*(blendStat(hT,hTP,"penalityMinutesDrawnFor",0)/hMGP-blendStat(aT,aTP,"penalityMinutesDrawnFor",0)/aMGP)/5):0
   };
 
   // Store MP status on game for display
@@ -4415,8 +4474,8 @@ function render(){
   S.games.forEach(function(g){
     var ahml=-9999,aaml=-9999;
     abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
-    var fH=isNHL?g.fairH:(g.modelFairH||g.fairH);
-    var fA=isNHL?g.fairA:(g.modelFairA||g.fairA);
+    var fH=(g.modelFairH||g.fairH);
+    var fA=(g.modelFairA||g.fairA);
     var he2=(ahml>-9999&&fH)?+((1/ml2p(ahml))*(fH/100)*100-100).toFixed(1):0;
     var ae2=(aaml>-9999&&fA)?+((1/ml2p(aaml))*(fA/100)*100-100).toFixed(1):0;
     var te=Math.max(+he2,+ae2);
@@ -4572,8 +4631,8 @@ function render(){
         var de2=sNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge);
         var ahml2=-9999,aaml2=-9999,ahb2=null,aab2=null;
         abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml2){ahml2=d.homeML;ahb2=bk;}if(d.awayML!=null&&d.awayML>aaml2){aaml2=d.awayML;aab2=bk;}});
-        var fH3=sNHL?g.fairH:(g.modelFairH||g.fairH);
-        var fA3=sNHL?g.fairA:(g.modelFairA||g.fairA);
+        var fH3=(g.modelFairH||g.fairH);
+        var fA3=(g.modelFairA||g.fairA);
         var he3=(ahml2>-9999&&fH3)?+((1/ml2p(ahml2))*(fH3/100)*100-100).toFixed(1):0;
         var ae3=(aaml2>-9999&&fA3)?+((1/ml2p(aaml2))*(fA3/100)*100-100).toFixed(1):0;
         var side3=(+he3>=+ae3)?"HOME":"AWAY";
@@ -4826,19 +4885,25 @@ function render(){
         if(d.awayML!=null&&d.awayML>actAML){actAML=d.awayML;actABook=bk.id;}
       });
 
-      // Determine edge from ALL books — v11c: use model-adjusted fair values for MLB
-      var useFairH2=isNHL?g.fairH:(g.modelFairH||g.fairH);
-      var useFairA2=isNHL?g.fairA:(g.modelFairA||g.fairA);
+      // Determine edge from ALL books
+      var useFairH2=(g.modelFairH||g.fairH);
+      var useFairA2=(g.modelFairA||g.fairA);
       var betSide=null;
       var displayEdge=rawEdge;
       if(rawEdge>3){
-        var actHEdge=(actHML>-9999&&useFairH2)?+((1/ml2p(actHML))*(useFairH2/100)*100-100).toFixed(1):0;
-        var actAEdge=(actAML>-9999&&useFairA2)?+((1/ml2p(actAML))*(useFairA2/100)*100-100).toFixed(1):0;
+        var actHEdge,actAEdge;
+        if(isNHL){
+          // NHL: use (modelProb - fairMarketProb) * 100 — already computed in enrichment
+          actHEdge=g.modelHEdge||0;
+          actAEdge=g.modelAEdge||0;
+        }else{
+          // MLB: use EV formula (modelProb / impliedProb(bestLine)) * 100 - 100
+          actHEdge=(actHML>-9999&&useFairH2)?+((1/ml2p(actHML))*(useFairH2/100)*100-100).toFixed(1):0;
+          actAEdge=(actAML>-9999&&useFairA2)?+((1/ml2p(actAML))*(useFairA2/100)*100-100).toFixed(1):0;
+        }
         var actTopEdge=Math.max(+actHEdge,+actAEdge);
         betSide=(+actHEdge>=+actAEdge)?"HOME":"AWAY";
-        if(actTopEdge>3){
-          displayEdge=isNHL?+(actTopEdge+(g.contextAdj||0)).toFixed(1):actTopEdge;
-        }
+        displayEdge=isNHL?+(actTopEdge+(g.contextAdj||0)).toFixed(1):actTopEdge>3?actTopEdge:rawEdge;
       }
 
       // Find best line from ACTIVE (toggled-on) books for the recommendation
@@ -4855,8 +4920,14 @@ function render(){
         var dispBk=betSide==="HOME"?dispHBook:dispABook;
         var fairP=betSide==="HOME"?useFairH2/100:useFairA2/100;
         if(dispML>-9999){
-          var dispEdge=+((1/ml2p(dispML))*fairP*100-100).toFixed(1);
-          if(isNHL)dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
+          var dispEdge;
+          if(isNHL){
+            // NHL: simple difference (modelProb - fairMarketProb) * 100
+            dispEdge=betSide==="HOME"?(g.modelHEdge||0):(g.modelAEdge||0);
+            dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
+          }else{
+            dispEdge=+((1/ml2p(dispML))*fairP*100-100).toFixed(1);
+          }
           if(dispEdge>0){
             betTeam=betSide==="HOME"?g.home:g.away;
             betLine=dispML;betBook=dispBk;betEdge=dispEdge;
@@ -4893,7 +4964,8 @@ function render(){
         if(Math.abs(g.restDiff||0)>=2)tagH+=' <span class="tag tag-rest">REST +'+(g.restDiff>0?"H":"A")+'</span>';
       }
 
-      var sig=meetsBetThresh?"▸ BET "+(betSide||""):displayEdge>3?"Monitor":"No play";
+      var sigTeam=betSide==="HOME"?g.home:betSide==="AWAY"?g.away:"";
+      var sig=meetsBetThresh?"▸ BET "+sigTeam:displayEdge>3?"Monitor":"No play";
       var sigC=meetsBetThresh?"var(--acc)":displayEdge>3?"var(--warn)":"var(--td)";
 
       h+='<div class="gc"><div class="gh">';
@@ -4927,10 +4999,15 @@ function render(){
 
       // Fair prob + implied odds
       h+='<div style="text-align:center;min-width:120px">';
-      if(!isNHL&&g.modelFairH){
-        h+='<div class="sh">v11b Model / Market</div><div style="display:flex;gap:14px;justify-content:center">';
-        h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairA+'%</div><div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairA+'%</div></div>';
-        h+='<div><div class="sh">Home</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairH+'%</div><div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairH+'%</div></div></div>';
+      if(g.modelFairH){
+        var modelLabel=isNHL?"v5 Model / Market":"v11b Model / Market";
+        h+='<div class="sh">'+modelLabel+'</div><div style="display:flex;gap:14px;justify-content:center">';
+        h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairA+'%</div>';
+        h+='<div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.modelFairA)+'</div>';
+        h+='<div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairA+'%</div></div>';
+        h+='<div><div class="sh">Home</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairH+'%</div>';
+        h+='<div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.modelFairH)+'</div>';
+        h+='<div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairH+'%</div></div></div>';
       }else{
         h+='<div class="sh">Fair Prob / Implied</div><div style="display:flex;gap:14px;justify-content:center">';
         h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800">'+g.fairA+'%</div><div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.fairA)+'</div></div>';
@@ -4942,7 +5019,7 @@ function render(){
       h+='<div><div class="sh">Away</div><div class="mono" style="font-size:14px;font-weight:700">'+fml(actAML>-9999?actAML:g.bestAML)+'</div></div>';
       h+='<div><div class="sh">Home</div><div class="mono" style="font-size:14px;font-weight:700">'+fml(actHML>-9999?actHML:g.bestHML)+'</div></div></div></div>';
       // Edge
-      h+='<div style="text-align:center;min-width:75px"><div class="sh">'+(isNHL?"Adj Edge":"Edge")+'</div>';
+      h+='<div style="text-align:center;min-width:75px"><div class="sh">'+(isNHL?"Model Edge":"Edge")+'</div>';
       h+='<div class="ev '+ecls+'">'+(displayEdge>0?"+":"")+displayEdge+'%</div>';
       if(isNHL&&g.contextAdj!==0){
         h+='<div style="font-size:8px;color:var(--td);margin-top:1px">mkt '+(g.topEdge>0?"+":"")+g.topEdge+'%</div>';
@@ -4995,7 +5072,7 @@ function render(){
       }
 
       // ── BET RECOMMENDATION ──
-      var betFairProb=betTeam===g.home?(isNHL?g.fairH:(g.modelFairH||g.fairH)):betTeam===g.away?(isNHL?g.fairA:(g.modelFairA||g.fairA)):null;
+      var betFairProb=betTeam===g.home?((g.modelFairH||g.fairH)):betTeam===g.away?((g.modelFairA||g.fairA)):null;
       var betFairOdds=betFairProb?fImp(betFairProb):null;
       var isB2BStack=isNHL&&g.b2bStack&&displayEdge>3;
 
@@ -5005,7 +5082,7 @@ function render(){
         h+='<div><div class="bet-label">Best Line</div><div class="bet-line">'+fml(betLine)+'</div></div>';
         if(betFairOdds){h+='<div><div class="bet-label">Fair Odds</div><div class="mono" style="font-size:16px;font-weight:700;color:var(--ac2)">'+betFairOdds+'</div></div>';}
         h+='<div><div class="bet-label">Book</div><div class="bet-book">'+betBookName+'</div></div>';
-        h+='<div><div class="bet-label">'+(isNHL?"Adj Edge":"Edge")+'</div><div class="bet-edge">+'+displayEdge+'%</div></div>';
+        h+='<div><div class="bet-label">'+(isNHL?"Model Edge":"Edge")+'</div><div class="bet-edge">+'+displayEdge+'%</div></div>';
         if(isB2BStack){h+='<div style="font-size:9px;color:#f0c420;font-weight:600">B2B+CLV: +32% ROI backtested at 5%+</div>';}
         if(isNHL){h+='<div style="font-size:9px;color:var(--neg);font-weight:700;margin-top:2px">⚡ BET EARLY — opening lines only. Edge disappears by close.</div>';}
         h+='</div>';
@@ -5069,8 +5146,8 @@ function render(){
       // Use model-adjusted edges for MLB
       var actHML2=-9999,actAML2=-9999;
       abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>actHML2)actHML2=d.homeML;if(d.awayML!=null&&d.awayML>actAML2)actAML2=d.awayML;});
-      var useFairH=isNHL?g.fairH:(g.modelFairH||g.fairH);
-      var useFairA=isNHL?g.fairA:(g.modelFairA||g.fairA);
+      var useFairH=(g.modelFairH||g.fairH);
+      var useFairA=(g.modelFairA||g.fairA);
       var mlEdgeH=(actHML2>-9999&&useFairH)?+((1/ml2p(actHML2))*(useFairH/100)*100-100).toFixed(1):0;
       var mlEdgeA=(actAML2>-9999&&useFairA)?+((1/ml2p(actAML2))*(useFairA/100)*100-100).toFixed(1):0;
       if(isNHL){mlEdgeH=+(+mlEdgeH+(g.contextAdj>0?g.contextAdj:0)).toFixed(1);mlEdgeA=+(+mlEdgeA-(g.contextAdj>0?0:g.contextAdj)).toFixed(1);}
