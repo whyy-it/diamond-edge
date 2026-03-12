@@ -363,6 +363,19 @@ function trackerStats(){
     wagered:totalWagered,payout:totalPayout,profit:+(totalPayout).toFixed(2),roi:roi,units:units};
 }
 
+function trackerStatsBySport(sport){
+  var fb=trackedBets.filter(function(b){return b.sport===sport});
+  var total=fb.filter(function(b){return b.result!=null}).length;
+  var wins=fb.filter(function(b){return b.result==="W"}).length;
+  var losses=fb.filter(function(b){return b.result==="L"}).length;
+  var pending=fb.filter(function(b){return b.result==null}).length;
+  var wagered=fb.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.amount},0);
+  var payout=fb.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.payout},0);
+  var roi=wagered>0?((payout/wagered)*100).toFixed(1):"0";
+  var profit=+payout.toFixed(2);
+  return{total:total,wins:wins,losses:losses,pending:pending,wagered:wagered,profit:profit,roi:roi};
+}
+
 // ═══════════════════════════════════════════════════════════
 // ═══ SIMULTANEOUS KELLY — optimal sizing for concurrent bets ═══
 // Maximizes E[log(wealth)] across all 2^n outcome combinations.
@@ -2187,7 +2200,18 @@ function render(){
     var b2bCount=S.games.filter(function(g){return g.homeB2B||g.awayB2B}).length;
     h+='<div class="sbox"><span class="sval mono" style="color:var(--neg)">'+b2bCount+'</span><span class="slbl">B2B</span></div>';
   }
-  h+='<div class="sbox"><span style="font-size:9px;font-weight:600;color:var(--warn)">'+(isNHL?"ROI +14.8%":"ML +9.9%")+'</span><span style="font-size:8px;color:var(--tf);margin-left:4px">'+(isNHL?"at 5%+ edge":"v11d @ 10%+")+'</span></div>';
+  var leagueTrack=trackerStatsBySport(isNHL?"nhl":"mlb");
+  if(leagueTrack.total>0){
+    var ltCol=leagueTrack.profit>0?"var(--acc)":leagueTrack.profit<0?"var(--neg)":"var(--td)";
+    h+='<div class="sbox" style="cursor:pointer" onclick="S.league=\'tracker\';S.tab=\'tracker\';render()">';
+    h+='<span style="font-size:10px;font-weight:800;color:'+ltCol+';font-family:\'JetBrains Mono\',monospace">'+(leagueTrack.profit>0?"+$":"$")+Math.abs(leagueTrack.profit).toFixed(0)+'</span>';
+    h+='<span style="font-size:9px;font-weight:600;color:'+ltCol+';margin-left:4px">'+leagueTrack.roi+'% ROI</span>';
+    h+='<span style="font-size:8px;color:var(--tm);margin-left:4px">'+leagueTrack.wins+'W-'+leagueTrack.losses+'L</span>';
+    if(leagueTrack.pending>0)h+='<span style="font-size:8px;color:var(--ac2);margin-left:3px">'+leagueTrack.pending+'⏳</span>';
+    h+='</div>';
+  }else{
+    h+='<div class="sbox"><span style="font-size:9px;color:var(--td)">No tracked bets yet</span></div>';
+  }
   h+='<div style="flex:1"></div>';
   if(S.remaining)h+='<span class="mono" style="font-size:9px;color:var(--tf)">API: '+S.remaining+'</span>';
   if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
@@ -3093,7 +3117,10 @@ function render(){
   h+='</div>';
 
   // ── FOOTER ──
-  h+='<div class="ft">DIAMOND EDGE v11d · '+(isNHL?"NHL v5: 57.5% acc · CLV@8% +9.1% ROI · xG luck + GSAx + MoneyPuck · Opening lines only":"MLB: v11d model (no bias) · 56.5% acc · ML +9.9% ROI @ 10%+ · Dog +1.5 +7.7% @ 8%+")+' · 21+ · 1-800-GAMBLER</div>';
+  var ftNHL=trackerStatsBySport("nhl");var ftMLB=trackerStatsBySport("mlb");
+  var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
+  var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
+  h+='<div class="ft">DIAMOND EDGE v11d · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
