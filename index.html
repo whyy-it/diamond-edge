@@ -121,19 +121,23 @@ var CORS_PROXIES=["https://corsproxy.io/?","https://api.allorigins.win/raw?url="
 
 // CORS-safe fetch with multi-proxy fallback
 async function corsProxyFetch(url,opts){
-  // Try direct first (works locally or when CORS is allowed)
-  try{
-    var ac=new AbortController();var tm=setTimeout(function(){ac.abort()},4000);
-    var r=await fetch(url,Object.assign({signal:ac.signal},opts||{}));
-    clearTimeout(tm);
-    if(r.ok)return r;
-  }catch(e){}
+  // Skip direct fetch for domains known to block cross-origin (reduces console errors)
+  var knownCORS=["moneypuck.com","api-web.nhle.com","nhle.com"];
+  var skipDirect=knownCORS.some(function(d){return url.indexOf(d)>=0;});
+  if(!skipDirect){
+    try{
+      var ac=new AbortController();var tm=setTimeout(function(){ac.abort()},4000);
+      var r=await fetch(url,Object.assign({signal:ac.signal},opts||{}));
+      clearTimeout(tm);
+      if(r.ok)return r;
+    }catch(e){}
+  }
   // Try each proxy in order
   for(var i=0;i<CORS_PROXIES.length;i++){
     try{
       var pUrl=CORS_PROXIES[i]+encodeURIComponent(url);
       var r2=await fetch(pUrl,opts||{});
-      if(r2.ok){console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,60));return r2;}
+      if(r2.ok){console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80));return r2;}
     }catch(e){console.log("[DE] CORS proxy "+i+" failed:",e.message);}
   }
   throw new Error("All CORS proxies failed for: "+url.substring(0,80));
@@ -1244,6 +1248,7 @@ async function fetchMoneyPuck(){
     var ptUrl="https://moneypuck.com/moneypuck/playerData/seasonSummary/"+(season-1)+"/regular/teams.csv";
     var rp=await corsProxyFetch(ptUrl);
     var tp=await rp.text();
+    var priorSit="5v5";
     parseCSV(tp).forEach(function(row){
       var team=(row.team||row.name||row.Team||row.Name||"").toString().trim();
       var sit=(row.situation||row.Situation||row.SITUATION||"").toString().trim().toLowerCase();
@@ -1251,13 +1256,14 @@ async function fetchMoneyPuck(){
     });
     // Fallback to "all" if no 5v5 rows
     if(Object.keys(priorTeams).length===0){
+      priorSit="all (fallback)";
       parseCSV(tp).forEach(function(row){
         var team=(row.team||row.name||row.Team||row.Name||"").toString().trim();
         var sit=(row.situation||row.Situation||row.SITUATION||"").toString().trim().toLowerCase();
         if(sit==="all"||sit==="") priorTeams[team]=row;
       });
     }
-    console.log("[DE] MoneyPuck prior-year teams: "+Object.keys(priorTeams).length);
+    console.log("[DE] MoneyPuck prior-year teams: "+Object.keys(priorTeams).length+" ("+priorSit+")");
   }catch(e){console.log("[DE] Prior-year teams failed:",e.message);}
 
   try{
@@ -1601,6 +1607,10 @@ function enrichNHLGames(games){
     var modelProb=predictNHLv5(features);
     g.modelProb=+modelProb.toFixed(4);g.modelFairH=+(modelProb*100).toFixed(1);g.modelFairA=+(100-g.modelFairH).toFixed(1);
     g.features=features;
+
+    // Fallback goalie names: if NHL API didn't provide them, use MoneyPuck starter (highest GP)
+    if(!g.homeGoalie&&g.mpHomeGoalie)g.homeGoalie=g.mpHomeGoalie;
+    if(!g.awayGoalie&&g.mpAwayGoalie)g.awayGoalie=g.mpAwayGoalie;
 
     var hImp=ml2p(g.bestHML)||0.5;var aImp=ml2p(g.bestAML)||0.5;
     var vigT=hImp+aImp;var fairH=hImp/vigT;var fairA=aImp/vigT;
@@ -2274,9 +2284,16 @@ function render(){
       if(isNHL){
         if(g.homeGoalie||g.awayGoalie){
           h+='<div class="goalie-row">';
-          h+='<span>🥅 '+(g.awayGoalie?'<span class="'+(g.awayGoalieConfirmed?"starter":"backup")+'">'+g.awayGoalie+(g.awayGoalieConfirmed?" ✓":"?")+'</span>':'<span style="color:var(--td)">TBD</span>')+' vs ';
-          h+=(g.homeGoalie?'<span class="'+(g.homeGoalieConfirmed?"starter":"backup")+'">'+g.homeGoalie+(g.homeGoalieConfirmed?" ✓":"?")+'</span>':'<span style="color:var(--td)">TBD</span>')+'</span>';
-          h+='</div>';
+          var aGTag=g.awayGoalieConfirmed?"starter":"backup";
+          var hGTag=g.homeGoalieConfirmed?"starter":"backup";
+          var aGSuf=g.awayGoalieConfirmed?" ✓":" (proj)";
+          var hGSuf=g.homeGoalieConfirmed?" ✓":" (proj)";
+          h+='<span>🥅 '+(g.awayGoalie?'<span class="'+aGTag+'">'+g.awayGoalie+aGSuf+'</span>':'<span style="color:var(--td)">TBD</span>');
+          if(g.mpAwayGSAx!=null&&g.awayGoalie)h+=' <span style="font-size:9px;color:'+(g.mpAwayGSAx>0?"var(--acc)":"var(--neg)")+'">'+(g.mpAwayGSAx>0?"+":"")+g.mpAwayGSAx.toFixed(1)+' GSAx</span>';
+          h+=' vs ';
+          h+=(g.homeGoalie?'<span class="'+hGTag+'">'+g.homeGoalie+hGSuf+'</span>':'<span style="color:var(--td)">TBD</span>');
+          if(g.mpHomeGSAx!=null&&g.homeGoalie)h+=' <span style="font-size:9px;color:'+(g.mpHomeGSAx>0?"var(--acc)":"var(--neg)")+'">'+(g.mpHomeGSAx>0?"+":"")+g.mpHomeGSAx.toFixed(1)+' GSAx</span>';
+          h+='</span></div>';
         }
         // Records
         if(g.homeRecord!=="0-0-0"){
@@ -2291,7 +2308,7 @@ function render(){
       // Fair prob + implied odds
       h+='<div style="text-align:center;min-width:120px">';
       if(g.modelFairH){
-        var modelLabel=isNHL?"v5 Model / Market":"v11b Model / Market";
+        var modelLabel=isNHL?"v5 Model / Market":"v11d Model / Market";
         h+='<div class="sh">'+modelLabel+'</div><div style="display:flex;gap:14px;justify-content:center">';
         h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairA+'%</div>';
         h+='<div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.modelFairA)+'</div>';
@@ -2331,6 +2348,17 @@ function render(){
         if(ctxItems.length){
           h+='<div class="ctx">';
           ctxItems.forEach(function(ci){h+='<span class="ctx-item">'+ci+'</span>'});
+          h+='</div>';
+        }
+
+        // NHL Signals row (MoneyPuck status, xG regression, GSAx, B2B)
+        if(g.signals&&g.signals.length){
+          h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">';
+          g.signals.forEach(function(s){
+            var bg=s.type==="boost"?"rgba(0,255,163,.08)":s.type==="fade"?"rgba(255,77,106,.08)":"rgba(255,255,255,.04)";
+            var col=s.type==="boost"?"var(--acc)":s.type==="fade"?"var(--neg)":"var(--td)";
+            h+='<span style="font-size:9px;padding:3px 8px;border-radius:4px;background:'+bg+';color:'+col+'">'+s.icon+' '+s.text+'</span>';
+          });
           h+='</div>';
         }
       }
