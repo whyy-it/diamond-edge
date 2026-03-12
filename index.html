@@ -117,9 +117,14 @@ var ODDS_BASE="https://api.the-odds-api.com/v4/sports";
 var MLB_BASE="https://statsapi.mlb.com/api/v1";
 var NHL_BASE="https://api-web.nhle.com/v1";
 var CORS_PROXY="https://corsproxy.io/?";
-var CORS_PROXIES=["https://corsproxy.io/?","https://api.allorigins.win/raw?url=","https://cors.sh/?"];
+var CORS_PROXIES=[
+  "https://corsproxy.io/?",
+  "https://api.codetabs.com/v1/proxy?quest=",
+  "https://api.allorigins.win/raw?url=",
+  "https://thingproxy.freeboard.io/fetch/"
+];
 
-// CORS-safe fetch with multi-proxy fallback
+// CORS-safe fetch with multi-proxy fallback + content validation
 async function corsProxyFetch(url,opts){
   // Skip direct fetch for domains known to block cross-origin (reduces console errors)
   var knownCORS=["moneypuck.com","api-web.nhle.com","nhle.com"];
@@ -132,12 +137,30 @@ async function corsProxyFetch(url,opts){
       if(r.ok)return r;
     }catch(e){}
   }
+  // Determine if we expect CSV (for content validation)
+  var expectCSV=url.indexOf(".csv")>=0;
   // Try each proxy in order
   for(var i=0;i<CORS_PROXIES.length;i++){
     try{
       var pUrl=CORS_PROXIES[i]+encodeURIComponent(url);
       var r2=await fetch(pUrl,opts||{});
-      if(r2.ok){console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80));return r2;}
+      if(r2.ok){
+        // Validate response isn't an HTML error page disguised as success
+        if(expectCSV){
+          var cloned=r2.clone();
+          var peek=await cloned.text();
+          if(peek.trim().substring(0,15).toLowerCase().indexOf("<!doctype")>=0||
+             peek.trim().substring(0,5)==="<html"){
+            console.log("[DE] CORS proxy "+i+" returned HTML instead of CSV, skipping");
+            continue;
+          }
+          // Return a new Response with the validated text
+          console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80));
+          return new Response(peek,{status:200,headers:{"Content-Type":"text/csv"}});
+        }
+        console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80));
+        return r2;
+      }
     }catch(e){console.log("[DE] CORS proxy "+i+" failed:",e.message);}
   }
   throw new Error("All CORS proxies failed for: "+url.substring(0,80));
