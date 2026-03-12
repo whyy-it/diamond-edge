@@ -1821,25 +1821,44 @@ function render(){
   var leagueIcon=isNHL?"🏒":"⚾";
   var ab=PA.filter(function(b){return S.booksOn[b.id]});
   var abAll=ab; // Active books for calculations — toggles affect edges + recommendations
+  
+  // ── Recompute edges from ACTIVE books for ALL leagues' games ──
+  // This ensures filter, sort, display, bets tab, and status bar all use consistent values
+  function recomputeActiveEdges(gameList, forNHL){
+    gameList.forEach(function(g){
+      var ahml=-9999,aaml=-9999;
+      ab.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
+      var fH=(g.modelFairH||g.fairH);
+      var fA=(g.modelFairA||g.fairA);
+      if(forNHL&&g.modelProb!=null&&ahml>-9999){
+        var hImp=ml2p(ahml);var aImp=ml2p(aaml);var vigT=hImp+aImp;
+        g._aeH=+((g.modelProb-hImp/vigT)*100).toFixed(1);
+        g._aeA=+(((1-g.modelProb)-aImp/vigT)*100).toFixed(1);
+      }else if(ahml>-9999&&fH){
+        g._aeH=+((1/ml2p(ahml))*(fH/100)*100-100).toFixed(1);
+        g._aeA=+((1/ml2p(aaml))*(fA/100)*100-100).toFixed(1);
+      }else{
+        g._aeH=0;g._aeA=0;
+      }
+      if(forNHL)g._aeTop=+(Math.max(g._aeH,g._aeA)+(g.contextAdj||0)).toFixed(1);
+      else g._aeTop=+Math.max(g._aeH,g._aeA).toFixed(1);
+      g._aeSide=(g._aeH>=g._aeA)?"HOME":"AWAY";
+    });
+  }
+  recomputeActiveEdges(S.nhl.games||[], true);
+  recomputeActiveEdges(S.mlb.games||[], false);
+
   var games=S.games.slice();
   // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
-  if(S.evOnly)games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.modelTopEdge||g.topEdge)>3});
-  if(S.sortBy==="edge")games.sort(function(a,b){return(isNHL?(b.adjEdge||b.topEdge):(b.modelTopEdge||b.topEdge))-(isNHL?(a.adjEdge||a.topEdge):(a.modelTopEdge||a.topEdge))});
+  if(S.evOnly)games=games.filter(function(g){return g._aeTop>3});
+  if(S.sortBy==="edge")games.sort(function(a,b){return b._aeTop-a._aeTop});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
-  var edgeOf=function(g){return isNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge)};
-  // Recount bets/watches using ALL books for calculations
+  var edgeOf=function(g){return g._aeTop};
+  // Recount bets/watches using ACTIVE books
   var betCount=0,watchCount=0;
   S.games.forEach(function(g){
-    var ahml=-9999,aaml=-9999;
-    abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
-    var fH=(g.modelFairH||g.fairH);
-    var fA=(g.modelFairA||g.fairA);
-    var he2=(ahml>-9999&&fH)?+((1/ml2p(ahml))*(fH/100)*100-100).toFixed(1):0;
-    var ae2=(aaml>-9999&&fA)?+((1/ml2p(aaml))*(fA/100)*100-100).toFixed(1):0;
-    var te=Math.max(+he2,+ae2);
-    if(isNHL)te=+(te+(g.contextAdj||0)).toFixed(1);
-    // Side-aware threshold: NHL home 5%, NHL away 7%, MLB 10%
-    var bestSide2=(+he2>=+ae2)?"HOME":"AWAY";
+    var te=g._aeTop;
+    var bestSide2=g._aeSide;
     var statThresh=isNHL?(bestSide2==="HOME"?5:7):10;
     if(te>=statThresh)betCount++;
     else if(te>=3)watchCount++;
@@ -1983,6 +2002,7 @@ function render(){
     // ── GLOBAL TODAY'S BETS — pulls from ALL leagues ──
     h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
     h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📋 Today\'s Bet Sheet</div>';
+    h+='<div style="font-size:11px;color:var(--td)">'+fd(new Date())+'</div>';
     h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh All')+'</button>';
     h+='<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:4px 10px">';
     h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
@@ -2005,16 +2025,13 @@ function render(){
 
       // ML bets
       gms.forEach(function(g){
-        var de2=sNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge);
+        var edge3=g._aeTop;
+        var side3=g._aeSide;
+        // Find best line from active books
         var ahml2=-9999,aaml2=-9999,ahb2=null,aab2=null;
-        abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml2){ahml2=d.homeML;ahb2=bk;}if(d.awayML!=null&&d.awayML>aaml2){aaml2=d.awayML;aab2=bk;}});
+        ab.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml2){ahml2=d.homeML;ahb2=bk;}if(d.awayML!=null&&d.awayML>aaml2){aaml2=d.awayML;aab2=bk;}});
         var fH3=(g.modelFairH||g.fairH);
         var fA3=(g.modelFairA||g.fairA);
-        var he3=(ahml2>-9999&&fH3)?+((1/ml2p(ahml2))*(fH3/100)*100-100).toFixed(1):0;
-        var ae3=(aaml2>-9999&&fA3)?+((1/ml2p(aaml2))*(fA3/100)*100-100).toFixed(1):0;
-        var side3=(+he3>=+ae3)?"HOME":"AWAY";
-        var edge3=Math.max(+he3,+ae3);
-        if(sNHL)edge3=+(edge3+(g.contextAdj||0)).toFixed(1);
         var thresh3=sNHL?(side3==="HOME"?5:7):10;
         if(edge3>=thresh3){
           var ml3=side3==="HOME"?ahml2:aaml2;
@@ -2045,7 +2062,15 @@ function render(){
       });
     });
 
-    allBets.sort(function(a,b){return b.edge-a.edge});
+    // Filter to today's games only
+    var todayStr=ds(new Date());
+    allBets=allBets.filter(function(b){
+      if(!b.time)return false;
+      return ds(new Date(b.time))===todayStr;
+    });
+
+    // Sort by game time
+    allBets.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
 
     // Scale Kelly: total raw Kelly ≤ 25%
     var totalRawKelly=allBets.reduce(function(s,b){return s+b.kelly},0);
@@ -2101,6 +2126,7 @@ function render(){
         h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
         h+='<tr style="border-bottom:2px solid var(--bd)">';
         h+='<th style="text-align:center;padding:6px 4px;color:var(--td);font-size:8px"></th>';
+        h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">TIME</th>';
         h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">TYPE</th>';
         h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PLAYER / TEAM</th>';
         h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BET</th>';
@@ -2110,7 +2136,6 @@ function render(){
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">EDGE</th>';
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">KELLY</th>';
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BET $</th>';
-        h+='<th style="text-align:center;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">RESULT</th>';
         h+='</tr>';
         allBets.forEach(function(b,i){
           var bg=i%2===0?"var(--card)":"var(--alt)";
@@ -2122,6 +2147,7 @@ function render(){
           var betColor=b.paperTrade?"var(--warn)":"var(--acc)";
           h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)"'+(b.paperTrade?' title="Paper trade — prop model in validation"':'')+'>';
           h+='<td style="padding:6px 4px;text-align:center;font-size:14px" title="'+b.sport.toUpperCase()+'">'+b.icon+'</td>';
+          h+='<td style="padding:6px;font-size:10px;color:var(--td);white-space:nowrap">'+ft(b.time)+'</td>';
           h+='<td style="padding:6px;font-weight:700;color:'+(b.type==="ML"?"var(--ac2)":"var(--warn)")+';font-size:9px">'+typeLabel+'</td>';
           h+='<td style="padding:6px"><div style="font-weight:700;color:var(--tx)">'+b.player+'</div><div style="font-size:9px;color:var(--td)">'+b.matchup+'</div></td>';
           h+='<td style="padding:6px;font-weight:600;color:var(--tm);font-size:10px">'+b.market+'</td>';
@@ -2131,23 +2157,6 @@ function render(){
           h+='<td style="padding:6px;text-align:right;font-weight:700;color:'+edgeC+';font-family:\'JetBrains Mono\',monospace">'+edgeLabel+'</td>';
           h+='<td style="padding:6px;text-align:right;font-size:10px;color:var(--tm);font-family:\'JetBrains Mono\',monospace">'+b.scaledKelly+'%</td>';
           h+='<td style="padding:6px;text-align:right;font-weight:800;color:'+betColor+';font-size:14px;font-family:\'JetBrains Mono\',monospace">$'+b.betAmount+'</td>';
-          // Result column — auto-tracked, show grade buttons or result
-          var bk2=betKey(b);var tb2=findTracked(bk2);
-          h+='<td style="padding:6px;text-align:center">';
-          if(tb2&&tb2.result==null){
-            h+='<div class="trk-res">';
-            h+='<button class="w" onclick="recordResult(\''+bk2+'\',\'W\')">W</button>';
-            h+='<button class="l" onclick="recordResult(\''+bk2+'\',\'L\')">L</button>';
-            h+='<button class="p" onclick="recordResult(\''+bk2+'\',\'P\')">P</button>';
-            h+='</div>';
-          }else if(tb2&&tb2.result!=null){
-            var rc2=tb2.result==="W"?"var(--acc)":tb2.result==="L"?"var(--neg)":"var(--warn)";
-            h+='<span style="font-weight:800;color:'+rc2+';font-size:12px">'+tb2.result+'</span>';
-            if(tb2.payout!==0)h+='<div style="font-size:9px;color:'+rc2+';font-family:\'JetBrains Mono\',monospace">'+(tb2.payout>0?"+":"")+tb2.payout+'</div>';
-          }else{
-            h+='<span style="font-size:9px;color:var(--td)">✓</span>';
-          }
-          h+='</td>';
           h+='</tr>';
         });
         h+='</table></div>';
@@ -2248,9 +2257,9 @@ function render(){
     }
 
     games.forEach(function(g){
-      var rawEdge=isNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge);
+      var displayEdge=g._aeTop;
       
-      // Calculate best lines from ACTIVE books for edge calculation
+      // Find best line from ACTIVE books for the recommendation
       var actHML=-9999,actAML=-9999,actHBook=null,actABook=null;
       abAll.forEach(function(bk){
         var d=g.bd[bk.id];
@@ -2259,45 +2268,17 @@ function render(){
         if(d.awayML!=null&&d.awayML>actAML){actAML=d.awayML;actABook=bk.id;}
       });
 
-      // Determine edge from ACTIVE books
-      var useFairH2=(g.modelFairH||g.fairH);
-      var useFairA2=(g.modelFairA||g.fairA);
-      var betSide=null;
-      var displayEdge=rawEdge;
-      if(rawEdge>3){
-        var actHEdge,actAEdge;
-        if(isNHL){
-          // NHL: use (modelProb - fairMarketProb) * 100 — already computed in enrichment
-          actHEdge=g.modelHEdge||0;
-          actAEdge=g.modelAEdge||0;
-        }else{
-          // MLB: use EV formula (modelProb / impliedProb(bestLine)) * 100 - 100
-          actHEdge=(actHML>-9999&&useFairH2)?+((1/ml2p(actHML))*(useFairH2/100)*100-100).toFixed(1):0;
-          actAEdge=(actAML>-9999&&useFairA2)?+((1/ml2p(actAML))*(useFairA2/100)*100-100).toFixed(1):0;
-        }
-        var actTopEdge=Math.max(+actHEdge,+actAEdge);
-        betSide=(+actHEdge>=+actAEdge)?"HOME":"AWAY";
-        displayEdge=isNHL?+(actTopEdge+(g.contextAdj||0)).toFixed(1):actTopEdge>3?actTopEdge:rawEdge;
-      }
+      var betSide=displayEdge>3?g._aeSide:null;
 
-      // Find best line from ACTIVE (toggled-on) books for the recommendation
-      // (Now same as edge calc since abAll = active books)
       var dispHML=actHML,dispAML=actAML,dispHBook=actHBook,dispABook=actABook;
-      // Check if active book line is still +EV
+      // Check if active book line is +EV for the recommendation
       var betTeam=null,betLine=null,betBook=null,betBookName=null,betEdge=0;
       if(betSide&&displayEdge>3){
         var dispML=betSide==="HOME"?dispHML:dispAML;
         var dispBk=betSide==="HOME"?dispHBook:dispABook;
-        var fairP=betSide==="HOME"?useFairH2/100:useFairA2/100;
         if(dispML>-9999){
-          var dispEdge;
-          if(isNHL){
-            // NHL: simple difference (modelProb - fairMarketProb) * 100
-            dispEdge=betSide==="HOME"?(g.modelHEdge||0):(g.modelAEdge||0);
-            dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
-          }else{
-            dispEdge=+((1/ml2p(dispML))*fairP*100-100).toFixed(1);
-          }
+          var dispEdge=betSide==="HOME"?g._aeH:g._aeA;
+          if(isNHL)dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
           if(dispEdge>0){
             betTeam=betSide==="HOME"?g.home:g.away;
             betLine=dispML;betBook=dispBk;betEdge=dispEdge;
@@ -2531,14 +2512,11 @@ function render(){
       });
 
       // ── v11c BACKTESTED LOGIC ──
-      // Use model-adjusted edges for MLB
-      var actHML2=-9999,actAML2=-9999;
-      abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>actHML2)actHML2=d.homeML;if(d.awayML!=null&&d.awayML>actAML2)actAML2=d.awayML;});
+      // Use pre-computed active-book edges
       var useFairH=(g.modelFairH||g.fairH);
       var useFairA=(g.modelFairA||g.fairA);
-      var mlEdgeH=(actHML2>-9999&&useFairH)?+((1/ml2p(actHML2))*(useFairH/100)*100-100).toFixed(1):0;
-      var mlEdgeA=(actAML2>-9999&&useFairA)?+((1/ml2p(actAML2))*(useFairA/100)*100-100).toFixed(1):0;
-      if(isNHL){mlEdgeH=+(+mlEdgeH+(g.contextAdj>0?g.contextAdj:0)).toFixed(1);mlEdgeA=+(+mlEdgeA-(g.contextAdj>0?0:g.contextAdj)).toFixed(1);}
+      var mlEdgeH=g._aeH||0;
+      var mlEdgeA=g._aeA||0;
 
       // Determine favorite and underdog
       var homeFav=useFairH>=50;
