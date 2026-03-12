@@ -119,14 +119,15 @@ var NHL_BASE="https://api-web.nhle.com/v1";
 var CORS_PROXY="https://corsproxy.io/?";
 var CORS_PROXIES=[
   "https://corsproxy.io/?",
-  "https://api.codetabs.com/v1/proxy?quest=",
   "https://api.allorigins.win/raw?url=",
+  "https://api.codetabs.com/v1/proxy?quest=",
+  "https://corsproxy.org/?url=",
   "https://thingproxy.freeboard.io/fetch/"
 ];
 
-// CORS-safe fetch with multi-proxy fallback + content validation
+// CORS-safe fetch with multi-proxy fallback + content validation + retry
 async function corsProxyFetch(url,opts){
-  // Skip direct fetch for domains known to block cross-origin (reduces console errors)
+  // Skip direct fetch for domains known to block cross-origin
   var knownCORS=["moneypuck.com","api-web.nhle.com","nhle.com"];
   var skipDirect=knownCORS.some(function(d){return url.indexOf(d)>=0;});
   if(!skipDirect){
@@ -137,31 +138,44 @@ async function corsProxyFetch(url,opts){
       if(r.ok)return r;
     }catch(e){}
   }
-  // Determine if we expect CSV (for content validation)
+  // Determine expected content type
   var expectCSV=url.indexOf(".csv")>=0;
-  // Try each proxy in order
-  for(var i=0;i<CORS_PROXIES.length;i++){
-    try{
-      var pUrl=CORS_PROXIES[i]+encodeURIComponent(url);
-      var r2=await fetch(pUrl,opts||{});
-      if(r2.ok){
-        // Validate response isn't an HTML error page disguised as success
-        if(expectCSV){
-          var cloned=r2.clone();
-          var peek=await cloned.text();
-          if(peek.trim().substring(0,15).toLowerCase().indexOf("<!doctype")>=0||
-             peek.trim().substring(0,5)==="<html"){
-            console.log("[DE] CORS proxy "+i+" returned HTML instead of CSV, skipping");
-            continue;
-          }
-          // Return a new Response with the validated text
-          console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80));
-          return new Response(peek,{status:200,headers:{"Content-Type":"text/csv"}});
-        }
-        console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80));
-        return r2;
+  var expectJSON=url.indexOf("nhle.com")>=0||url.indexOf("api-web")>=0;
+
+  // Helper to validate response isn't an HTML error page
+  async function validateProxy(resp,proxyIdx){
+    if(!resp.ok)return null;
+    if(expectCSV||expectJSON){
+      var cloned=resp.clone();
+      var peek=await cloned.text();
+      var trimmed=peek.trim();
+      if(trimmed.substring(0,15).toLowerCase().indexOf("<!doctype")>=0||trimmed.substring(0,5)==="<html"||trimmed.substring(0,1)==="<"){
+        console.log("[DE] CORS proxy "+proxyIdx+" returned HTML instead of data, skipping");
+        return null;
       }
-    }catch(e){console.log("[DE] CORS proxy "+i+" failed:",e.message);}
+      return new Response(peek,{status:200,headers:{"Content-Type":expectCSV?"text/csv":"application/json"}});
+    }
+    return resp;
+  }
+
+  // Try each proxy — up to 2 rounds (retry after brief delay)
+  for(var round=0;round<2;round++){
+    if(round>0)await new Promise(function(r){setTimeout(r,1500);}); // delay before retry
+    for(var i=0;i<CORS_PROXIES.length;i++){
+      try{
+        var pUrl=CORS_PROXIES[i]+encodeURIComponent(url);
+        var ac2=new AbortController();var tm2=setTimeout(function(){ac2.abort()},8000);
+        var r2=await fetch(pUrl,Object.assign({signal:ac2.signal},opts||{}));
+        clearTimeout(tm2);
+        var validated=await validateProxy(r2,i);
+        if(validated){
+          console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80)+(round>0?" (retry)":""));
+          return validated;
+        }
+      }catch(e){
+        if(round===0)console.log("[DE] CORS proxy "+i+" failed: "+e.message);
+      }
+    }
   }
   throw new Error("All CORS proxies failed for: "+url.substring(0,80));
 }
