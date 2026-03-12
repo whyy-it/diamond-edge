@@ -533,6 +533,8 @@ function fImp(p){var ml=p2ml(p);return ml==null?"—":ml>0?"+"+ml:""+ml}
 function ft(d){return new Date(d).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}
 function fd(d){return new Date(d).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
 function ds(d){return d.toISOString().slice(0,10)}
+// Local date string — avoids UTC shift that makes 10 PM ET show as next day
+function localDS(d){var dt=d||new Date();return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
 
 // ═══════════════════════════════════════════════════════════
 // MLB FETCHERS (unchanged from v8)
@@ -556,7 +558,7 @@ async function fetchMLBOdds(){
 
 async function fetchMLBSchedule(){
   try{
-    var today=ds(new Date());
+    var today=localDS();
     var url=MLB_BASE+"/schedule?sportId=1&date="+today+"&gameType=R&hydrate=probablePitcher,linescore,officials,team";
     var r=await fetch(url);var d=await r.json();var result={};
     (d.dates||[]).forEach(function(dt){(dt.games||[]).forEach(function(g){
@@ -628,10 +630,16 @@ async function fetchNHLOdds(){
 
 async function fetchNHLSchedule(){
   // Get today's schedule from NHL API — includes starting goalies
+  // Note: NHL schedule endpoint returns a gameWeek with multiple days,
+  // so we fetch local today AND tomorrow to cover all displayed games
   try{
-    var today=ds(new Date());
-    var d=await fetchNHL("/schedule/"+today);
+    var today=localDS();
+    var tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+    var tomorrowStr=localDS(tomorrow);
     var result={};
+    
+    // Fetch schedule (NHL returns a week around the requested date)
+    var d=await fetchNHL("/schedule/"+today);
     var gw=d.gameWeek||[];
     gw.forEach(function(day){
       (day.games||[]).forEach(function(g){
@@ -695,20 +703,23 @@ async function fetchNHLStandings(){
 }
 
 async function fetchNHLFatigue(){
-  // Check last 3 days of NHL schedule for B2B and fatigue
+  // Check today + last 3 days of NHL schedule for B2B and fatigue
+  // Uses local dates to avoid UTC shift (10 PM ET = next day in UTC)
   var fatigue={};
   for(var i=0;i<=3;i++){
     var d=new Date();d.setDate(d.getDate()-i);
+    var dateStr=localDS(d);
     try{
-      var data=await fetchNHL("/schedule/"+ds(d));
+      var data=await fetchNHL("/schedule/"+dateStr);
       var gw=data.gameWeek||[];
       // Only look at the specific date we requested
       gw.forEach(function(day){
-        if(day.date!==ds(d))return;
+        if(day.date!==dateStr)return;
         (day.games||[]).forEach(function(g){
           var state=g.gameState||"";
-          // Count games that are finished or in progress
-          if(state==="OFF"||state==="FINAL"||state==="LIVE"||state==="CRIT"||(i>0)){
+          // For today (i=0): count ALL states including FUT/PRE — we need to know who's scheduled
+          // For past days (i>0): count all games (they should be finished)
+          if(i===0||state==="OFF"||state==="FINAL"||state==="LIVE"||state==="CRIT"||(i>0)){
             var ht=g.homeTeam?g.homeTeam.abbrev:"";
             var at=g.awayTeam?g.awayTeam.abbrev:"";
             [ht,at].forEach(function(t){
@@ -722,24 +733,52 @@ async function fetchNHLFatigue(){
       });
     }catch(e){}
   }
+  
+  // ALSO check tomorrow's schedule to catch B2Bs for tomorrow's games
+  // (Odds API often shows tomorrow's games)
+  try{
+    var tmrw=new Date();tmrw.setDate(tmrw.getDate()+1);
+    var tmrwStr=localDS(tmrw);
+    var tData=await fetchNHL("/schedule/"+tmrwStr);
+    var tGW=tData.gameWeek||[];
+    tGW.forEach(function(day){
+      if(day.date!==tmrwStr)return;
+      (day.games||[]).forEach(function(g){
+        var ht=g.homeTeam?g.homeTeam.abbrev:"";
+        var at=g.awayTeam?g.awayTeam.abbrev:"";
+        [ht,at].forEach(function(t){
+          if(!t)return;
+          if(!fatigue[t])fatigue[t]={games:[],daysAgo:[]};
+          fatigue[t].games.push(g.id);
+          fatigue[t].daysAgo.push(-1); // -1 = tomorrow
+        });
+      });
+    });
+  }catch(e){}
+  
   // Calculate rest days and B2B status
   var result={};
   Object.keys(fatigue).forEach(function(t){
     var days=fatigue[t].daysAgo.filter(function(d){return d>0}).sort();
-    var isB2B=days.indexOf(1)>=0&&days.filter(function(d){return d<=1}).length>=1;
-    // Also check if playing today (daysAgo=0) AND played yesterday (daysAgo=1)
+    // B2B today: playing today (daysAgo=0) AND played yesterday (daysAgo=1)
     var playingToday=fatigue[t].daysAgo.indexOf(0)>=0;
     var playedYesterday=fatigue[t].daysAgo.indexOf(1)>=0;
     var b2bToday=playingToday&&playedYesterday;
+    // B2B tomorrow: playing tomorrow (daysAgo=-1) AND playing today (daysAgo=0)
+    var playingTomorrow=fatigue[t].daysAgo.indexOf(-1)>=0;
+    var b2bTomorrow=playingTomorrow&&playingToday;
     var lastGame=days.length?days[0]:99;
     var gamesIn3=days.filter(function(d){return d<=3}).length;
     result[t]={
-      b2b:b2bToday,
+      b2b:b2bToday||b2bTomorrow,
+      b2bToday:b2bToday,
+      b2bTomorrow:b2bTomorrow,
       restDays:lastGame,
       gamesIn3Days:gamesIn3,
       gamesTotal:fatigue[t].games.length,
     };
   });
+  console.log("[DE] B2B teams:",Object.keys(result).filter(function(t){return result[t].b2b}).join(", ")||"none");
   return result;
 }
 
@@ -1506,6 +1545,59 @@ async function fetchMoneyPuck(){
   }catch(e){}
 
   S.nhl.mp={teams:mpTeams,goalies:mpGoalies,priorTeams:priorTeams,priorGoalies:priorGoalies,loaded:true};
+  
+  // Normalize: ensure all ABBR_TO_MP codes can find their data
+  // MoneyPuck may use alternate codes (e.g., "SJ" vs "S.J", "LA" vs "L.A", "TB" vs "T.B", "NJ" vs "N.J")
+  // Also handle Utah Hockey Club → MoneyPuck may still use "ARI"
+  var mpAliases={"S.J":["SJ","SJS"],"L.A":["LA","LAK"],"T.B":["TB","TBL"],"N.J":["NJ","NJD"],"UTA":["ARI","UTAH"],"MTL":["MON","MTL"]};
+  function ensureMPKey(store,primaryKey){
+    if(store[primaryKey]&&Object.keys(store[primaryKey]).length>3)return;
+    var aliases=mpAliases[primaryKey]||[];
+    // Also try without dots
+    var noDot=primaryKey.replace(/\./g,"");
+    if(noDot!==primaryKey&&aliases.indexOf(noDot)<0)aliases.push(noDot);
+    for(var ai=0;ai<aliases.length;ai++){
+      if(store[aliases[ai]]&&Object.keys(store[aliases[ai]]).length>3){
+        store[primaryKey]=store[aliases[ai]];
+        console.log("[DE] MP alias: "+primaryKey+" ← "+aliases[ai]);
+        return;
+      }
+    }
+    // Try all keys for partial match
+    Object.keys(store).forEach(function(k){
+      if(store[primaryKey]&&Object.keys(store[primaryKey]).length>3)return;
+      if(k.replace(/\./g,"")===primaryKey.replace(/\./g,"")){
+        store[primaryKey]=store[k];
+        console.log("[DE] MP fuzzy match: "+primaryKey+" ← "+k);
+      }
+    });
+  }
+  Object.values(ABBR_TO_MP).forEach(function(mpCode){
+    ensureMPKey(mpTeams,mpCode);
+    ensureMPKey(priorTeams,mpCode);
+    // For goalies (arrays), similar alias check
+    if(!mpGoalies[mpCode]||!mpGoalies[mpCode].length){
+      var gAliases=mpAliases[mpCode]||[mpCode.replace(/\./g,"")];
+      for(var gi=0;gi<gAliases.length;gi++){
+        if(mpGoalies[gAliases[gi]]&&mpGoalies[gAliases[gi]].length){
+          mpGoalies[mpCode]=mpGoalies[gAliases[gi]];break;
+        }
+      }
+    }
+    if(!priorGoalies[mpCode]||!priorGoalies[mpCode].length){
+      var pgAliases=mpAliases[mpCode]||[mpCode.replace(/\./g,"")];
+      for(var pgi=0;pgi<pgAliases.length;pgi++){
+        if(priorGoalies[pgAliases[pgi]]&&priorGoalies[pgAliases[pgi]].length){
+          priorGoalies[mpCode]=priorGoalies[pgAliases[pgi]];break;
+        }
+      }
+    }
+  });
+  
+  // Log diagnostic: which teams have data
+  var mpTeamCount=Object.keys(mpTeams).filter(function(k){return Object.keys(mpTeams[k]).length>5}).length;
+  var mpGoalieCount=Object.keys(mpGoalies).filter(function(k){return mpGoalies[k].length>0}).length;
+  console.log("[DE] MoneyPuck final: "+mpTeamCount+" teams with stats, "+mpGoalieCount+" teams with goalies");
   console.log("[DE] MoneyPuck data stored in S.nhl.mp");
 }
 
@@ -1911,8 +2003,9 @@ async function loadNHL(){
       S.nhl.games=[];
     }
     if(results[1].status==="fulfilled")S.nhl.schedule=results[1].value||{};
-    if(results[2].status==="fulfilled")S.nhl.standings=results[2].value||{};
-    if(results[3].status==="fulfilled")S.nhl.fatigue=results[3].value||{};
+    // results[2] = fetchMoneyPuck — stores data directly to S.nhl.mp internally, no assignment needed
+    if(results[3].status==="fulfilled")S.nhl.standings=results[3].value||{};
+    if(results[4].status==="fulfilled")S.nhl.fatigue=results[4].value||{};
 
     // Enrich games with NHL model context
     S.nhl.games=enrichNHLGames(S.nhl.games);
