@@ -2062,11 +2062,17 @@ function render(){
       });
     });
 
-    // Filter to today's games only
-    var todayStr=ds(new Date());
+    // Filter to today's games (local time) that haven't started yet
+    var now=new Date();
+    var todayLocal=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
     allBets=allBets.filter(function(b){
       if(!b.time)return false;
-      return ds(new Date(b.time))===todayStr;
+      var gt=new Date(b.time);
+      // Must be in the future
+      if(gt<=now)return false;
+      // Must be today (local timezone)
+      var gLocal=gt.getFullYear()+"-"+String(gt.getMonth()+1).padStart(2,"0")+"-"+String(gt.getDate()).padStart(2,"0");
+      return gLocal===todayLocal;
     });
 
     // Sort by game time
