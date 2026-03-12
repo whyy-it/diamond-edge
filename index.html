@@ -364,6 +364,55 @@ function trackerStats(){
 }
 
 // ═══════════════════════════════════════════════════════════
+// ═══ SIMULTANEOUS KELLY — optimal sizing for concurrent bets ═══
+// Maximizes E[log(wealth)] across all 2^n outcome combinations.
+// Formula per bet: f* = (bp - q) / b, then optimal multiplier m
+// accounts for shared bankroll exposure across all simultaneous bets.
+// More bets → lower m → smaller per-bet stakes (diversification drag).
+// Ref: SBR Kelly Calculator (sportsbookreview.com)
+
+function simultaneousKelly(bets){
+  // bets = [{p: win probability (decimal), b: net decimal odds, kelly: individual Kelly %}]
+  var n=bets.length;
+  if(n===0)return{multiplier:1,fractions:[]};
+  if(n===1)return{multiplier:1,fractions:[bets[0].kelly]};
+  if(n>15)return{multiplier:1,fractions:bets.map(function(b){return b.kelly;})};
+  
+  var outcomes=Math.pow(2,n);
+  var outcomeData=[];
+  for(var mask=0;mask<outcomes;mask++){
+    var prob=1;var payoffs=[];
+    for(var i=0;i<n;i++){
+      var win=(mask>>i)&1;
+      prob*=win?bets[i].p:(1-bets[i].p);
+      payoffs.push(win?bets[i].b:-1);
+    }
+    outcomeData.push({prob:prob,payoffs:payoffs});
+  }
+  
+  var indKelly=bets.map(function(b){return b.kelly/100;});
+  
+  function evalM(m){
+    var elg=0;
+    for(var oi=0;oi<outcomes;oi++){
+      var o=outcomeData[oi];
+      var wealth=1;
+      for(var i=0;i<n;i++){wealth+=m*indKelly[i]*o.payoffs[i];}
+      if(wealth<=0)return-Infinity;
+      elg+=o.prob*Math.log(wealth);
+    }
+    return elg;
+  }
+  
+  var lo=0,hi=3.0;
+  for(var iter=0;iter<80;iter++){
+    var m1=lo+(hi-lo)*0.382;var m2=lo+(hi-lo)*0.618;
+    if(evalM(m1)<evalM(m2))lo=m1;else hi=m2;
+  }
+  var optM=+(((lo+hi)/2).toFixed(6));
+  return{multiplier:optM,fractions:indKelly.map(function(k){return+(k*optM*100).toFixed(2);})};
+}
+
 // AUTO-RESOLVE — fetch final scores and grade pending bets
 // ═══════════════════════════════════════════════════════════
 var resolveStatus={running:false,lastRun:null,resolved:0,errors:[]};
@@ -2198,11 +2247,24 @@ function render(){
     // Sort by game time
     allBets.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
 
-    // Scale Kelly: total raw Kelly ≤ 25%
-    var totalRawKelly=allBets.reduce(function(s,b){return s+b.kelly},0);
-    var kellyScale=totalRawKelly>25?(25/totalRawKelly):1;
+    // ═══ SIMULTANEOUS KELLY: optimal sizing across all concurrent bets ═══
+    // Build input for the solver
+    var simBets=allBets.map(function(b){
+      var mlNum=parseInt((b.line||"").replace("+",""))||0;
+      var bDecimal=mlNum>0?mlNum/100:mlNum<0?100/(-mlNum):1;
+      return{p:b.fairProb/100, b:bDecimal, kelly:b.kelly};
+    });
+    var simResult=simultaneousKelly(simBets);
+    var simMultiplier=simResult.multiplier;
+    
+    // Apply simultaneous Kelly fractions, then cap total at 25% of bankroll
+    allBets.forEach(function(b,i){
+      b.simKelly=simResult.fractions[i]||b.kelly;
+    });
+    var totalSimKelly=allBets.reduce(function(s,b){return s+b.simKelly},0);
+    var kellyScale=totalSimKelly>25?(25/totalSimKelly):1;
     allBets.forEach(function(b){
-      b.scaledKelly=+(b.kelly*kellyScale).toFixed(2);
+      b.scaledKelly=+(b.simKelly*kellyScale).toFixed(2);
       b.betAmount=Math.max(1,Math.round(S.bankroll*b.scaledKelly/100));
     });
 
@@ -2245,7 +2307,8 @@ function render(){
         h+='<div class="sbox"><span class="sval mono" style="color:var(--acc)">'+allBets.length+'</span><span class="slbl">bets</span></div>';
         h+='<div class="sbox"><span class="sval mono" style="color:var(--ac2)">$'+totalBetAmount+'</span><span class="slbl">total risk</span></div>';
         h+='<div class="sbox"><span class="sval mono" style="color:var(--warn)">'+(totalBetAmount/S.bankroll*100).toFixed(1)+'%</span><span class="slbl">of bankroll</span></div>';
-        if(kellyScale<1)h+='<div class="sbox"><span style="font-size:9px;color:var(--neg);font-weight:600">Kelly scaled to '+(kellyScale*100).toFixed(0)+'%</span></div>';
+        if(kellyScale<1)h+='<div class="sbox"><span style="font-size:9px;color:var(--neg);font-weight:600">Capped to '+(kellyScale*100).toFixed(0)+'%</span></div>';
+        if(simMultiplier<0.99)h+='<div class="sbox"><span style="font-size:9px;color:var(--ac2);font-weight:600">Sim Kelly ×'+simMultiplier.toFixed(3)+'</span></div>';
         h+='</div>';
 
         // Bet table
@@ -2294,8 +2357,8 @@ function render(){
         h+='<div><strong>Sources:</strong> 🧠 = backtested CLV model · 🔬 = Statcast xBA / pitcher xBA-against projection · 📊 = Poisson season rates · 📚 = book consensus</div>';
         h+='<div><strong>Flags:</strong> 🔥 = B2B+CLV stacked · ⚡ = high variance (HR/goals) · 🧪 = paper trade (prop model validating)</div>';
         h+='<div><strong>Edge:</strong> All edges shown in %. Kelly criterion for position sizing.</div>';
-        h+='<div><strong>Kelly:</strong> <span class="mono">f = (b×p − q) / b</span> · Scaled so total daily risk ≤ 25% of bankroll.</div>';
-        if(kellyScale<1)h+='<div><strong>Today:</strong> Raw Kelly totaled '+totalRawKelly.toFixed(1)+'%, scaled to '+allBets.reduce(function(s,b){return s+b.scaledKelly},0).toFixed(1)+'% across '+allBets.length+' bets.</div>';
+        h+='<div><strong>Kelly:</strong> <span class="mono">f = (bp − q) / b</span> · Simultaneous Kelly optimizes across all concurrent bets (×'+simMultiplier.toFixed(3)+' multiplier for '+allBets.length+' bets).</div>';
+        h+='<div><strong>Cap:</strong> Total daily risk ≤ 25% of bankroll'+(kellyScale<1?" (scaled to "+(kellyScale*100).toFixed(0)+"%)":"")+'.</div>';
         h+='</div></div>';
       }
     }
