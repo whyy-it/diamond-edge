@@ -128,6 +128,7 @@ var CORS_PROXIES=[
 ];
 
 // CORS-safe fetch — uses Cloudflare Worker if configured, else free proxies
+var proxyErrors=[];
 async function corsProxyFetch(url,opts){
   // Skip direct fetch for domains known to block cross-origin
   var knownCORS=["moneypuck.com","api-web.nhle.com","nhle.com"];
@@ -166,7 +167,7 @@ async function corsProxyFetch(url,opts){
           return new Response(check.text,{status:200,headers:{"Content-Type":expectCSV?"text/csv":"application/json"}});
         }
       }
-    }catch(e){console.log("[DE] CF Worker failed:",e.message);}
+    }catch(e){console.log("[DE] CF Worker failed:",e.message);lastProxyError={type:"cf_worker",url:url.substring(0,80),time:new Date(),msg:e.message};}
   }
 
   // 2. Free proxy fallbacks with retry
@@ -192,8 +193,11 @@ async function corsProxyFetch(url,opts){
       }
     }
   }
+  lastProxyError={type:"all_proxies",url:url.substring(0,80),time:new Date(),msg:"All CORS proxies failed"};
   throw new Error("All CORS proxies failed for: "+url.substring(0,80));
 }
+// Track last proxy error for UI banner
+var lastProxyError=null;
 
 // CORS-safe fetch for NHL API (which blocks cross-origin from Netlify)
 async function fetchNHL(path){
@@ -1756,7 +1760,7 @@ async function loadNHL(){
 }
 
 function syncActive(){
-  if(S.league==="bets"){
+  if(S.league==="bets"||S.league==="tracker"){
     S.games=[];S.loading=false;S.error=null;S.lastFetch=null;
     return;
   }
@@ -1791,9 +1795,10 @@ function toggleBook(id){
 function switchLeague(key){
   S.league=key;
   if(key==="bets"){S.tab="bets";}
+  else if(key==="tracker"){S.tab="tracker";}
   else{S.tab="ml";S.expanded={};}
   syncActive();
-  if(key!=="bets"){
+  if(key!=="bets"&&key!=="tracker"){
     var ld=S[key]||{};
     if(!ld.lastFetch&&!ld.loading)loadCurrent();
     else render();
@@ -1815,7 +1820,7 @@ function render(){
   var isNHL=S.league==="nhl";
   var leagueIcon=isNHL?"🏒":"⚾";
   var ab=PA.filter(function(b){return S.booksOn[b.id]});
-  var abAll=PA; // ALL books for calculations — toggles only affect display
+  var abAll=ab; // Active books for calculations — toggles affect edges + recommendations
   var games=S.games.slice();
   // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
   if(S.evOnly)games=games.filter(function(g){return(isNHL?g.adjEdge||g.topEdge:g.modelTopEdge||g.topEdge)>3});
@@ -1846,13 +1851,17 @@ function render(){
 
   // ── LEAGUE BAR ──
   h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">v11d</span></div></div>';
+  // Today's Bets global button (FIRST after leagues)
+  var betsOn=S.league==="bets";
+  h+='<button class="lbtn'+(betsOn?" on":"")+'" onclick="S.league=\'bets\';S.tab=\'bets\';render()" style="'+(betsOn?"border-bottom-color:var(--acc);color:var(--acc)":"")+'"><span style="font-size:14px">📋</span>Bets</button>';
+
   LEAGUES.forEach(function(lg){
     var cls="lbtn"+(S.league===lg.key?" on":"")+(lg.on?"":" off");
     h+='<button class="'+cls+'" onclick="'+(lg.on?"switchLeague('"+lg.key+"')":"")+'"><span style="font-size:14px">'+lg.icon+'</span>'+lg.label+(lg.on?"":'<span class="soon">SOON</span>')+'</button>';
   });
-  // Today's Bets global button
-  var betsOn=S.league==="bets";
-  h+='<button class="lbtn'+(betsOn?" on":"")+'" onclick="S.league=\'bets\';S.tab=\'bets\';render()" style="'+(betsOn?"border-bottom-color:var(--acc);color:var(--acc)":"")+'"><span style="font-size:14px">📋</span>Bets</button>';
+  // Tracker button (LAST)
+  var trackerOn=S.league==="tracker";
+  h+='<button class="lbtn'+(trackerOn?" on":"")+'" onclick="S.league=\'tracker\';S.tab=\'tracker\';render()" style="'+(trackerOn?"border-bottom-color:var(--warn);color:var(--warn)":"")+'"><span style="font-size:14px">📈</span>Tracker</button>';
 
   // ── TRACKER STATS in top bar ──
   var ts=trackerStats();
@@ -1868,8 +1877,23 @@ function render(){
 
   h+='<button class="thbtn" onclick="S.mode=S.mode===\'dark\'?\'light\':\'dark\';try{localStorage.setItem(\'de_mode\',S.mode)}catch(e){};render()">'+(t==="dark"?"☀️":"🌙")+'</button></div>';
 
-  // ── STATUS (skip for global bets view) ──
-  if(S.league!=="bets"){
+  // ── PROXY ERROR BANNER ──
+  if(lastProxyError){
+    var peAge=Math.round((new Date()-lastProxyError.time)/1000);
+    if(peAge<300){ // Show for 5 minutes
+      var peType=lastProxyError.type==="cf_worker"?"Cloudflare Worker":"All CORS proxies";
+      h+='<div style="background:rgba(255,77,106,.1);border-bottom:1px solid rgba(255,77,106,.3);padding:8px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+      h+='<span style="font-size:14px">⚠️</span>';
+      h+='<span style="font-size:12px;font-weight:700;color:var(--neg)">'+peType+' Error</span>';
+      h+='<span style="font-size:11px;color:var(--tm)">'+lastProxyError.msg+' — NHL advanced stats (MoneyPuck) and some data sources may be unavailable.</span>';
+      h+='<span style="font-size:9px;color:var(--td)">'+peAge+'s ago</span>';
+      h+='<button onclick="lastProxyError=null;render()" style="padding:3px 10px;border-radius:4px;font-size:9px;font-weight:600;border:1px solid var(--neg);background:rgba(255,77,106,.08);color:var(--neg);cursor:pointer;margin-left:auto">Dismiss</button>';
+      h+='</div>';
+    }
+  }
+
+  // ── STATUS (skip for global bets/tracker view) ──
+  if(S.league!=="bets"&&S.league!=="tracker"){
   h+='<div class="status">';
   if(betCount>0){
     h+='<div class="sbox"><span class="sval mono" style="color:var(--acc)">'+betCount+'</span><span class="slbl">bets</span></div>';
@@ -1890,11 +1914,11 @@ function render(){
   if(S.remaining)h+='<span class="mono" style="font-size:9px;color:var(--tf)">API: '+S.remaining+'</span>';
   if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
   h+='<button class="rbtn" onclick="refreshAll()"'+(S.loading||S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.loading||S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh All')+'</button></div>';
-  } // end S.league!=="bets" status bar
+  } // end S.league!=="bets"&&S.league!=="tracker" status bar
 
-  // ── TABS (skip for global bets view) ──
-  if(S.league!=="bets"){
-  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":"Run Line",i:"🏒"},{k:"ou",l:"Over / Under",i:"📊"},{k:"books",l:"Books",i:"📚"}];
+  // ── TABS (skip for global bets/tracker view) ──
+  if(S.league!=="bets"&&S.league!=="tracker"){
+  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":"Run Line",i:isNHL?"🏒":"⚾"},{k:"ou",l:"Over / Under",i:"📊"},{k:"books",l:"Books",i:"📚"}];
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
@@ -1921,18 +1945,18 @@ function render(){
     });
     h+='</div>';
   }
-  } // end S.league!=="bets" tabs+controls
+  } // end S.league!=="bets"&&S.league!=="tracker" tabs+controls
 
   // ── CONTENT ──
   h+='<div class="cnt">';
 
-  if(S.loading&&S.league!=="bets"){
+  if(S.loading&&S.league!=="bets"&&S.league!=="tracker"){
     h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">'+leagueIcon+'</div>';
     h+='<div style="font-size:15px;font-weight:700;color:var(--tm)">Pulling live '+(isNHL?"NHL":"MLB")+' odds + game context...</div>';
     h+='<div style="font-size:12px;margin-top:8px;color:var(--td)">Odds API'+(isNHL?" · NHL Stats · Standings · Schedule":" · MLB Stats · Weather")+'</div></div>';
-  } else if(S.error&&S.league!=="bets"){
+  } else if(S.error&&S.league!=="bets"&&S.league!=="tracker"){
     h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div style="font-size:14px;font-weight:700;color:var(--neg)">Error loading odds</div><div style="font-size:11px;margin-top:6px;color:var(--td);max-width:400px;margin:6px auto;word-break:break-word">'+S.error+'</div><button class="rbtn" style="margin-top:14px;padding:8px 20px;border-color:var(--acc);color:var(--acc)" onclick="refreshAll()">Try Again</button></div>';
-  } else if(!games.length&&S.tab!=="books"&&S.tab!=="bets"){
+  } else if(!games.length&&S.tab!=="books"&&S.tab!=="bets"&&S.tab!=="tracker"){
     h+='<div class="empty"><div class="empty-i">'+leagueIcon+'</div>';
     h+='<div class="empty-t sg">No '+(isNHL?"NHL":"MLB")+' Games Available</div>';
     if(isNHL){
@@ -1970,7 +1994,7 @@ function render(){
     // Collect bets from ALL leagues
     var allBets=[];
     window.allBets=allBets; // expose for tracking buttons
-    var abAll2=PA; // ALL books for calculations
+    var abAll2=ab; // Active books for calculations
     var activeIds={};abAll2.forEach(function(bk){activeIds[bk.id]=true;});
 
     ["nhl","mlb"].forEach(function(sport){
@@ -2138,84 +2162,81 @@ function render(){
         h+='<div><strong>Kelly:</strong> <span class="mono">f = (b×p − q) / b</span> · Scaled so total daily risk ≤ 25% of bankroll.</div>';
         if(kellyScale<1)h+='<div><strong>Today:</strong> Raw Kelly totaled '+totalRawKelly.toFixed(1)+'%, scaled to '+allBets.reduce(function(s,b){return s+b.scaledKelly},0).toFixed(1)+'% across '+allBets.length+' bets.</div>';
         h+='</div></div>';
-
-        // ═══ BET TRACKER — History + P&L ═══
-        var ts=trackerStats();
-        if(trackedBets.length>0){
-          h+='<div style="margin-top:16px">';
-          h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">';
-          h+='<div style="font-size:15px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📈 Bet Tracker</div>';
-          h+='<button onclick="clearTracker()" style="padding:3px 10px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Clear All</button>';
-          h+='</div>';
-
-          // Stats summary
-          h+='<div class="trk-sum">';
-          h+='<div class="trk-stat"><div class="val" style="color:var(--tx)">'+ts.total+'</div><div class="lbl">graded</div></div>';
-          h+='<div class="trk-stat"><div class="val" style="color:var(--acc)">'+ts.wins+'</div><div class="lbl">wins</div></div>';
-          h+='<div class="trk-stat"><div class="val" style="color:var(--neg)">'+ts.losses+'</div><div class="lbl">losses</div></div>';
-          if(ts.pushes>0)h+='<div class="trk-stat"><div class="val" style="color:var(--warn)">'+ts.pushes+'</div><div class="lbl">push</div></div>';
-          if(ts.pending>0)h+='<div class="trk-stat"><div class="val" style="color:var(--ac2)">'+ts.pending+'</div><div class="lbl">pending</div></div>';
-          var profitColor=ts.profit>0?"var(--acc)":ts.profit<0?"var(--neg)":"var(--td)";
-          h+='<div class="trk-stat"><div class="val" style="color:'+profitColor+'">'+(ts.profit>0?"+$":ts.profit<0?"-$":"$")+Math.abs(ts.profit)+'</div><div class="lbl">profit</div></div>';
-          h+='<div class="trk-stat"><div class="val" style="color:'+profitColor+'">'+ts.roi+'%</div><div class="lbl">ROI</div></div>';
-          if(ts.total>0){
-            var winPct=((ts.wins/ts.total)*100).toFixed(0);
-            h+='<div class="trk-stat"><div class="val" style="color:var(--tm)">'+winPct+'%</div><div class="lbl">win rate</div></div>';
-          }
-          h+='</div>';
-
-          // History table
-          h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px">';
-          h+='<tr style="border-bottom:2px solid var(--bd)">';
-          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">DATE</th>';
-          h+='<th style="text-align:center;padding:4px 4px;color:var(--td);font-size:7px"></th>';
-          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BET</th>';
-          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">LINE</th>';
-          h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BOOK</th>';
-          h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">WAGER</th>';
-          h+='<th style="text-align:center;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">RESULT</th>';
-          h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">P&L</th>';
-          h+='</tr>';
-          // Show most recent first
-          var sortedTrack=trackedBets.slice().reverse();
-          sortedTrack.forEach(function(tb,idx){
-            var bg=idx%2===0?"var(--card)":"var(--alt)";
-            var dateStr=tb.time?new Date(tb.time).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"—";
-            h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
-            h+='<td style="padding:4px 6px;color:var(--td)">'+dateStr+'</td>';
-            h+='<td style="padding:4px 4px;font-size:12px">'+tb.icon+'</td>';
-            h+='<td style="padding:4px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+'</div></td>';
-            h+='<td style="padding:4px 6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx)">'+tb.line+'</td>';
-            h+='<td style="padding:4px 6px;color:var(--tm)">'+tb.book+'</td>';
-            h+='<td style="padding:4px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--tm)">$'+tb.amount+'</td>';
-            // Result
-            if(tb.result==null){
-              h+='<td style="padding:4px 6px;text-align:center"><div class="trk-res">';
-              h+='<button class="w" onclick="recordResult(\''+tb.key+'\',\'W\')">W</button>';
-              h+='<button class="l" onclick="recordResult(\''+tb.key+'\',\'L\')">L</button>';
-              h+='<button class="p" onclick="recordResult(\''+tb.key+'\',\'P\')">P</button>';
-              h+='</div></td>';
-            }else{
-              var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
-              h+='<td style="padding:4px 6px;text-align:center;font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</td>';
-            }
-            // P&L
-            if(tb.result!=null){
-              var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
-              h+='<td style="padding:4px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace">'+(tb.payout>0?"+$":"$")+Math.abs(tb.payout).toFixed(0)+'</td>';
-            }else{
-              h+='<td style="padding:4px 6px;text-align:right;color:var(--td)">—</td>';
-            }
-            h+='</tr>';
-          });
-          h+='</table></div>';
-          h+='</div>';
-        }else{
-          h+='<div style="margin-top:14px;text-align:center;padding:16px;background:var(--alt);border:1px solid var(--bdL);border-radius:8px">';
-          h+='<div style="font-size:12px;color:var(--tm)">📈 All EV+ bets are auto-tracked. History will populate once games produce bets. Grade results with the W / L / P buttons above.</div>';
-          h+='</div>';
-        }
       }
+    }
+  }
+
+  // ═══ TRACKER TAB ═══
+  else if(S.tab==="tracker"){
+    h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
+    h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📈 Bet Tracker</div>';
+    h+='<button onclick="clearTracker()" style="padding:3px 10px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Clear All</button>';
+    h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh All')+'</button>';
+    h+='</div>';
+
+    var ts2=trackerStats();
+    if(trackedBets.length>0){
+      // Stats summary
+      h+='<div class="trk-sum">';
+      h+='<div class="trk-stat"><div class="val" style="color:var(--tx)">'+ts2.total+'</div><div class="lbl">graded</div></div>';
+      h+='<div class="trk-stat"><div class="val" style="color:var(--acc)">'+ts2.wins+'</div><div class="lbl">wins</div></div>';
+      h+='<div class="trk-stat"><div class="val" style="color:var(--neg)">'+ts2.losses+'</div><div class="lbl">losses</div></div>';
+      if(ts2.pushes>0)h+='<div class="trk-stat"><div class="val" style="color:var(--warn)">'+ts2.pushes+'</div><div class="lbl">push</div></div>';
+      if(ts2.pending>0)h+='<div class="trk-stat"><div class="val" style="color:var(--ac2)">'+ts2.pending+'</div><div class="lbl">pending</div></div>';
+      var profitColor2=ts2.profit>0?"var(--acc)":ts2.profit<0?"var(--neg)":"var(--td)";
+      h+='<div class="trk-stat"><div class="val" style="color:'+profitColor2+'">'+(ts2.profit>0?"+$":ts2.profit<0?"-$":"$")+Math.abs(ts2.profit)+'</div><div class="lbl">profit</div></div>';
+      h+='<div class="trk-stat"><div class="val" style="color:'+profitColor2+'">'+ts2.roi+'%</div><div class="lbl">ROI</div></div>';
+      if(ts2.total>0){
+        var winPct2=((ts2.wins/ts2.total)*100).toFixed(0);
+        h+='<div class="trk-stat"><div class="val" style="color:var(--tm)">'+winPct2+'%</div><div class="lbl">win rate</div></div>';
+      }
+      h+='</div>';
+
+      // History table
+      h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px">';
+      h+='<tr style="border-bottom:2px solid var(--bd)">';
+      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">DATE</th>';
+      h+='<th style="text-align:center;padding:4px 4px;color:var(--td);font-size:7px"></th>';
+      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BET</th>';
+      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">LINE</th>';
+      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BOOK</th>';
+      h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">WAGER</th>';
+      h+='<th style="text-align:center;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">RESULT</th>';
+      h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">P&L</th>';
+      h+='</tr>';
+      var sortedTrack=trackedBets.slice().reverse();
+      sortedTrack.forEach(function(tb,idx){
+        var bg=idx%2===0?"var(--card)":"var(--alt)";
+        var dateStr=tb.time?new Date(tb.time).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"—";
+        h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
+        h+='<td style="padding:4px 6px;color:var(--td)">'+dateStr+'</td>';
+        h+='<td style="padding:4px 4px;font-size:12px">'+tb.icon+'</td>';
+        h+='<td style="padding:4px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+'</div></td>';
+        h+='<td style="padding:4px 6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx)">'+tb.line+'</td>';
+        h+='<td style="padding:4px 6px;color:var(--tm)">'+tb.book+'</td>';
+        h+='<td style="padding:4px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--tm)">$'+tb.amount+'</td>';
+        if(tb.result==null){
+          h+='<td style="padding:4px 6px;text-align:center"><div class="trk-res">';
+          h+='<button class="w" onclick="recordResult(\''+tb.key+'\',\'W\')">W</button>';
+          h+='<button class="l" onclick="recordResult(\''+tb.key+'\',\'L\')">L</button>';
+          h+='<button class="p" onclick="recordResult(\''+tb.key+'\',\'P\')">P</button>';
+          h+='</div></td>';
+        }else{
+          var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
+          h+='<td style="padding:4px 6px;text-align:center;font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</td>';
+        }
+        if(tb.result!=null){
+          var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
+          h+='<td style="padding:4px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace">'+(tb.payout>0?"+$":"$")+Math.abs(tb.payout).toFixed(0)+'</td>';
+        }else{
+          h+='<td style="padding:4px 6px;text-align:right;color:var(--td)">—</td>';
+        }
+        h+='</tr>';
+      });
+      h+='</table></div>';
+    }else{
+      h+='<div class="empty"><div class="empty-i">📈</div><div class="empty-t sg">No Tracked Bets Yet</div>';
+      h+='<div class="empty-d">All EV+ bets are auto-tracked when they appear on the Bets tab. History will populate once games produce bets. Grade results with the W / L / P buttons.</div></div>';
     }
   }
 
@@ -2229,7 +2250,7 @@ function render(){
     games.forEach(function(g){
       var rawEdge=isNHL?(g.adjEdge||g.topEdge):(g.modelTopEdge||g.topEdge);
       
-      // Calculate best lines from ALL books for edge calculation
+      // Calculate best lines from ACTIVE books for edge calculation
       var actHML=-9999,actAML=-9999,actHBook=null,actABook=null;
       abAll.forEach(function(bk){
         var d=g.bd[bk.id];
@@ -2238,7 +2259,7 @@ function render(){
         if(d.awayML!=null&&d.awayML>actAML){actAML=d.awayML;actABook=bk.id;}
       });
 
-      // Determine edge from ALL books
+      // Determine edge from ACTIVE books
       var useFairH2=(g.modelFairH||g.fairH);
       var useFairA2=(g.modelFairA||g.fairA);
       var betSide=null;
@@ -2260,12 +2281,8 @@ function render(){
       }
 
       // Find best line from ACTIVE (toggled-on) books for the recommendation
-      var dispHML=-9999,dispAML=-9999,dispHBook=null,dispABook=null;
-      ab.forEach(function(bk){
-        var d=g.bd[bk.id];if(!d)return;
-        if(d.homeML!=null&&d.homeML>dispHML){dispHML=d.homeML;dispHBook=bk.id;}
-        if(d.awayML!=null&&d.awayML>dispAML){dispAML=d.awayML;dispABook=bk.id;}
-      });
+      // (Now same as edge calc since abAll = active books)
+      var dispHML=actHML,dispAML=actAML,dispHBook=actHBook,dispABook=actABook;
       // Check if active book line is still +EV
       var betTeam=null,betLine=null,betBook=null,betBookName=null,betEdge=0;
       if(betSide&&displayEdge>3){
