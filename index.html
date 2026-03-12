@@ -2172,7 +2172,10 @@ function render(){
               if(dOdds!=null&&dOdds>bstDS){bstDS=dOdds;bstDBk=bk;}
             });
             if(bstDS>-9999&&bstDBk){
-              allBets.push({sport:sport,icon:icon,type:"RL",player:dogTeam3,market:"Dog +1.5",line:fml(bstDS),book:bstDBk.n,edge:edge3,kelly:Math.max(0,+((0.65*(bstDS>0?bstDS/100:100/(-bstDS))-0.35)/(bstDS>0?bstDS/100:100/(-bstDS))*50).toFixed(2)),fairProb:65.0,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
+              var rlB=bstDS>0?bstDS/100:100/(-bstDS); // net decimal odds
+              var rlP=0.65; // backtest cover rate
+              var rlKf=(rlB*rlP-(1-rlP))/rlB; // f* = (bp - q) / b
+              allBets.push({sport:sport,icon:icon,type:"RL",player:dogTeam3,market:"Dog +1.5",line:fml(bstDS),book:bstDBk.n,edge:edge3,kelly:Math.max(0,+(rlKf*100).toFixed(2)),fairProb:65.0,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
             }
           }
         }
