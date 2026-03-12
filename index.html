@@ -116,16 +116,18 @@ var API_KEY="d50d14349370ac528fa64a3c66b11255";
 var ODDS_BASE="https://api.the-odds-api.com/v4/sports";
 var MLB_BASE="https://statsapi.mlb.com/api/v1";
 var NHL_BASE="https://api-web.nhle.com/v1";
+// ═══ CORS PROXY CONFIG ═══
+// Set your Cloudflare Worker URL here after deploying:
+var CF_WORKER="https://diamond-edge-proxy.wyatt-whitney.workers.dev/?url=";
+// Free proxy fallbacks (unreliable but work as backup)
 var CORS_PROXY="https://corsproxy.io/?";
 var CORS_PROXIES=[
   "https://corsproxy.io/?",
   "https://api.allorigins.win/raw?url=",
-  "https://api.codetabs.com/v1/proxy?quest=",
-  "https://corsproxy.org/?url=",
-  "https://thingproxy.freeboard.io/fetch/"
+  "https://api.codetabs.com/v1/proxy?quest="
 ];
 
-// CORS-safe fetch with multi-proxy fallback + content validation + retry
+// CORS-safe fetch — uses Cloudflare Worker if configured, else free proxies
 async function corsProxyFetch(url,opts){
   // Skip direct fetch for domains known to block cross-origin
   var knownCORS=["moneypuck.com","api-web.nhle.com","nhle.com"];
@@ -138,39 +140,52 @@ async function corsProxyFetch(url,opts){
       if(r.ok)return r;
     }catch(e){}
   }
-  // Determine expected content type
+
+  // Content validation helper
   var expectCSV=url.indexOf(".csv")>=0;
   var expectJSON=url.indexOf("nhle.com")>=0||url.indexOf("api-web")>=0;
-
-  // Helper to validate response isn't an HTML error page
-  async function validateProxy(resp,proxyIdx){
-    if(!resp.ok)return null;
-    if(expectCSV||expectJSON){
-      var cloned=resp.clone();
-      var peek=await cloned.text();
-      var trimmed=peek.trim();
-      if(trimmed.substring(0,15).toLowerCase().indexOf("<!doctype")>=0||trimmed.substring(0,5)==="<html"||trimmed.substring(0,1)==="<"){
-        console.log("[DE] CORS proxy "+proxyIdx+" returned HTML instead of data, skipping");
-        return null;
-      }
-      return new Response(peek,{status:200,headers:{"Content-Type":expectCSV?"text/csv":"application/json"}});
+  async function isHTMLResponse(resp){
+    var cloned=resp.clone();
+    var peek=await cloned.text();
+    var t=peek.trim();
+    if(t.substring(0,15).toLowerCase().indexOf("<!doctype")>=0||t.substring(0,5)==="<html"||(!expectJSON&&t.substring(0,1)==="<")){
+      return{isHTML:true,text:peek};
     }
-    return resp;
+    return{isHTML:false,text:peek};
   }
 
-  // Try each proxy — up to 2 rounds (retry after brief delay)
+  // 1. Try Cloudflare Worker first (most reliable)
+  if(CF_WORKER){
+    try{
+      var wUrl=CF_WORKER+encodeURIComponent(url);
+      var wr=await fetch(wUrl,opts||{});
+      if(wr.ok){
+        var check=await isHTMLResponse(wr);
+        if(!check.isHTML){
+          console.log("[DE] CF Worker succeeded for "+url.substring(0,80));
+          return new Response(check.text,{status:200,headers:{"Content-Type":expectCSV?"text/csv":"application/json"}});
+        }
+      }
+    }catch(e){console.log("[DE] CF Worker failed:",e.message);}
+  }
+
+  // 2. Free proxy fallbacks with retry
   for(var round=0;round<2;round++){
-    if(round>0)await new Promise(function(r){setTimeout(r,1500);}); // delay before retry
+    if(round>0)await new Promise(function(r){setTimeout(r,1500);});
     for(var i=0;i<CORS_PROXIES.length;i++){
       try{
         var pUrl=CORS_PROXIES[i]+encodeURIComponent(url);
         var ac2=new AbortController();var tm2=setTimeout(function(){ac2.abort()},8000);
         var r2=await fetch(pUrl,Object.assign({signal:ac2.signal},opts||{}));
         clearTimeout(tm2);
-        var validated=await validateProxy(r2,i);
-        if(validated){
-          console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80)+(round>0?" (retry)":""));
-          return validated;
+        if(r2.ok){
+          var check2=await isHTMLResponse(r2);
+          if(!check2.isHTML){
+            console.log("[DE] CORS proxy "+i+" succeeded for "+url.substring(0,80)+(round>0?" (retry)":""));
+            return new Response(check2.text,{status:200,headers:{"Content-Type":expectCSV?"text/csv":"application/json"}});
+          }else{
+            console.log("[DE] CORS proxy "+i+" returned HTML instead of data, skipping");
+          }
         }
       }catch(e){
         if(round===0)console.log("[DE] CORS proxy "+i+" failed: "+e.message);
