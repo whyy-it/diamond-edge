@@ -363,6 +363,120 @@ function trackerStats(){
     wagered:totalWagered,payout:totalPayout,profit:+(totalPayout).toFixed(2),roi:roi,units:units};
 }
 
+// ═══════════════════════════════════════════════════════════
+// AUTO-RESOLVE — fetch final scores and grade pending bets
+// ═══════════════════════════════════════════════════════════
+var resolveStatus={running:false,lastRun:null,resolved:0,errors:[]};
+
+function localDateStr(d){
+  var dt=new Date(d);
+  return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+}
+
+async function autoResolveTracked(){
+  var pending=trackedBets.filter(function(b){return b.result==null&&b.time});
+  if(!pending.length){resolveStatus.lastRun=new Date();return;}
+  resolveStatus.running=true;resolveStatus.errors=[];render();
+
+  // Collect unique local dates from pending bets (+ 1 day before to catch late games)
+  var dateSet={};
+  pending.forEach(function(b){
+    var ds2=localDateStr(b.time);
+    dateSet[ds2]=true;
+  });
+  var datesToFetch=Object.keys(dateSet);
+
+  // Build scores map: "Away Team @ Home Team_YYYY-MM-DD" → {homeScore, awayScore, final}
+  var scores={};
+
+  // ── Fetch MLB scores ──
+  for(var di=0;di<datesToFetch.length;di++){
+    var dateStr=datesToFetch[di];
+    try{
+      var url=MLB_BASE+"/schedule?sportId=1&date="+dateStr+"&gameType=R&hydrate=linescore";
+      var r=await fetch(url);if(!r.ok)continue;
+      var d=await r.json();
+      (d.dates||[]).forEach(function(dt){(dt.games||[]).forEach(function(g){
+        if(!g.status||g.status.statusCode!=="F")return;
+        var hn=g.teams&&g.teams.home&&g.teams.home.team?g.teams.home.team.name:"";
+        var an=g.teams&&g.teams.away&&g.teams.away.team?g.teams.away.team.name:"";
+        var ls=g.linescore||{};
+        var hR=(ls.teams&&ls.teams.home)?ls.teams.home.runs||0:0;
+        var aR=(ls.teams&&ls.teams.away)?ls.teams.away.runs||0:0;
+        if(hn&&an)scores[an+" @ "+hn+"_"+dateStr]={home:hn,away:an,homeScore:hR,awayScore:aR};
+      });});
+    }catch(e){resolveStatus.errors.push("MLB "+dateStr+": "+e.message);}
+  }
+
+  // ── Fetch NHL scores ──
+  for(var di2=0;di2<datesToFetch.length;di2++){
+    var dateStr2=datesToFetch[di2];
+    try{
+      var nd=await fetchNHL("/score/"+dateStr2);
+      (nd.games||[]).forEach(function(g){
+        var gs=g.gameState||"";
+        if(gs!=="OFF"&&gs!=="FINAL")return;
+        var ht=g.homeTeam||{};var at=g.awayTeam||{};
+        var hAbbr=ht.abbrev||"";var aAbbr=at.abbrev||"";
+        // Reverse NHL_ABBREVS: abbrev → full Odds API name
+        var hName=null,aName=null;
+        Object.keys(NHL_ABBREVS).forEach(function(k){
+          if(NHL_ABBREVS[k]===hAbbr&&!hName)hName=k;
+          if(NHL_ABBREVS[k]===aAbbr&&!aName)aName=k;
+        });
+        if(hName&&aName){
+          scores[aName+" @ "+hName+"_"+dateStr2]={home:hName,away:aName,homeScore:ht.score||0,awayScore:at.score||0};
+        }
+      });
+    }catch(e){resolveStatus.errors.push("NHL "+dateStr2+": "+e.message);}
+  }
+
+  // ── Resolve pending bets ──
+  var resolved=0;
+  pending.forEach(function(tb){
+    var dateStr3=localDateStr(tb.time);
+    var sc=scores[tb.matchup+"_"+dateStr3];
+    if(!sc)return;
+
+    // Determine if bet team is home or away
+    var parts=tb.matchup.split(" @ ");
+    if(parts.length!==2)return;
+    var awayTeam=parts[0],homeTeam=parts[1];
+    var isHome=(tb.player===homeTeam);
+    var margin=sc.homeScore-sc.awayScore; // positive = home won
+
+    var result=null;
+    if(tb.type==="ML"||tb.market==="Moneyline"){
+      var teamWon=isHome?(margin>0):(margin<0);
+      result=teamWon?"W":"L";
+    }else if(tb.type==="RL"||tb.market==="Dog +1.5"){
+      // Dog +1.5: covers if dog wins OR loses by exactly 1
+      var covers=isHome?(margin>=-1):(margin<=1);
+      result=covers?"W":"L";
+    }
+
+    if(result){
+      tb.result=result;
+      tb.resolvedBy="auto";
+      tb.gameScore=sc.homeScore+"-"+sc.awayScore;
+      // Calculate payout
+      var ml=parseInt((tb.line||"").replace("+",""))||0;
+      if(result==="W"){
+        if(ml>0)tb.payout=+(tb.amount*(ml/100)).toFixed(2);
+        else if(ml<0)tb.payout=+(tb.amount*(100/(-ml))).toFixed(2);
+        else tb.payout=0;
+      }else{
+        tb.payout=-tb.amount;
+      }
+      resolved++;
+    }
+  });
+
+  if(resolved>0)saveTracker(trackedBets);
+  resolveStatus.running=false;resolveStatus.lastRun=new Date();resolveStatus.resolved=resolved;
+  render();
+}
+
 function ml2p(ml){return ml<0?-ml/(-ml+100):100/(ml+100)}
 function p2ml(p){if(p==null||p<=0||p>=100)return null;var d=p/100;return d>=0.5?Math.round(-d/(1-d)*100):Math.round((1-d)/d*100)}
 function fml(ml){return ml==null?"—":ml>0?"+"+ml:""+ml}
@@ -1783,6 +1897,9 @@ async function refreshAll(){
   // Load both sports in parallel
   await Promise.allSettled([loadMLB(),loadNHL()]);
 
+  // Auto-resolve any pending tracked bets from completed games
+  await autoResolveTracked();
+
   render();
 }
 
@@ -2185,13 +2302,20 @@ function render(){
   else if(S.tab==="tracker"){
     h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
     h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📈 Bet Tracker</div>';
-    h+='<button onclick="clearTracker()" style="padding:3px 10px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Clear All</button>';
-    h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh All')+'</button>';
+    h+='<button onclick="autoResolveTracked()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid var(--acc);background:rgba(0,255,163,.08);color:var(--acc);cursor:pointer"'+(resolveStatus.running?" disabled":"")+'>🔄 '+(resolveStatus.running?"Resolving...":"Auto-Resolve")+'</button>';
+    h+='<button onclick="clearTracker()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Clear All</button>';
+    if(resolveStatus.lastRun){
+      var rAge=Math.round((new Date()-resolveStatus.lastRun)/1000);
+      h+='<span style="font-size:9px;color:var(--td)">Last resolved: '+rAge+'s ago'+(resolveStatus.resolved>0?" · "+resolveStatus.resolved+" graded":"")+'</span>';
+    }
+    if(resolveStatus.errors.length>0){
+      h+='<span style="font-size:9px;color:var(--warn)">⚠ '+resolveStatus.errors.length+' fetch errors</span>';
+    }
     h+='</div>';
 
     var ts2=trackerStats();
     if(trackedBets.length>0){
-      // Stats summary
+      // Overall stats summary
       h+='<div class="trk-sum">';
       h+='<div class="trk-stat"><div class="val" style="color:var(--tx)">'+ts2.total+'</div><div class="lbl">graded</div></div>';
       h+='<div class="trk-stat"><div class="val" style="color:var(--acc)">'+ts2.wins+'</div><div class="lbl">wins</div></div>';
@@ -2207,51 +2331,83 @@ function render(){
       }
       h+='</div>';
 
-      // History table
-      h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px">';
-      h+='<tr style="border-bottom:2px solid var(--bd)">';
-      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">DATE</th>';
-      h+='<th style="text-align:center;padding:4px 4px;color:var(--td);font-size:7px"></th>';
-      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BET</th>';
-      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">LINE</th>';
-      h+='<th style="text-align:left;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">BOOK</th>';
-      h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">WAGER</th>';
-      h+='<th style="text-align:center;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">RESULT</th>';
-      h+='<th style="text-align:right;padding:4px 6px;color:var(--td);font-size:7px;letter-spacing:1px">P&L</th>';
-      h+='</tr>';
-      var sortedTrack=trackedBets.slice().reverse();
-      sortedTrack.forEach(function(tb,idx){
-        var bg=idx%2===0?"var(--card)":"var(--alt)";
-        var dateStr=tb.time?new Date(tb.time).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"—";
-        h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
-        h+='<td style="padding:4px 6px;color:var(--td)">'+dateStr+'</td>';
-        h+='<td style="padding:4px 4px;font-size:12px">'+tb.icon+'</td>';
-        h+='<td style="padding:4px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+'</div></td>';
-        h+='<td style="padding:4px 6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx)">'+tb.line+'</td>';
-        h+='<td style="padding:4px 6px;color:var(--tm)">'+tb.book+'</td>';
-        h+='<td style="padding:4px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--tm)">$'+tb.amount+'</td>';
-        if(tb.result==null){
-          h+='<td style="padding:4px 6px;text-align:center"><div class="trk-res">';
-          h+='<button class="w" onclick="recordResult(\''+tb.key+'\',\'W\')">W</button>';
-          h+='<button class="l" onclick="recordResult(\''+tb.key+'\',\'L\')">L</button>';
-          h+='<button class="p" onclick="recordResult(\''+tb.key+'\',\'P\')">P</button>';
-          h+='</div></td>';
-        }else{
-          var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
-          h+='<td style="padding:4px 6px;text-align:center;font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</td>';
-        }
-        if(tb.result!=null){
-          var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
-          h+='<td style="padding:4px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace">'+(tb.payout>0?"+$":"$")+Math.abs(tb.payout).toFixed(0)+'</td>';
-        }else{
-          h+='<td style="padding:4px 6px;text-align:right;color:var(--td)">—</td>';
-        }
-        h+='</tr>';
+      // ── Group bets by local date ──
+      var dateGroups={};
+      trackedBets.forEach(function(tb){
+        var dk=tb.time?localDateStr(tb.time):"unknown";
+        if(!dateGroups[dk])dateGroups[dk]={date:dk,bets:[],wins:0,losses:0,pushes:0,pending:0,pnl:0,wagered:0};
+        dateGroups[dk].bets.push(tb);
+        if(tb.result==="W"){dateGroups[dk].wins++;dateGroups[dk].pnl+=tb.payout;dateGroups[dk].wagered+=tb.amount;}
+        else if(tb.result==="L"){dateGroups[dk].losses++;dateGroups[dk].pnl+=tb.payout;dateGroups[dk].wagered+=tb.amount;}
+        else if(tb.result==="P"){dateGroups[dk].pushes++;dateGroups[dk].wagered+=tb.amount;}
+        else{dateGroups[dk].pending++;}
       });
-      h+='</table></div>';
+      // Sort dates newest first
+      var sortedDates=Object.keys(dateGroups).sort(function(a,b){return b.localeCompare(a)});
+
+      sortedDates.forEach(function(dk){
+        var grp=dateGroups[dk];
+        var dt=dk!=="unknown"?new Date(dk+"T12:00:00"):null;
+        var dateLabel=dt?dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"}):"Unknown Date";
+        var grpTotal=grp.wins+grp.losses+grp.pushes;
+        var grpPnlC=grp.pnl>0?"var(--acc)":grp.pnl<0?"var(--neg)":"var(--td)";
+        var grpRoi=grp.wagered>0?((grp.pnl/grp.wagered)*100).toFixed(1):"0";
+
+        // Date header
+        h+='<div style="margin-top:14px;padding:8px 14px;background:var(--head);border:1px solid var(--bd);border-radius:8px 8px 0 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap">';
+        h+='<div style="font-size:13px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">'+dateLabel+'</div>';
+        h+='<div style="font-size:10px;color:var(--tm)">'+grp.bets.length+' bet'+(grp.bets.length!==1?"s":"")+'</div>';
+        if(grpTotal>0){
+          h+='<div style="font-size:10px;font-weight:700;color:var(--tm)">'+grp.wins+'W-'+grp.losses+'L'+(grp.pushes>0?"-"+grp.pushes+"P":"")+'</div>';
+          h+='<div style="font-size:11px;font-weight:800;color:'+grpPnlC+';font-family:\'JetBrains Mono\',monospace">'+(grp.pnl>0?"+$":"$")+Math.abs(grp.pnl).toFixed(0)+'</div>';
+          h+='<div style="font-size:9px;color:'+grpPnlC+';font-family:\'JetBrains Mono\',monospace">'+grpRoi+'%</div>';
+        }
+        if(grp.pending>0){
+          h+='<div style="font-size:9px;color:var(--ac2);font-weight:600">'+grp.pending+' pending</div>';
+        }
+        h+='</div>';
+
+        // Bets table for this date
+        h+='<div style="overflow-x:auto;border:1px solid var(--bd);border-top:none;border-radius:0 0 8px 8px;margin-bottom:4px"><table style="width:100%;border-collapse:collapse;font-size:10px">';
+        grp.bets.forEach(function(tb,idx){
+          var bg=idx%2===0?"var(--card)":"var(--alt)";
+          var timeStr=tb.time?new Date(tb.time).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}):"";
+          h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
+          h+='<td style="padding:5px 6px;font-size:12px;width:20px;text-align:center">'+tb.icon+'</td>';
+          h+='<td style="padding:5px 6px;font-size:9px;color:var(--td);white-space:nowrap;width:60px">'+timeStr+'</td>';
+          h+='<td style="padding:5px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+(tb.matchup?" · "+tb.matchup:"")+'</div></td>';
+          h+='<td style="padding:5px 6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx);width:55px">'+tb.line+'</td>';
+          h+='<td style="padding:5px 6px;color:var(--tm);font-size:9px;width:70px">'+tb.book+'</td>';
+          h+='<td style="padding:5px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--tm);width:50px">$'+tb.amount+'</td>';
+          // Result + Score
+          if(tb.result==null){
+            h+='<td style="padding:5px 6px;text-align:center;width:80px"><div class="trk-res">';
+            h+='<button class="w" onclick="recordResult(\''+tb.key+'\',\'W\')">W</button>';
+            h+='<button class="l" onclick="recordResult(\''+tb.key+'\',\'L\')">L</button>';
+            h+='<button class="p" onclick="recordResult(\''+tb.key+'\',\'P\')">P</button>';
+            h+='</div></td>';
+          }else{
+            var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
+            h+='<td style="padding:5px 6px;text-align:center;width:80px">';
+            h+='<span style="font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</span>';
+            if(tb.gameScore)h+='<span style="font-size:8px;color:var(--td);margin-left:4px">('+tb.gameScore+')</span>';
+            if(tb.resolvedBy==="auto")h+='<div style="font-size:7px;color:var(--td)">auto</div>';
+            h+='</td>';
+          }
+          // P&L
+          if(tb.result!=null){
+            var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
+            h+='<td style="padding:5px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace;width:60px">'+(tb.payout>0?"+$":"−$")+Math.abs(tb.payout).toFixed(0)+'</td>';
+          }else{
+            h+='<td style="padding:5px 6px;text-align:right;color:var(--td);width:60px">—</td>';
+          }
+          h+='</tr>';
+        });
+        h+='</table></div>';
+      });
     }else{
       h+='<div class="empty"><div class="empty-i">📈</div><div class="empty-t sg">No Tracked Bets Yet</div>';
-      h+='<div class="empty-d">All EV+ bets are auto-tracked when they appear on the Bets tab. History will populate once games produce bets. Grade results with the W / L / P buttons.</div></div>';
+      h+='<div class="empty-d">All EV+ bets are auto-tracked when they appear on the Bets tab. Once games finish, click Auto-Resolve to fetch scores and grade results automatically.</div></div>';
     }
   }
 
