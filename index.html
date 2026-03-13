@@ -1080,66 +1080,88 @@ async function fetchNBAOdds(){
 }
 
 async function fetchNBAStandings(){
-  // Fetch NBA standings from NBA CDN (CORS-friendly)
+  // Primary: ESPN public API (no auth, reliable, CORS-friendly)
   var standings={};
   try{
-    var url="https://cdn.nba.com/static/json/liveData/standings/standings.json";
+    var url="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/standings";
     var r=await corsProxyFetch(url);
-    if(!r||!r.ok){console.log("[DE] NBA standings fetch failed");return standings;}
+    if(!r||!r.ok){console.log("[DE] NBA ESPN standings failed, status:",r?r.status:"null");throw new Error("ESPN failed");}
     var data=JSON.parse(await r.text());
-    var teams=(data.standings||data.league&&data.league.standings||{}).entries||data.standings||[];
-    // Handle different response formats
-    if(data.league&&data.league.standard&&data.league.standard.teams){
-      teams=data.league.standard.teams;
-    }
-    // Modern CDN format
-    if(Array.isArray(teams)){
-      teams.forEach(function(t){
-        var tn2=t.teamCity+" "+t.teamName;
-        var gp=(t.wins||0)+(t.losses||0);
+    // ESPN format: {children: [{standings: {entries: [...]}}]}
+    var groups=data.children||[];
+    groups.forEach(function(conf){
+      var entries=(conf.standings||{}).entries||[];
+      entries.forEach(function(e){
+        var team=e.team||{};
+        var tn2=team.displayName||team.name||"";
+        if(!tn2)return;
+        // Parse stats from the stats array
+        var statMap={};
+        (e.stats||[]).forEach(function(s){statMap[s.name||s.abbreviation||""]=parseFloat(s.value)||0;});
+        var wins=statMap.wins||0;var losses=statMap.losses||0;
+        var gp=wins+losses;
         standings[tn2]={
-          wins:t.wins||0,losses:t.losses||0,gp:gp,
-          ptsFor:t.pointsFor||0,ptsAgainst:t.pointsAgainst||0,
-          l10w:t.l10Wins||0,l10l:t.l10Losses||0,
-          streak:t.streak||0,streakType:t.isWinStreak?"W":"L",
-          confRank:t.conferenceRank||0,
-          offRtg:t.offRtg||0,defRtg:t.defRtg||0,netRtg:t.netRtg||0,
-          home:(t.homeWins||0)+"-"+(t.homeLosses||0),
-          away:(t.awayWins||0)+"-"+(t.awayLosses||0),
+          wins:wins,losses:losses,gp:gp,
+          ptsFor:statMap.pointsFor||statMap.avgPointsFor*gp||0,
+          ptsAgainst:statMap.pointsAgainst||statMap.avgPointsAgainst*gp||0,
+          l10w:0,l10l:0, // ESPN doesn't give L10 directly
+          streak:statMap.streak||0,
+          streakType:(e.note||"").indexOf("Won")>=0?"W":"L",
+          confRank:statMap.playoffSeed||0,
+          offRtg:0,defRtg:0,netRtg:0,
+          home:Math.round(statMap.homeWins||0)+"-"+Math.round(statMap.homeLosses||0),
+          away:Math.round(statMap.awayWins||0)+"-"+Math.round(statMap.awayLosses||0),
         };
       });
-    }
-    console.log("[DE] NBA standings loaded: "+Object.keys(standings).length+" teams");
-  }catch(e){console.log("[DE] NBA standings error:",e);}
+    });
+    console.log("[DE] NBA standings loaded (ESPN): "+Object.keys(standings).length+" teams");
+  }catch(e){
+    console.log("[DE] NBA ESPN standings error:",e.message);
+    // Fallback: NBA CDN
+    try{
+      var url2="https://cdn.nba.com/static/json/liveData/standings/standings.json";
+      var r2=await corsProxyFetch(url2);
+      if(r2&&r2.ok){
+        var d2=JSON.parse(await r2.text());
+        var teams=d2.standings||[];
+        if(Array.isArray(teams)){
+          teams.forEach(function(t){
+            var tn3=(t.teamCity||"")+" "+(t.teamName||"");
+            standings[tn3.trim()]={
+              wins:t.wins||0,losses:t.losses||0,gp:(t.wins||0)+(t.losses||0),
+              ptsFor:0,ptsAgainst:0,l10w:t.l10Wins||0,l10l:t.l10Losses||0,
+              streak:t.streak||0,streakType:t.isWinStreak?"W":"L",
+            };
+          });
+          console.log("[DE] NBA standings loaded (CDN fallback): "+Object.keys(standings).length+" teams");
+        }
+      }
+    }catch(e2){console.log("[DE] NBA CDN standings also failed:",e2.message);}
+  }
   return standings;
 }
 
 async function fetchNBAFatigue(){
-  // Check NBA schedule for B2B and rest by fetching scoreboard for last 3 days
+  // Use ESPN scoreboard for today + recent days to detect B2B/rest
   var fatigue={};var teamDays={};
   for(var i=0;i<=3;i++){
     var d=new Date();d.setDate(d.getDate()-i);
-    var dateStr=d.toISOString().slice(0,10);
+    var dateStr=d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
     try{
-      var url="https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json";
-      // For past days, use the schedule endpoint
-      if(i>0){
-        url="https://stats.nba.com/stats/scoreboardv3?GameDate="+dateStr+"&LeagueID=00";
-      }
-      var r=i===0?await corsProxyFetch(url):null;
-      if(!r||!r.ok){
-        // Fallback: use simple date-based REST estimation from standings
-        continue;
-      }
+      var url="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates="+dateStr;
+      var r=await corsProxyFetch(url);
+      if(!r||!r.ok)continue;
       var data=JSON.parse(await r.text());
-      var games=data.scoreboard?data.scoreboard.games:data.games||[];
-      games.forEach(function(g){
-        var ht=g.homeTeam?g.homeTeam.teamCity+" "+g.homeTeam.teamName:g.home_team||"";
-        var at=g.awayTeam?g.awayTeam.teamCity+" "+g.awayTeam.teamName:g.away_team||"";
-        [ht,at].forEach(function(t){
-          if(!t)return;
-          if(!teamDays[t])teamDays[t]=[];
-          teamDays[t].push(i);
+      var events=data.events||[];
+      events.forEach(function(ev){
+        var comps=ev.competitions||[];
+        comps.forEach(function(c){
+          (c.competitors||[]).forEach(function(team){
+            var tn2=team.team?team.team.displayName||team.team.name:"";
+            if(!tn2)return;
+            if(!teamDays[tn2])teamDays[tn2]=[];
+            teamDays[tn2].push(i);
+          });
         });
       });
     }catch(e){}
@@ -1335,6 +1357,9 @@ function computeNBAv1Features(g){
 
 function enrichNBAGames(games){
   var standings=S.nba.standings||{};var fatigue=S.nba.fatigue||{};var injuries=S.nba.injuries||{};
+  // Safety: check if standings actually loaded (any team with wins > 0)
+  var standingsLoaded=Object.values(standings).some(function(s){return(s.wins||0)>0;});
+  if(!standingsLoaded)console.log("[DE] WARNING: NBA standings empty — model predictions will use baselines only");
   return games.map(function(g){
     var hAbbr=NBA_ABBREVS[g.home]||"";var aAbbr=NBA_ABBREVS[g.away]||"";
     var hS=standings[g.home]||{};var aS=standings[g.away]||{};
@@ -1375,6 +1400,12 @@ function enrichNBAGames(games){
     g.modelTopEdge=Math.max(g.modelHEdge,g.modelAEdge);
     g.modelBetSide=g.modelTopEdge>5?(g.modelHEdge>=g.modelAEdge?"HOME":"AWAY"):null;
 
+    // Safety: suppress bets if standings didn't load (baselines alone produce garbage edges)
+    if(!standingsLoaded){
+      g.modelTopEdge=0;g.modelHEdge=0;g.modelAEdge=0;g.modelBetSide=null;
+      g.standingsWarning=true;
+    }
+
     // ═══ SIGNALS ═══
     var signals=[];
     // Injury signals (display context)
@@ -1399,6 +1430,7 @@ function enrichNBAGames(games){
     if(!g.homeB2B&&!g.awayB2B&&Math.abs(g.restDiff)>=2){
       signals.push({icon:"💤",text:(g.restDiff>0?g.home:g.away)+" rest advantage",type:g.restDiff>0?"boost":"fade"});}
     if(g.tzDiff>=2&&(g.awayRest||3)<=1)signals.push({icon:"✈️",text:g.away+" crossed "+g.tzDiff+" TZ on short rest",type:"boost"});
+    if(g.standingsWarning)signals.push({icon:"⚠️",text:"Standings not loaded — edges suppressed, predictions unreliable",type:"neutral"});
     if(!signals.length)signals.push({icon:"🏀",text:"No strong signals",type:"neutral"});
     g.signals=signals;
 
