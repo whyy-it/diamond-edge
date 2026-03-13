@@ -1082,86 +1082,155 @@ async function fetchNBAOdds(){
 }
 
 async function fetchNBAStandings(){
-  // ESPN public API supports CORS — try direct first, then proxy
   var standings={};
   
   async function tryFetch(url){
-    // 1. Direct fetch (ESPN allows CORS)
-    try{
-      var ac=new AbortController();var tm=setTimeout(function(){ac.abort()},6000);
-      var r=await fetch(url,{signal:ac.signal});
-      clearTimeout(tm);
-      if(r.ok)return r;
-    }catch(e){console.log("[DE] NBA direct fetch failed:",e.message);}
-    // 2. Cloudflare worker
-    if(CF_WORKER){
-      try{
-        var r2=await fetch(CF_WORKER+encodeURIComponent(url));
-        if(r2.ok)return r2;
-      }catch(e2){}
-    }
-    // 3. CORS proxy fallback
+    try{var ac=new AbortController();var tm=setTimeout(function(){ac.abort()},6000);var r=await fetch(url,{signal:ac.signal});clearTimeout(tm);if(r.ok)return r;}catch(e){}
+    if(CF_WORKER){try{var r2=await fetch(CF_WORKER+encodeURIComponent(url));if(r2.ok)return r2;}catch(e2){}}
     try{return await corsProxyFetch(url);}catch(e3){}
     return null;
   }
-  
+
+  // ── Attempt 1: ESPN standings ──
   try{
     var url="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/standings";
     var r=await tryFetch(url);
-    if(!r||!r.ok){console.log("[DE] NBA ESPN standings all attempts failed");throw new Error("ESPN failed");}
+    if(!r||!r.ok)throw new Error("fetch failed");
     var text=await r.text();
-    var data;
-    try{data=JSON.parse(text);}catch(pe){console.log("[DE] NBA standings parse error, got:",text.substring(0,200));throw pe;}
-    // ESPN format: {children: [{standings: {entries: [...]}}]}
-    var groups=data.children||[];
-    groups.forEach(function(conf){
-      var entries=(conf.standings||{}).entries||[];
-      entries.forEach(function(e){
-        var team=e.team||{};
-        var tn2=team.displayName||team.name||"";
-        if(!tn2)return;
-        var statMap={};
-        (e.stats||[]).forEach(function(s){statMap[s.name||s.abbreviation||""]=parseFloat(s.value)||0;});
-        var wins=statMap.wins||0;var losses=statMap.losses||0;
-        var gp=wins+losses;
-        standings[tn2]={
-          wins:wins,losses:losses,gp:gp,
-          ptsFor:statMap.pointsFor||statMap.avgPointsFor*gp||0,
-          ptsAgainst:statMap.pointsAgainst||statMap.avgPointsAgainst*gp||0,
-          l10w:0,l10l:0,
-          streak:statMap.streak||0,
-          streakType:(e.note||"").indexOf("Won")>=0?"W":"L",
-          confRank:statMap.playoffSeed||0,
-          offRtg:0,defRtg:0,netRtg:0,
-          home:Math.round(statMap.homeWins||0)+"-"+Math.round(statMap.homeLosses||0),
-          away:Math.round(statMap.awayWins||0)+"-"+Math.round(statMap.awayLosses||0),
-        };
+    var data=JSON.parse(text);
+    // Log structure for debugging
+    console.log("[DE] ESPN standings keys:",Object.keys(data).join(", "));
+    
+    // Try multiple known ESPN response formats
+    var entries=[];
+    // Format 1: {children: [{standings: {entries: [...]}}]}
+    if(data.children&&data.children.length>0){
+      data.children.forEach(function(c){
+        (c.standings&&c.standings.entries||[]).forEach(function(e){entries.push(e);});
       });
+    }
+    // Format 2: {standings: {entries: [...]}}
+    if(!entries.length&&data.standings&&data.standings.entries){
+      entries=data.standings.entries;
+    }
+    // Format 3: {groups: [{standings: ...}]}
+    if(!entries.length&&data.groups){
+      (data.groups||[]).forEach(function(g){
+        (g.standings&&g.standings.entries||[]).forEach(function(e){entries.push(e);});
+      });
+    }
+    console.log("[DE] ESPN standings entries found:",entries.length);
+    if(entries.length>0){
+      // Log first entry structure
+      var e0=entries[0];
+      console.log("[DE] ESPN first entry keys:",Object.keys(e0).join(", "));
+      if(e0.stats&&e0.stats.length>0)console.log("[DE] ESPN stat names:",e0.stats.slice(0,8).map(function(s){return s.name||s.abbreviation||s.type||"?"}).join(", "));
+    }
+    
+    entries.forEach(function(e){
+      var team=e.team||{};
+      var tn2=team.displayName||team.name||team.shortDisplayName||"";
+      if(!tn2)return;
+      // Build stat map — try name, abbreviation, displayName, type
+      var statMap={};
+      (e.stats||[]).forEach(function(s){
+        var key=s.name||s.abbreviation||s.type||"";
+        var key2=(s.displayName||"").toLowerCase();
+        var val=parseFloat(s.displayValue||s.value)||0;
+        if(key)statMap[key]=val;
+        if(key2)statMap[key2]=val;
+        // Also map common variations
+        if(key==="wins"||key2==="wins"||key==="W")statMap["wins"]=val;
+        if(key==="losses"||key2==="losses"||key==="L")statMap["losses"]=val;
+        if(key==="OTLosses"||key==="otLosses")statMap["otl"]=val;
+        if(key==="avgPointsFor"||key2==="points for")statMap["avgPF"]=val;
+        if(key==="avgPointsAgainst"||key2==="points against")statMap["avgPA"]=val;
+        if(key==="playoffSeed")statMap["seed"]=val;
+        if(key==="streak")statMap["streak"]=val;
+      });
+      var wins=statMap["wins"]||statMap["W"]||statMap["gamesWon"]||0;
+      var losses=statMap["losses"]||statMap["L"]||statMap["gamesLost"]||0;
+      var gp=wins+losses;
+      if(gp===0)return;// skip teams with no data
+      standings[tn2]={
+        wins:wins,losses:losses,gp:gp,
+        ptsFor:(statMap["avgPF"]||statMap["pointsFor"]||0)*gp,
+        ptsAgainst:(statMap["avgPA"]||statMap["pointsAgainst"]||0)*gp,
+        l10w:0,l10l:0,
+        streak:statMap["streak"]||0,streakType:"",
+        confRank:statMap["seed"]||statMap["playoffSeed"]||0,
+        offRtg:0,defRtg:0,netRtg:0,
+      };
     });
     console.log("[DE] NBA standings loaded (ESPN): "+Object.keys(standings).length+" teams");
   }catch(e){
-    console.log("[DE] NBA ESPN standings error:",e.message);
-    // Fallback: NBA stats API via proxy
+    console.log("[DE] ESPN standings error:",e.message);
+  }
+
+  // ── Attempt 2: ESPN teams endpoint (simpler, always has record) ──
+  if(Object.keys(standings).length<20){
+    console.log("[DE] Trying ESPN teams endpoint as fallback...");
     try{
-      var url2="https://stats.nba.com/stats/leaguestandingsv3?Season=2025-26&SeasonType=Regular+Season&LeagueID=00";
-      var r2=await corsProxyFetch(url2);
+      var url2="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams?limit=50";
+      var r2=await tryFetch(url2);
       if(r2&&r2.ok){
         var d2=JSON.parse(await r2.text());
-        var rows=(d2.resultSets||[])[0]||{};
-        var cols=rows.headers||[];var rws=rows.rowSet||[];
+        var sports=d2.sports||[];
+        var teams=[];
+        // Navigate: sports[0].leagues[0].teams[]
+        if(sports.length>0&&sports[0].leagues&&sports[0].leagues.length>0){
+          teams=sports[0].leagues[0].teams||[];
+        }
+        // Or direct: d2.teams
+        if(!teams.length)teams=d2.teams||[];
+        console.log("[DE] ESPN teams found:",teams.length);
+        teams.forEach(function(tw){
+          var t=tw.team||tw;
+          var tn2=t.displayName||t.name||"";
+          if(!tn2)return;
+          var rec=t.record;
+          if(!rec)return;
+          // record can be string "51-15" or object
+          var items=rec.items||[];
+          var overall=items.find(function(i){return i.summary&&i.type==="total";})||items[0]||{};
+          var summary=overall.summary||rec.summary||"";
+          // Parse "W-L" format
+          var parts=summary.split("-");
+          if(parts.length>=2){
+            var wins=parseInt(parts[0])||0;
+            var losses=parseInt(parts[1])||0;
+            if(wins+losses>0){
+              standings[tn2]={
+                wins:wins,losses:losses,gp:wins+losses,
+                ptsFor:0,ptsAgainst:0,l10w:0,l10l:0,streak:0,streakType:"",
+              };
+            }
+          }
+        });
+        console.log("[DE] NBA standings loaded (ESPN teams): "+Object.keys(standings).length+" teams");
+      }
+    }catch(e2){console.log("[DE] ESPN teams fallback error:",e2.message);}
+  }
+
+  // ── Attempt 3: NBA stats API via proxy ──
+  if(Object.keys(standings).length<20){
+    try{
+      var url3="https://stats.nba.com/stats/leaguestandingsv3?Season=2025-26&SeasonType=Regular+Season&LeagueID=00";
+      var r3=await corsProxyFetch(url3);
+      if(r3&&r3.ok){
+        var d3=JSON.parse(await r3.text());
+        var rs=(d3.resultSets||[])[0]||{};
+        var cols=rs.headers||[];var rws=rs.rowSet||[];
         var ci={};cols.forEach(function(c,i){ci[c]=i;});
         rws.forEach(function(row){
           var tn3=row[ci["TeamCity"]]+" "+row[ci["TeamName"]];
-          standings[tn3]={
-            wins:row[ci["WINS"]]||0,losses:row[ci["LOSSES"]]||0,
-            gp:(row[ci["WINS"]]||0)+(row[ci["LOSSES"]]||0),
-            ptsFor:0,ptsAgainst:0,l10w:0,l10l:0,streak:0,streakType:"",
-          };
+          standings[tn3]={wins:row[ci["WINS"]]||0,losses:row[ci["LOSSES"]]||0,gp:(row[ci["WINS"]]||0)+(row[ci["LOSSES"]]||0)};
         });
-        console.log("[DE] NBA standings loaded (stats.nba fallback): "+Object.keys(standings).length+" teams");
+        console.log("[DE] NBA standings loaded (stats.nba): "+Object.keys(standings).length+" teams");
       }
-    }catch(e2){console.log("[DE] All NBA standings sources failed:",e2.message);}
+    }catch(e3){console.log("[DE] stats.nba standings failed:",e3.message);}
   }
+
   return standings;
 }
 
@@ -1211,7 +1280,6 @@ async function fetchNBAFatigue(){
 }
 
 async function fetchNBAInjuries(){
-  // Fetch NBA injury data from ESPN — try direct first (ESPN allows CORS)
   var injuries={};
   try{
     var url="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries";
@@ -1220,15 +1288,26 @@ async function fetchNBAInjuries(){
     if(!r||!r.ok){try{r=await corsProxyFetch(url);}catch(e2){}}
     if(!r||!r.ok){console.log("[DE] NBA injuries fetch failed");return injuries;}
     var data=JSON.parse(await r.text());
-    // ESPN format: array of team objects with injuries
-    (data||[]).forEach(function(team){
-      var tn2=team.team?team.team.displayName||team.team.name:"";
+    // ESPN can return array directly OR {injuries:[...]} OR {leagues:[{injuries:...}]}
+    var teamList=[];
+    if(Array.isArray(data)){teamList=data;}
+    else if(data&&Array.isArray(data.injuries)){teamList=data.injuries;}
+    else if(data&&data.leagues&&data.leagues[0]){
+      // Try leagues[0].injuries or leagues[0].teams
+      teamList=data.leagues[0].injuries||data.leagues[0].teams||[];
+    }
+    else if(data&&data.teams){teamList=data.teams;}
+    else{console.log("[DE] NBA injuries unknown format, keys:",Object.keys(data||{}).join(","));}
+    
+    teamList.forEach(function(team){
+      var tn2=team.team?team.team.displayName||team.team.name:team.displayName||team.name||"";
       if(!tn2)return;
       if(!injuries[tn2])injuries[tn2]=[];
-      (team.injuries||[]).forEach(function(inj){
-        var pName=inj.athlete?inj.athlete.displayName||inj.athlete.fullName:"";
-        var status=(inj.status||"").toLowerCase();// "out","day-to-day","doubtful","questionable"
-        var detail=inj.longComment||inj.shortComment||inj.type||"";
+      var injList=team.injuries||team.players||[];
+      injList.forEach(function(inj){
+        var pName=inj.athlete?inj.athlete.displayName||inj.athlete.fullName:inj.displayName||inj.name||"";
+        var status=(inj.status||inj.injuryStatus||"").toLowerCase();
+        var detail=inj.longComment||inj.shortComment||inj.type||inj.description||"";
         if(!pName)return;
         injuries[tn2].push({name:pName,status:status,detail:detail});
       });
@@ -1236,7 +1315,7 @@ async function fetchNBAInjuries(){
     var totalInj=Object.values(injuries).reduce(function(s,a){return s+a.length},0);
     console.log("[DE] NBA injuries loaded: "+totalInj+" players across "+Object.keys(injuries).length+" teams");
   }catch(e){
-    console.log("[DE] NBA injuries error:",e);
+    console.log("[DE] NBA injuries error:",e.message);
     // Fallback: try NBA CDN
     try{
       var url2="https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json";
