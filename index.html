@@ -408,39 +408,41 @@ Object.keys(NBA_TEAM_STARS).forEach(function(t){
 });
 
 // ═══ NBA MODEL ENGINE ═══════════════════════════════════
-// ML only — trained on 2020-2022, validated 2023, tested 2024
-// Test: 66.9% accuracy, +25.9% ROI @8% edge (best line), 416 bets/season
-var NBA_V1_MODEL = {
+// v3 ML — trained on 2020-2022, validated 2023, tested 2024
+// 19 features (+scoring_trend). Test: 66.6% acc, +27.4% ROI @8%, +81% @15%
+var NBA_V3_MODEL = {
   ml: {
-    bias: 0.15161240419646826,
+    bias: 0.1519738904359005,
     features: ["f_home","f_net_rtg","f_pyth","f_l10","f_l20","f_margin","f_pace","f_rest","f_b2b",
-      "f_efg","f_tov","f_oreb","f_ft_rate","f_travel","f_streak","f_b2b_x_rtg","f_rest_x_form","f_pace_x_efg"],
+      "f_efg","f_tov","f_oreb","f_ft_rate","f_travel","f_streak","f_b2b_x_rtg","f_rest_x_form","f_pace_x_efg",
+      "f_scoring_trend"],
     weights: {
-      f_home:0.10986878263694798,
-      f_net_rtg:0.1956063023322812,
-      f_pyth:0.249627444866547,
-      f_l10:-0.12900171912756025,
-      f_l20:0.31054227934887213,
-      f_margin:0.21618421573547814,
-      f_pace:-0.052365820811688904,
-      f_rest:0.06470333716315532,
-      f_b2b:0.18324283892919682,
-      f_efg:0.16357063698790766,
-      f_tov:-0.00008420861515736471,
-      f_oreb:-0.001063066174770537,
+      f_home:0.11012143442591893,
+      f_net_rtg:0.19669364947741785,
+      f_pyth:0.25007742314388726,
+      f_l10:-0.13148184656908388,
+      f_l20:0.310824389153121,
+      f_margin:0.2019695773192104,
+      f_pace:-0.06435089913158866,
+      f_rest:0.06480550871118566,
+      f_b2b:0.18378158442938397,
+      f_efg:0.15589806030426104,
+      f_tov:-0.00025169886319381706,
+      f_oreb:-0.001198857887662453,
       f_ft_rate:0.0,
-      f_travel:-0.1333690866592616,
-      f_streak:0.028863788026385687,
-      f_b2b_x_rtg:0.08035642211195959,
-      f_rest_x_form:-0.11021687498924702,
-      f_pace_x_efg:-0.07635785662263135
+      f_travel:-0.1335396077376691,
+      f_streak:0.02855481692836547,
+      f_b2b_x_rtg:0.08085488093721112,
+      f_rest_x_form:-0.11049024753792136,
+      f_pace_x_efg:-0.07567406188415728,
+      f_scoring_trend:0.03658480056771745
     }
   }
 };
 
 function predictNBA_ML(features){
-  var z=NBA_V1_MODEL.ml.bias;
-  NBA_V1_MODEL.ml.features.forEach(function(f){z+=(NBA_V1_MODEL.ml.weights[f]||0)*(features[f]||0);});
+  var z=NBA_V3_MODEL.ml.bias;
+  NBA_V3_MODEL.ml.features.forEach(function(f){z+=(NBA_V3_MODEL.ml.weights[f]||0)*(features[f]||0);});
   return sigmoid(z);
 }
 
@@ -1344,11 +1346,9 @@ function computeNBAv1Features(g){
     f_b2b_x_rtg:(a_b2b-h_b2b)*Math.abs((h_net-a_net)/10),
     f_rest_x_form:Math.min(2,Math.max(-2,h_rest-a_rest))*(hL10-aL10)*3,
     f_pace_x_efg:(h_pace-a_pace)/5*(bl_h.efg-bl_a.efg)*20,
-    // Totals features
-    f_combined_pace:(h_pace+a_pace-200)/5,
-    f_combined_off:(h_off+a_off-220)/5,
-    f_combined_def:(h_def+a_def-220)/5,
-    f_recent_total:0, // will be 0 until we have recent scoring data
+    // v3: Scoring pace trend — recent PPG differential
+    // Uses season PPG from standings (ptsFor/gp) as proxy for recent scoring pace
+    f_scoring_trend:(hPF-aPF)/10,
   };
 
   g.nbaFeatures=features;
@@ -3236,7 +3236,7 @@ function render(){
     }
     if(isNBA){
       var injCount=Object.values(S.nba.injuries||{}).reduce(function(s,a){return s+a.length},0);
-      h+='<div class="ib acc"><span style="font-size:14px">🏀</span><strong>NBA v1 ML Model (66.9% acc, +26% ROI @8% edge):</strong> 18 features, trained 2020-2022, tested 2024. ML bets at 8%+ edge with best-line shopping. Injuries shown as context ('+(injCount>0?injCount+' tracked':'loading...')+').</div>';
+      h+='<div class="ib acc"><span style="font-size:14px">🏀</span><strong>NBA v3 ML Model (66.6% acc, +27.4% ROI @8% edge):</strong> 19 features, trained 2020-2022, ablation-tested 2024. ML bets at 8%+ edge with best-line shopping. Injuries shown as context ('+(injCount>0?injCount+' tracked':'loading...')+').</div>';
     }
 
     games.forEach(function(g){
@@ -3384,7 +3384,7 @@ function render(){
       // Fair prob + implied odds
       h+='<div style="text-align:center;min-width:120px">';
       if(g.modelFairH){
-        var modelLabel=isNHL?"v5 Model / Market":isNBA?"NBA v1 / Market":"v11d Model / Market";
+        var modelLabel=isNHL?"v5 Model / Market":isNBA?"NBA v3 / Market":"v11d Model / Market";
         h+='<div class="sh">'+modelLabel+'</div><div style="display:flex;gap:14px;justify-content:center">';
         h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairA+'%</div>';
         h+='<div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.modelFairA)+'</div>';
