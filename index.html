@@ -1181,16 +1181,7 @@ async function fetchNBAStandings(){
           teams=sports[0].leagues[0].teams||[];
         }
         if(!teams.length)teams=d2.teams||[];
-        console.log("[DE] ESPN teams found:",teams.length);
-        // Log first team structure for debugging
-        if(teams.length>0){
-          var sample=teams[0].team||teams[0];
-          console.log("[DE] ESPN team sample keys:",Object.keys(sample).join(", "));
-          console.log("[DE] ESPN team sample record:",JSON.stringify(sample.record||sample.recordSummary||"none").substring(0,300));
-          // Also check if wins/losses are direct properties
-          if(sample.wins!=null)console.log("[DE] ESPN team has direct wins:",sample.wins);
-          if(sample.recordSummary)console.log("[DE] ESPN team recordSummary:",sample.recordSummary);
-        }
+        console.log("[DE] ESPN teams found:",teams.length,teams.length>0?JSON.stringify(Object.keys(teams[0].team||teams[0])).substring(0,200):"empty",teams.length>0?JSON.stringify((teams[0].team||teams[0]).record||(teams[0].team||teams[0]).recordSummary||"NO_RECORD").substring(0,300):"");
         teams.forEach(function(tw){
           var t=tw.team||tw;
           var tn2=t.displayName||t.name||"";
@@ -1257,6 +1248,46 @@ async function fetchNBAStandings(){
         console.log("[DE] NBA standings loaded (stats.nba): "+Object.keys(standings).length+" teams");
       }
     }catch(e3){console.log("[DE] stats.nba standings failed:",e3.message);}
+  }
+
+  // ── Attempt 4: Extract records from ESPN scoreboard (we KNOW this works — B2B uses it) ──
+  if(Object.keys(standings).length<20){
+    console.log("[DE] Trying ESPN scoreboard for team records...");
+    try{
+      // Fetch last 7 days of scoreboard to get records for most teams
+      for(var si=0;si<7&&Object.keys(standings).length<28;si++){
+        var sd=new Date();sd.setDate(sd.getDate()-si);
+        var sds=sd.getFullYear()+String(sd.getMonth()+1).padStart(2,"0")+String(sd.getDate()).padStart(2,"0");
+        var surl="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates="+sds;
+        var sr=null;
+        try{var sac=new AbortController();var stm=setTimeout(function(){sac.abort()},5000);sr=await fetch(surl,{signal:sac.signal});clearTimeout(stm);}catch(se){}
+        if(!sr||!sr.ok){try{sr=await corsProxyFetch(surl);}catch(se2){}}
+        if(!sr||!sr.ok)continue;
+        var sdata=JSON.parse(await sr.text());
+        var sevents=sdata.events||[];
+        sevents.forEach(function(ev){
+          (ev.competitions||[]).forEach(function(comp){
+            (comp.competitors||[]).forEach(function(c){
+              var tname=c.team?c.team.displayName||c.team.name:"";
+              if(!tname||standings[tname])return;// skip if already have
+              // Records are in c.records or c.record
+              var recs=c.records||[];
+              var overall=recs.find(function(r2){return r2.type==="total"||r2.name==="overall";})||recs[0];
+              if(overall&&overall.summary){
+                var pp=overall.summary.split("-");
+                if(pp.length>=2){
+                  var ww=parseInt(pp[0])||0;var ll=parseInt(pp[1])||0;
+                  if(ww+ll>0){
+                    standings[tname]={wins:ww,losses:ll,gp:ww+ll,ptsFor:0,ptsAgainst:0,l10w:0,l10l:0,streak:0,streakType:""};
+                  }
+                }
+              }
+            });
+          });
+        });
+      }
+      console.log("[DE] NBA standings loaded (ESPN scoreboard): "+Object.keys(standings).length+" teams");
+    }catch(e4){console.log("[DE] ESPN scoreboard standings failed:",e4.message);}
   }
 
   return standings;
