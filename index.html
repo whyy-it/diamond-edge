@@ -1177,34 +1177,62 @@ async function fetchNBAStandings(){
         var d2=JSON.parse(await r2.text());
         var sports=d2.sports||[];
         var teams=[];
-        // Navigate: sports[0].leagues[0].teams[]
         if(sports.length>0&&sports[0].leagues&&sports[0].leagues.length>0){
           teams=sports[0].leagues[0].teams||[];
         }
-        // Or direct: d2.teams
         if(!teams.length)teams=d2.teams||[];
         console.log("[DE] ESPN teams found:",teams.length);
+        // Log first team structure for debugging
+        if(teams.length>0){
+          var sample=teams[0].team||teams[0];
+          console.log("[DE] ESPN team sample keys:",Object.keys(sample).join(", "));
+          console.log("[DE] ESPN team sample record:",JSON.stringify(sample.record||sample.recordSummary||"none").substring(0,300));
+          // Also check if wins/losses are direct properties
+          if(sample.wins!=null)console.log("[DE] ESPN team has direct wins:",sample.wins);
+          if(sample.recordSummary)console.log("[DE] ESPN team recordSummary:",sample.recordSummary);
+        }
         teams.forEach(function(tw){
           var t=tw.team||tw;
           var tn2=t.displayName||t.name||"";
           if(!tn2)return;
+          var wins=0,losses=0;
+          
+          // Strategy 1: record.items[].summary = "W-L"
           var rec=t.record;
-          if(!rec)return;
-          // record can be string "51-15" or object
-          var items=rec.items||[];
-          var overall=items.find(function(i){return i.summary&&i.type==="total";})||items[0]||{};
-          var summary=overall.summary||rec.summary||"";
-          // Parse "W-L" format
-          var parts=summary.split("-");
-          if(parts.length>=2){
-            var wins=parseInt(parts[0])||0;
-            var losses=parseInt(parts[1])||0;
-            if(wins+losses>0){
-              standings[tn2]={
-                wins:wins,losses:losses,gp:wins+losses,
-                ptsFor:0,ptsAgainst:0,l10w:0,l10l:0,streak:0,streakType:"",
-              };
+          if(rec){
+            var items=rec.items||rec||[];
+            if(Array.isArray(items)){
+              var overall=items.find(function(i){return i.type==="total"||i.description==="Overall Record";})||items[0]||{};
+              var summary=overall.summary||overall.displayValue||"";
+              if(summary){
+                var ps=summary.split("-");
+                if(ps.length>=2){wins=parseInt(ps[0])||0;losses=parseInt(ps[1])||0;}
+              }
             }
+            // Strategy 2: record.summary directly
+            if(!wins&&rec.summary){
+              var ps2=rec.summary.split("-");
+              if(ps2.length>=2){wins=parseInt(ps2[0])||0;losses=parseInt(ps2[1])||0;}
+            }
+            // Strategy 3: record is a string "W-L"
+            if(!wins&&typeof rec==="string"){
+              var ps3=rec.split("-");
+              if(ps3.length>=2){wins=parseInt(ps3[0])||0;losses=parseInt(ps3[1])||0;}
+            }
+          }
+          // Strategy 4: recordSummary at top level
+          if(!wins&&t.recordSummary){
+            var ps4=t.recordSummary.split("-");
+            if(ps4.length>=2){wins=parseInt(ps4[0])||0;losses=parseInt(ps4[1])||0;}
+          }
+          // Strategy 5: direct wins/losses properties
+          if(!wins&&t.wins!=null){wins=t.wins;losses=t.losses||0;}
+          
+          if(wins+losses>0){
+            standings[tn2]={
+              wins:wins,losses:losses,gp:wins+losses,
+              ptsFor:0,ptsAgainst:0,l10w:0,l10l:0,streak:0,streakType:"",
+            };
           }
         });
         console.log("[DE] NBA standings loaded (ESPN teams): "+Object.keys(standings).length+" teams");
