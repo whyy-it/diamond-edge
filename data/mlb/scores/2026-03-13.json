@@ -58,5 +58,25 @@
         "last_update": null
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-13T15:28:32Z",
+    "label": "manual",
+    "sport": "mlb",
+    "snapshot_type": "scores",
+    "event_count": 1,
+    "data": [
+      {
+        "id": "482db144520650cd646a5e4778c1fc02",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-03-26T00:05:00Z",
+        "completed": false,
+        "home_team": "San Francisco Giants",
+        "away_team": "New York Yankees",
+        "scores": null,
+        "last_update": null
+      }
+    ]
   }
 ]

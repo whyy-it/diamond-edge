@@ -184,5 +184,98 @@
         ]
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-13T15:28:32Z",
+    "label": "manual",
+    "sport": "mlb",
+    "snapshot_type": "odds",
+    "event_count": 1,
+    "data": [
+      {
+        "id": "482db144520650cd646a5e4778c1fc02",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-03-26T00:05:00Z",
+        "home_team": "San Francisco Giants",
+        "away_team": "New York Yankees",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-13T15:27:39Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-13T15:27:39Z",
+                "outcomes": [
+                  {
+                    "name": "New York Yankees",
+                    "price": -117
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -104
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-13T15:28:10Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-13T15:28:10Z",
+                "outcomes": [
+                  {
+                    "name": "New York Yankees",
+                    "price": -120
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 100
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-13T15:28:10Z",
+                "outcomes": [
+                  {
+                    "name": "New York Yankees",
+                    "price": 135,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -160,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-13T15:28:10Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
