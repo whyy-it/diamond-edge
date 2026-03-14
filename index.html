@@ -524,6 +524,8 @@ function clearTracker(){
 // Tracker sort state
 var trackerSortBy="time"; // "time" or "book"
 var trackerEditKey=null; // key of bet currently being edited
+// Bets tab sort state
+var betsSortBy="time"; // "time" or "book"
 
 function editTrackedBet(key,field,value){
   var tb=findTracked(key);if(!tb)return;
@@ -3038,7 +3040,7 @@ function render(){
     h+='<button class="cb'+(S.sortBy==="edge"?" on":"")+'" onclick="S.sortBy=\'edge\';render()"><span class="d"></span>By Edge</button>';
     h+='<button class="cb'+(S.sortBy==="time"?" on":"")+'" onclick="S.sortBy=\'time\';render()"><span class="d"></span>By Time</button>';
     h+='<div class="sep"></div>';
-    h+='<button class="cb'+(S.evOnly?" on":"")+'" onclick="S.evOnly=!S.evOnly;render()"><span class="d"></span>Bets Only</button>';
+    h+='<button class="cb'+(S.evOnly?" on":"")+'" onclick="S.evOnly=!S.evOnly;render()"><span class="d"></span>EV+ Bets Only</button>';
     h+='<div style="flex:1"></div>';
     var abApi=ab.filter(function(b){return b.api}).length;
     h+='<button class="cb" onclick="S.showBooks=!S.showBooks;render()">📚 '+abApi+' active / '+ab.length+' on</button>';
@@ -3111,6 +3113,13 @@ function render(){
     h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
     h+='</div>';
     h+='<div style="font-size:9px;color:var(--td)">Kelly stakes auto-scaled · total risk ≤ 25% of bankroll</div>';
+    h+='</div>';
+
+    // Sort controls
+    h+='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">';
+    h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Sort:</span>';
+    h+='<button class="cb'+(betsSortBy==="time"?" on":"")+'" onclick="betsSortBy=\'time\';render()"><span class="d"></span>By Time</button>';
+    h+='<button class="cb'+(betsSortBy==="book"?" on":"")+'" onclick="betsSortBy=\'book\';render()"><span class="d"></span>By Book</button>';
     h+='</div>';
 
     // Collect bets from ALL leagues
@@ -3202,8 +3211,12 @@ function render(){
       return gLocal===todayLocal;
     });
 
-    // Sort by game time
-    allBets.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
+    // Sort bets based on toggle
+    if(betsSortBy==="book"){
+      allBets.sort(function(a,b){return(a.book||"").localeCompare(b.book||"")||new Date(a.time)-new Date(b.time)});
+    }else{
+      allBets.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
+    }
 
     // ═══ SIMULTANEOUS KELLY: optimal sizing across all concurrent bets ═══
     // Build input for the solver
