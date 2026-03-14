@@ -557,6 +557,43 @@ function ungradeResult(key){
   tb.result=null;tb.payout=0;tb.resolvedBy=null;tb.gameScore=null;
   saveTracker(trackedBets);render();
 }
+var showAddBet=false;
+function addManualBet(form){
+  var sport=form.sport.value;
+  var icon=sport==="nhl"?"🏒":sport==="nba"?"🏀":"⚾";
+  var type=form.bettype.value;
+  var player=form.player.value.trim();
+  var market=form.market.value.trim();
+  var line=form.line.value.trim();
+  var book=form.book.value;
+  var amount=parseFloat(form.amount.value)||0;
+  var dateVal=form.gamedate.value;
+  var timeVal=form.gametime.value||"19:00";
+  var result=form.result.value||null;
+  if(!player||!line||!amount){alert("Fill in team, line, and wager.");return;}
+  var time=dateVal?new Date(dateVal+"T"+timeVal+":00").toISOString():new Date().toISOString();
+  var bet={sport:sport,icon:icon,type:type,player:player,market:market||type,line:line,book:book,amount:amount,time:time};
+  var key=betKey(bet);
+  if(findTracked(key)){alert("Bet already tracked for this team/market/date.");return;}
+  var tb={
+    key:key,sport:sport,icon:icon,type:type,
+    player:player,market:market||type,line:line,
+    book:book,edge:0,kelly:0,
+    amount:amount,matchup:"Manual entry",time:time,
+    placed:new Date().toISOString(),result:result,payout:0,
+    manualAdd:true
+  };
+  if(result==="W"){
+    var ml=parseInt(line.replace("+",""))||0;
+    if(ml>0)tb.payout=+(amount*(ml/100)).toFixed(2);
+    else if(ml<0)tb.payout=+(amount*(100/(-ml))).toFixed(2);
+  }else if(result==="L"){tb.payout=-amount;}
+  else if(result==="P"){tb.payout=0;}
+  trackedBets.push(tb);
+  saveTracker(trackedBets);
+  showAddBet=false;
+  render();
+}
 function trackerStats(){
   var total=trackedBets.filter(function(b){return b.result!=null}).length;
   var wins=trackedBets.filter(function(b){return b.result==="W"}).length;
@@ -3279,7 +3316,7 @@ function render(){
         h+='<div class="sbox"><span class="sval mono" style="color:var(--acc)">'+allBets.length+'</span><span class="slbl">bets</span></div>';
         h+='<div class="sbox"><span class="sval mono" style="color:var(--ac2)">$'+totalBetAmount+'</span><span class="slbl">total risk</span></div>';
         h+='<div class="sbox"><span class="sval mono" style="color:var(--warn)">'+(totalBetAmount/S.bankroll*100).toFixed(1)+'%</span><span class="slbl">of bankroll</span></div>';
-        if(kellyScale<1)h+='<div class="sbox"><span style="font-size:9px;color:var(--neg);font-weight:600">Capped to '+(kellyScale*100).toFixed(0)+'%</span></div>';
+        if(kellyScale<1)h+='<div class="sbox"><span style="font-size:9px;color:var(--neg);font-weight:600">Kelly scaled to '+(kellyScale*100).toFixed(0)+'% ($1 mins apply)</span></div>';
         if(simMultiplier<0.99)h+='<div class="sbox"><span style="font-size:9px;color:var(--ac2);font-weight:600">Sim Kelly ×'+simMultiplier.toFixed(3)+'</span></div>';
         h+='</div>';
 
@@ -3303,13 +3340,13 @@ function render(){
           var edgeC=b.edge>=10?"var(--acc)":b.edge>=5?"var(--acc)":"var(--warn)";
           var projIcon=b.projSource==="statcast"?"🔬":b.projSource==="statcast-k"?"🔬":b.projSource==="poisson"?"📊":b.projSource==="model"?"🧠":"📚";
           var projTip=b.projSource==="statcast"?"Statcast xBA projection":b.projSource==="statcast-k"?"Statcast pitcher xBA-against + K rate":b.projSource==="poisson"?"Poisson from season stats":b.projSource==="model"?"Backtested CLV model":"Book consensus";
-          var typeLabel=b.type+(b.b2bStack?" 🔥":"")+(b.highVar?" ⚡":"")+(b.paperTrade?" 🧪":"");
+          var typeLabel=(b.type==="SP"&&b.sport==="nba"?"ATS":b.type)+(b.b2bStack?" 🔥":"")+(b.highVar?" ⚡":"")+(b.paperTrade?" 🧪":"");
           var edgeLabel="+"+b.edge+(b.edgeUnit||"%");
           var betColor=b.paperTrade?"var(--warn)":"var(--acc)";
           h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)"'+(b.paperTrade?' title="Paper trade — prop model in validation"':'')+'>';
           h+='<td style="padding:6px 4px;text-align:center;font-size:14px" title="'+b.sport.toUpperCase()+'">'+b.icon+'</td>';
           h+='<td style="padding:6px;font-size:10px;color:var(--td);white-space:nowrap">'+ft(b.time)+'</td>';
-          h+='<td style="padding:6px;font-weight:700;color:'+(b.type==="ML"?"var(--ac2)":"var(--warn)")+';font-size:9px">'+typeLabel+'</td>';
+          h+='<td style="padding:6px;font-weight:700;color:'+(b.type==="ML"||b.type==="SP"?"var(--ac2)":"var(--warn)")+';font-size:9px">'+typeLabel+'</td>';
           h+='<td style="padding:6px"><div style="font-weight:700;color:var(--tx)">'+b.player+'</div><div style="font-size:9px;color:var(--td)">'+b.matchup+'</div></td>';
           h+='<td style="padding:6px;font-weight:600;color:var(--tm);font-size:10px">'+b.market+'</td>';
           h+='<td style="padding:6px;font-weight:700;color:var(--tx);font-family:\'JetBrains Mono\',monospace">'+b.line+'</td>';
@@ -3330,7 +3367,7 @@ function render(){
         h+='<div><strong>Flags:</strong> 🔥 = B2B+CLV stacked · ⚡ = high variance (HR/goals) · 🧪 = paper trade (prop model validating)</div>';
         h+='<div><strong>Edge:</strong> All edges shown in %. Kelly criterion for position sizing.</div>';
         h+='<div><strong>Kelly:</strong> <span class="mono">f = (bp − q) / b</span> · Simultaneous Kelly optimizes across all concurrent bets (×'+simMultiplier.toFixed(3)+' multiplier for '+allBets.length+' bets).</div>';
-        h+='<div><strong>Cap:</strong> Total daily risk ≤ 25% of bankroll'+(kellyScale<1?" (scaled to "+(kellyScale*100).toFixed(0)+"%)":"")+'.</div>';
+        h+='<div><strong>Cap:</strong> Kelly fractions target ≤ 25% of bankroll'+(kellyScale<1?" (scaled to "+(kellyScale*100).toFixed(0)+"%)":"")+'. $1 minimum per bet may push total slightly higher.</div>';
         h+='</div></div>';
       }
     }
@@ -3342,6 +3379,7 @@ function render(){
     h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📈 Bet Tracker</div>';
     h+='<button onclick="autoResolveTracked()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid var(--acc);background:rgba(0,255,163,.08);color:var(--acc);cursor:pointer"'+(resolveStatus.running?" disabled":"")+'>🔄 '+(resolveStatus.running?"Resolving...":"Auto-Resolve")+'</button>';
     h+='<button onclick="clearTracker()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Clear All</button>';
+    h+='<button onclick="showAddBet=!showAddBet;render()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2);cursor:pointer">'+(showAddBet?"▾ Close":"＋ Add Bet")+'</button>';
     if(resolveStatus.lastRun){
       var rAge=Math.round((new Date()-resolveStatus.lastRun)/1000);
       h+='<span style="font-size:9px;color:var(--td)">Last resolved: '+rAge+'s ago'+(resolveStatus.resolved>0?" · "+resolveStatus.resolved+" graded":"")+'</span>';
@@ -3350,6 +3388,51 @@ function render(){
       h+='<span style="font-size:9px;color:var(--warn)">⚠ '+resolveStatus.errors.length+' fetch errors</span>';
     }
     h+='</div>';
+
+    // ── MANUAL ADD BET FORM ──
+    if(showAddBet){
+      var todayISO=new Date().toISOString().slice(0,10);
+      h+='<div style="background:var(--card);border:1px solid var(--ac2);border-radius:10px;padding:14px;margin-bottom:12px">';
+      h+='<div style="font-size:12px;font-weight:700;color:var(--ac2);margin-bottom:10px">Add Past / Manual Bet</div>';
+      h+='<form onsubmit="event.preventDefault();addManualBet(this)" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">';
+
+      // Row 1: Sport, Type, Team
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Sport</label>';
+      h+='<select name="sport" style="width:70px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="nba">🏀 NBA</option><option value="mlb">⚾ MLB</option></select></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Type</label>';
+      h+='<select name="bettype" style="width:65px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="ML">ML</option><option value="SP">Spread</option><option value="RL">Run Line</option><option value="OU">O/U</option></select></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Team / Side</label>';
+      h+='<input name="player" type="text" placeholder="e.g. New York Rangers" style="width:170px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Market</label>';
+      h+='<input name="market" type="text" placeholder="Moneyline" style="width:100px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
+
+      // Row 2: Line, Book, Wager, Date, Time, Result
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Line / Odds</label>';
+      h+='<input name="line" type="text" placeholder="+150" style="width:70px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;font-family:\'JetBrains Mono\',monospace;outline:none"></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Book</label>';
+      h+='<select name="book" style="width:90px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:10px;outline:none">';
+      PA.forEach(function(bk){h+='<option value="'+bk.n+'">'+bk.n+'</option>';});
+      h+='</select></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Wager $</label>';
+      h+='<input name="amount" type="number" value="10" style="width:60px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;font-family:\'JetBrains Mono\',monospace;outline:none"></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Game Date</label>';
+      h+='<input name="gamedate" type="date" value="'+todayISO+'" style="width:120px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Time</label>';
+      h+='<input name="gametime" type="time" value="19:00" style="width:85px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
+
+      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Result</label>';
+      h+='<select name="result" style="width:70px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="">Pending</option><option value="W">Win</option><option value="L">Loss</option><option value="P">Push</option></select></div>';
+
+      h+='<button type="submit" style="padding:5px 18px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--acc);background:rgba(0,255,163,.12);color:var(--acc);cursor:pointer;align-self:flex-end">Add Bet</button>';
+      h+='</form></div>';
+    }
 
     // Sort controls
     h+='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">';
