@@ -3394,13 +3394,16 @@ function render(){
     if(showAddBet){
       var todayISO=new Date().toISOString().slice(0,10);
       // Build team lists for autocomplete (deduplicated)
-      var dupeFilter={"St Louis Blues":true,"Montreal Canadiens":true,"LA Clippers":true};
-      var nhlTeams=Object.keys(NHL_ABBREVS).filter(function(t){return !dupeFilter[t];}).sort();
-      var nbaTeams=Object.keys(NBA_ABBREVS).filter(function(t){return !dupeFilter[t];}).sort();
-      var mlbTeams=Object.keys(PARKS).sort();
-      var teamSet={};
-      nhlTeams.concat(nbaTeams,mlbTeams).forEach(function(t){teamSet[t]=true;});
-      var allTeams=Object.keys(teamSet).sort();
+      function teamNorm(t){return t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\./g,"").replace(/\s+/g," ").trim().toLowerCase();}
+      function teamScore(t){var s=0;if(t.indexOf(".")>=0)s+=2;if(/[^\x00-\x7F]/.test(t))s+=1;return s;}
+      var teamAliases={"la clippers":"los angeles clippers"};
+      var normMap={};
+      Object.keys(NHL_ABBREVS).concat(Object.keys(NBA_ABBREVS),Object.keys(PARKS)).forEach(function(t){
+        var nk=teamNorm(t);
+        if(teamAliases[nk])nk=teamAliases[nk];// merge aliases
+        if(!normMap[nk]||teamScore(t)>teamScore(normMap[nk])||(!teamScore(t)&&!teamScore(normMap[nk])&&t.length>normMap[nk].length))normMap[nk]=t;
+      });
+      var allTeams=Object.values(normMap).sort();
 
       h+='<div style="background:var(--card);border:1px solid var(--ac2);border-radius:10px;padding:14px;margin-bottom:12px">';
       h+='<div style="font-size:12px;font-weight:700;color:var(--ac2);margin-bottom:10px">Add Past / Manual Bet</div>';
