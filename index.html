@@ -3393,14 +3393,14 @@ function render(){
     // ── MANUAL ADD BET FORM ──
     if(showAddBet){
       var todayISO=new Date().toISOString().slice(0,10);
-      // Build team lists for autocomplete
-      var nhlTeams=Object.keys(NHL_ABBREVS).filter(function(t){return t.indexOf("é")<0;}).sort();
-      var nbaTeams=Object.keys(NBA_ABBREVS).filter(function(t){return t!=="LA Clippers";}).sort();
+      // Build team lists for autocomplete (deduplicated)
+      var dupeFilter={"St Louis Blues":true,"Montreal Canadiens":true,"LA Clippers":true};
+      var nhlTeams=Object.keys(NHL_ABBREVS).filter(function(t){return !dupeFilter[t];}).sort();
+      var nbaTeams=Object.keys(NBA_ABBREVS).filter(function(t){return !dupeFilter[t];}).sort();
       var mlbTeams=Object.keys(PARKS).sort();
-      var allTeams=[].concat(nhlTeams,nbaTeams,mlbTeams);
-      // Remove dupes
-      var teamSet={};allTeams.forEach(function(t){teamSet[t]=true;});
-      allTeams=Object.keys(teamSet).sort();
+      var teamSet={};
+      nhlTeams.concat(nbaTeams,mlbTeams).forEach(function(t){teamSet[t]=true;});
+      var allTeams=Object.keys(teamSet).sort();
 
       h+='<div style="background:var(--card);border:1px solid var(--ac2);border-radius:10px;padding:14px;margin-bottom:12px">';
       h+='<div style="font-size:12px;font-weight:700;color:var(--ac2);margin-bottom:10px">Add Past / Manual Bet</div>';
