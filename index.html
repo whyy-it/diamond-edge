@@ -521,6 +521,40 @@ function clearTracker(){
   if(!confirm("Clear ALL tracked bet history?"))return;
   trackedBets=[];saveTracker(trackedBets);render();
 }
+// Tracker sort state
+var trackerSortBy="time"; // "time" or "book"
+var trackerEditKey=null; // key of bet currently being edited
+
+function editTrackedBet(key,field,value){
+  var tb=findTracked(key);if(!tb)return;
+  if(field==="line"){tb.line=value;}
+  else if(field==="book"){tb.book=value;}
+  else if(field==="amount"){
+    var amt=parseFloat(value)||0;
+    tb.amount=amt;
+    // Recalc payout if already graded
+    if(tb.result==="W"){
+      var ml=parseInt((tb.line||"").replace("+",""))||0;
+      if(ml>0)tb.payout=+(amt*(ml/100)).toFixed(2);
+      else if(ml<0)tb.payout=+(amt*(100/(-ml))).toFixed(2);
+      else tb.payout=0;
+    }else if(tb.result==="L"){tb.payout=-amt;}
+    else if(tb.result==="P"){tb.payout=0;}
+  }
+  saveTracker(trackedBets);render();
+}
+function deleteTrackedBet(key){
+  if(!confirm("Delete this bet?"))return;
+  trackedBets=trackedBets.filter(function(b){return b.key!==key});
+  saveTracker(trackedBets);render();
+}
+function startEditBet(key){trackerEditKey=key;render();}
+function cancelEditBet(){trackerEditKey=null;render();}
+function ungradeResult(key){
+  var tb=findTracked(key);if(!tb)return;
+  tb.result=null;tb.payout=0;tb.resolvedBy=null;tb.gameScore=null;
+  saveTracker(trackedBets);render();
+}
 function trackerStats(){
   var total=trackedBets.filter(function(b){return b.result!=null}).length;
   var wins=trackedBets.filter(function(b){return b.result==="W"}).length;
@@ -907,6 +941,54 @@ async function fetchNHLSchedule(){
         };
       });
     });
+    // Second pass: fetch gamecenter landing for each game to get confirmed starters
+    // The /gamecenter/{id}/landing endpoint has confirmed goalies earlier than schedule
+    var gameIds=Object.values(result).map(function(r){return r.gameId}).filter(Boolean);
+    for(var gi=0;gi<gameIds.length;gi++){
+      try{
+        var landing=await fetchNHL("/gamecenter/"+gameIds[gi]+"/landing");
+        if(!landing)continue;
+        var gs=landing.gameState||"";
+        // Check for confirmed starters in the landing data
+        var hTeam=landing.homeTeam||{};var aTeam=landing.awayTeam||{};
+        var hAb=hTeam.abbrev||"";
+        if(!result[hAb])continue;
+        // goalieInNet on landing page
+        if(hTeam.goalieInNet&&hTeam.goalieInNet.default&&!result[hAb].homeGoalieConfirmed){
+          result[hAb].homeGoalie=hTeam.goalieInNet.default;
+          result[hAb].homeGoalieConfirmed=true;
+        }
+        if(aTeam.goalieInNet&&aTeam.goalieInNet.default&&!result[hAb].awayGoalieConfirmed){
+          result[hAb].awayGoalie=aTeam.goalieInNet.default;
+          result[hAb].awayGoalieConfirmed=true;
+        }
+        // Also check lineScore.homeTeam/awayTeam for goalie info (LIVE/CRIT games)
+        var ls=landing.linescore||landing.lineScore||{};
+        if(ls.homeTeam&&ls.homeTeam.goalie&&!result[hAb].homeGoalieConfirmed){
+          var hgName=ls.homeTeam.goalie.firstName?ls.homeTeam.goalie.firstName.default+" "+ls.homeTeam.goalie.lastName.default:null;
+          if(hgName){result[hAb].homeGoalie=hgName;result[hAb].homeGoalieConfirmed=true;}
+        }
+        if(ls.awayTeam&&ls.awayTeam.goalie&&!result[hAb].awayGoalieConfirmed){
+          var agName=ls.awayTeam.goalie.firstName?ls.awayTeam.goalie.firstName.default+" "+ls.awayTeam.goalie.lastName.default:null;
+          if(agName){result[hAb].awayGoalie=agName;result[hAb].awayGoalieConfirmed=true;}
+        }
+        // Check matchup.goalieComparison for PRE-game confirmed starters
+        var mc=landing.matchup||{};
+        var gc=mc.goalieComparison||{};
+        if(gc.homeTeam&&gc.homeTeam.starter&&!result[hAb].homeGoalieConfirmed){
+          var hSt=gc.homeTeam.starter;
+          var hStName=hSt.firstName?hSt.firstName.default+" "+hSt.lastName.default:null;
+          if(hStName){result[hAb].homeGoalie=hStName;result[hAb].homeGoalieConfirmed=true;}
+        }
+        if(gc.awayTeam&&gc.awayTeam.starter&&!result[hAb].awayGoalieConfirmed){
+          var aSt=gc.awayTeam.starter;
+          var aStName=aSt.firstName?aSt.firstName.default+" "+aSt.lastName.default:null;
+          if(aStName){result[hAb].awayGoalie=aStName;result[hAb].awayGoalieConfirmed=true;}
+        }
+      }catch(e){/* gamecenter landing optional — don't fail */}
+    }
+    var confirmed=Object.values(result).filter(function(r){return r.homeGoalieConfirmed||r.awayGoalieConfirmed}).length;
+    console.log("[DE] NHL goalies: "+confirmed+"/"+gameIds.length+" games with confirmed starters");
     return result;
   }catch(e){console.log("NHL schedule error:",e);return{}}
 }
@@ -3256,6 +3338,13 @@ function render(){
     }
     h+='</div>';
 
+    // Sort controls
+    h+='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">';
+    h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Sort:</span>';
+    h+='<button class="cb'+(trackerSortBy==="time"?" on":"")+'" onclick="trackerSortBy=\'time\';render()"><span class="d"></span>By Time</button>';
+    h+='<button class="cb'+(trackerSortBy==="book"?" on":"")+'" onclick="trackerSortBy=\'book\';render()"><span class="d"></span>By Book</button>';
+    h+='</div>';
+
     var ts2=trackerStats();
     if(trackedBets.length>0){
       // Overall stats summary
@@ -3274,29 +3363,55 @@ function render(){
       }
       h+='</div>';
 
-      // ── Group bets by local date ──
-      var dateGroups={};
-      trackedBets.forEach(function(tb){
-        var dk=tb.time?localDateStr(tb.time):"unknown";
-        if(!dateGroups[dk])dateGroups[dk]={date:dk,bets:[],wins:0,losses:0,pushes:0,pending:0,pnl:0,wagered:0};
-        dateGroups[dk].bets.push(tb);
-        if(tb.result==="W"){dateGroups[dk].wins++;dateGroups[dk].pnl+=tb.payout;dateGroups[dk].wagered+=tb.amount;}
-        else if(tb.result==="L"){dateGroups[dk].losses++;dateGroups[dk].pnl+=tb.payout;dateGroups[dk].wagered+=tb.amount;}
-        else if(tb.result==="P"){dateGroups[dk].pushes++;dateGroups[dk].wagered+=tb.amount;}
-        else{dateGroups[dk].pending++;}
-      });
-      // Sort dates newest first
-      var sortedDates=Object.keys(dateGroups).sort(function(a,b){return b.localeCompare(a)});
+      // ── Sort bets ──
+      var sortedBets=trackedBets.slice();
+      if(trackerSortBy==="book"){
+        sortedBets.sort(function(a,b){return(a.book||"").localeCompare(b.book||"");});
+      }else{
+        sortedBets.sort(function(a,b){
+          var ta=a.time?new Date(a.time).getTime():0;
+          var tb2=b.time?new Date(b.time).getTime():0;
+          return tb2-ta;// newest first
+        });
+      }
 
-      sortedDates.forEach(function(dk){
-        var grp=dateGroups[dk];
-        var dt=dk!=="unknown"?new Date(dk+"T12:00:00"):null;
-        var dateLabel=dt?dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"}):"Unknown Date";
+      // ── Group bets ──
+      var groups={};
+      sortedBets.forEach(function(tb){
+        var gk;
+        if(trackerSortBy==="book"){
+          gk=tb.book||"Unknown";
+        }else{
+          gk=tb.time?localDateStr(tb.time):"unknown";
+        }
+        if(!groups[gk])groups[gk]={label:gk,bets:[],wins:0,losses:0,pushes:0,pending:0,pnl:0,wagered:0};
+        groups[gk].bets.push(tb);
+        if(tb.result==="W"){groups[gk].wins++;groups[gk].pnl+=tb.payout;groups[gk].wagered+=tb.amount;}
+        else if(tb.result==="L"){groups[gk].losses++;groups[gk].pnl+=tb.payout;groups[gk].wagered+=tb.amount;}
+        else if(tb.result==="P"){groups[gk].pushes++;groups[gk].wagered+=tb.amount;}
+        else{groups[gk].pending++;}
+      });
+      var sortedKeys;
+      if(trackerSortBy==="book"){
+        sortedKeys=Object.keys(groups).sort();
+      }else{
+        sortedKeys=Object.keys(groups).sort(function(a,b){return b.localeCompare(a)});
+      }
+
+      sortedKeys.forEach(function(gk){
+        var grp=groups[gk];
+        var dateLabel;
+        if(trackerSortBy==="book"){
+          dateLabel="📚 "+gk;
+        }else{
+          var dt=gk!=="unknown"?new Date(gk+"T12:00:00"):null;
+          dateLabel=dt?dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"}):"Unknown Date";
+        }
         var grpTotal=grp.wins+grp.losses+grp.pushes;
         var grpPnlC=grp.pnl>0?"var(--acc)":grp.pnl<0?"var(--neg)":"var(--td)";
         var grpRoi=grp.wagered>0?((grp.pnl/grp.wagered)*100).toFixed(1):"0";
 
-        // Date header
+        // Group header
         h+='<div style="margin-top:14px;padding:8px 14px;background:var(--head);border:1px solid var(--bd);border-radius:8px 8px 0 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap">';
         h+='<div style="font-size:13px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">'+dateLabel+'</div>';
         h+='<div style="font-size:10px;color:var(--tm)">'+grp.bets.length+' bet'+(grp.bets.length!==1?"s":"")+'</div>';
@@ -3310,41 +3425,95 @@ function render(){
         }
         h+='</div>';
 
-        // Bets table for this date
+        // Bets table for this group
         h+='<div style="overflow-x:auto;border:1px solid var(--bd);border-top:none;border-radius:0 0 8px 8px;margin-bottom:4px"><table style="width:100%;border-collapse:collapse;font-size:10px">';
         grp.bets.forEach(function(tb,idx){
           var bg=idx%2===0?"var(--card)":"var(--alt)";
           var timeStr=tb.time?new Date(tb.time).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}):"";
-          h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
-          h+='<td style="padding:5px 6px;font-size:12px;width:20px;text-align:center">'+tb.icon+'</td>';
-          h+='<td style="padding:5px 6px;font-size:9px;color:var(--td);white-space:nowrap;width:60px">'+timeStr+'</td>';
-          h+='<td style="padding:5px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+(tb.matchup?" · "+tb.matchup:"")+'</div></td>';
-          h+='<td style="padding:5px 6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx);width:55px">'+tb.line+'</td>';
-          h+='<td style="padding:5px 6px;color:var(--tm);font-size:9px;width:70px">'+tb.book+'</td>';
-          h+='<td style="padding:5px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--tm);width:50px">$'+tb.amount+'</td>';
-          // Result + Score
-          if(tb.result==null){
-            h+='<td style="padding:5px 6px;text-align:center;width:80px"><div class="trk-res">';
-            h+='<button class="w" onclick="recordResult(\''+tb.key+'\',\'W\')">W</button>';
-            h+='<button class="l" onclick="recordResult(\''+tb.key+'\',\'L\')">L</button>';
-            h+='<button class="p" onclick="recordResult(\''+tb.key+'\',\'P\')">P</button>';
-            h+='</div></td>';
-          }else{
-            var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
-            h+='<td style="padding:5px 6px;text-align:center;width:80px">';
-            h+='<span style="font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</span>';
-            if(tb.gameScore)h+='<span style="font-size:8px;color:var(--td);margin-left:4px">('+tb.gameScore+')</span>';
-            if(tb.resolvedBy==="auto")h+='<div style="font-size:7px;color:var(--td)">auto</div>';
+          var isEditing=trackerEditKey===tb.key;
+          var escKey=tb.key.replace(/'/g,"\\'");
+
+          if(isEditing){
+            // ═══ EDIT MODE ROW ═══
+            h+='<tr style="background:rgba(0,201,255,.06);border-bottom:1px solid var(--bdL)">';
+            h+='<td style="padding:5px 6px;font-size:12px;width:20px;text-align:center">'+tb.icon+'</td>';
+            h+='<td style="padding:5px 6px;font-size:9px;color:var(--td);white-space:nowrap;width:60px">'+timeStr+'</td>';
+            h+='<td style="padding:5px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+(tb.matchup?" · "+tb.matchup:"")+'</div></td>';
+            // Editable line (odds)
+            h+='<td style="padding:5px 4px;width:65px"><input type="text" value="'+(tb.line||"")+'" onchange="editTrackedBet(\''+escKey+'\',\'line\',this.value)" style="width:55px;background:var(--alt);border:1px solid var(--ac2);border-radius:4px;padding:3px 4px;color:var(--tx);font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none"></td>';
+            // Editable book
+            h+='<td style="padding:5px 4px;width:80px"><select onchange="editTrackedBet(\''+escKey+'\',\'book\',this.value)" style="width:72px;background:var(--alt);border:1px solid var(--ac2);border-radius:4px;padding:3px 2px;color:var(--tx);font-size:9px;font-weight:600;outline:none">';
+            PA.forEach(function(bk){
+              h+='<option value="'+bk.n+'"'+(tb.book===bk.n?" selected":"")+'>'+bk.n+'</option>';
+            });
+            h+='</select></td>';
+            // Editable wager
+            h+='<td style="padding:5px 4px;text-align:right;width:60px"><input type="number" value="'+tb.amount+'" onchange="editTrackedBet(\''+escKey+'\',\'amount\',this.value)" style="width:52px;background:var(--alt);border:1px solid var(--ac2);border-radius:4px;padding:3px 4px;color:var(--tx);font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none;text-align:right"></td>';
+            // Result (unchanged)
+            if(tb.result==null){
+              h+='<td style="padding:5px 6px;text-align:center;width:80px"><div class="trk-res">';
+              h+='<button class="w" onclick="recordResult(\''+escKey+'\',\'W\')">W</button>';
+              h+='<button class="l" onclick="recordResult(\''+escKey+'\',\'L\')">L</button>';
+              h+='<button class="p" onclick="recordResult(\''+escKey+'\',\'P\')">P</button>';
+              h+='</div></td>';
+            }else{
+              var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
+              h+='<td style="padding:5px 6px;text-align:center;width:80px">';
+              h+='<span style="font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</span>';
+              if(tb.gameScore)h+='<span style="font-size:8px;color:var(--td);margin-left:4px">('+tb.gameScore+')</span>';
+              h+='<div><button onclick="ungradeResult(\''+escKey+'\')" style="font-size:7px;padding:1px 5px;border-radius:3px;border:1px solid var(--bd);background:var(--alt);color:var(--td);cursor:pointer;margin-top:2px">undo</button></div>';
+              h+='</td>';
+            }
+            // P&L
+            if(tb.result!=null){
+              var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
+              h+='<td style="padding:5px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace;width:60px">'+(tb.payout>0?"+$":"−$")+Math.abs(tb.payout).toFixed(0)+'</td>';
+            }else{
+              h+='<td style="padding:5px 6px;text-align:right;color:var(--td);width:60px">—</td>';
+            }
+            // Done + Delete buttons
+            h+='<td style="padding:5px 4px;text-align:center;width:70px">';
+            h+='<button onclick="cancelEditBet()" style="padding:2px 8px;border-radius:4px;font-size:8px;font-weight:700;border:1px solid var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2);cursor:pointer">Done</button>';
+            h+=' <button onclick="deleteTrackedBet(\''+escKey+'\')" style="padding:2px 6px;border-radius:4px;font-size:8px;font-weight:700;border:1px solid var(--neg);background:rgba(255,77,106,.08);color:var(--neg);cursor:pointer">✕</button>';
             h+='</td>';
-          }
-          // P&L
-          if(tb.result!=null){
-            var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
-            h+='<td style="padding:5px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace;width:60px">'+(tb.payout>0?"+$":"−$")+Math.abs(tb.payout).toFixed(0)+'</td>';
+            h+='</tr>';
           }else{
-            h+='<td style="padding:5px 6px;text-align:right;color:var(--td);width:60px">—</td>';
+            // ═══ DISPLAY MODE ROW ═══
+            h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)">';
+            h+='<td style="padding:5px 6px;font-size:12px;width:20px;text-align:center">'+tb.icon+'</td>';
+            h+='<td style="padding:5px 6px;font-size:9px;color:var(--td);white-space:nowrap;width:60px">'+timeStr+'</td>';
+            h+='<td style="padding:5px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+(tb.matchup?" · "+tb.matchup:"")+'</div></td>';
+            h+='<td style="padding:5px 6px;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--tx);width:55px">'+tb.line+'</td>';
+            h+='<td style="padding:5px 6px;color:var(--tm);font-size:9px;width:70px">'+tb.book+'</td>';
+            h+='<td style="padding:5px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--tm);width:50px">$'+tb.amount+'</td>';
+            // Result + Score
+            if(tb.result==null){
+              h+='<td style="padding:5px 6px;text-align:center;width:80px"><div class="trk-res">';
+              h+='<button class="w" onclick="recordResult(\''+escKey+'\',\'W\')">W</button>';
+              h+='<button class="l" onclick="recordResult(\''+escKey+'\',\'L\')">L</button>';
+              h+='<button class="p" onclick="recordResult(\''+escKey+'\',\'P\')">P</button>';
+              h+='</div></td>';
+            }else{
+              var rc3=tb.result==="W"?"var(--acc)":tb.result==="L"?"var(--neg)":"var(--warn)";
+              h+='<td style="padding:5px 6px;text-align:center;width:80px">';
+              h+='<span style="font-weight:800;color:'+rc3+';font-size:12px">'+tb.result+'</span>';
+              if(tb.gameScore)h+='<span style="font-size:8px;color:var(--td);margin-left:4px">('+tb.gameScore+')</span>';
+              if(tb.resolvedBy==="auto")h+='<div style="font-size:7px;color:var(--td)">auto</div>';
+              h+='</td>';
+            }
+            // P&L
+            if(tb.result!=null){
+              var plC=tb.payout>0?"var(--acc)":tb.payout<0?"var(--neg)":"var(--td)";
+              h+='<td style="padding:5px 6px;text-align:right;font-weight:700;color:'+plC+';font-family:\'JetBrains Mono\',monospace;width:60px">'+(tb.payout>0?"+$":"−$")+Math.abs(tb.payout).toFixed(0)+'</td>';
+            }else{
+              h+='<td style="padding:5px 6px;text-align:right;color:var(--td);width:60px">—</td>';
+            }
+            // Edit button
+            h+='<td style="padding:5px 4px;text-align:center;width:70px">';
+            h+='<button onclick="startEditBet(\''+escKey+'\')" style="padding:2px 8px;border-radius:4px;font-size:8px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--tm);cursor:pointer">Edit</button>';
+            h+='</td>';
+            h+='</tr>';
           }
-          h+='</tr>';
         });
         h+='</table></div>';
       });
@@ -3653,9 +3822,11 @@ function render(){
 
   // ═══ PUCK LINE / RUN LINE TAB ═══
   else if(S.tab==="pl"){
-    var plLabel=isNHL?"Puck Line":"Run Line";
-    var plSpreadVal=isNHL?"±1.5":"±1.5";
-    if(!isNHL){
+    var plLabel=isNHL?"Puck Line":isNBA?"Spread":"Run Line";
+    var plSpreadVal=isNHL?"±1.5":isNBA?"ATS":"±1.5";
+    if(isNBA){
+      h+='<div class="ib acc"><span style="font-size:14px">🏀</span><strong>NBA v3 Spread (ATS):</strong> At ≥15% ML edge, bet the ML-edge side ATS. Backtested: <span style="color:var(--acc)">60.4% ATS, +15.4% ROI</span> on 2024-25 test (134 bets). Spread lines from your active books.</div>';
+    }else if(!isNHL){
       h+='<div class="ib ice"><span style="font-size:14px">⚾</span><strong>v11d Backtested (honest, no bias):</strong> Dog +1.5 at 8%+ edge: 65% cover, <span style="color:var(--acc)">+8.8% ROI</span>. Fav -1.5 is negative at every threshold — removed. Only underdog +1.5 bets are shown.</div>';
     }else{
       h+='<div class="ib ice"><span style="font-size:14px">🏒</span>'+plLabel+' ('+plSpreadVal+') — favorite must win by 2+. NHL puck line not yet backtested — using MLB-derived thresholds (10%+ edge on fav side). Best odds from your active books.</div>';
@@ -3700,21 +3871,31 @@ function render(){
       var dogFairProb=homeFav?useFairA:useFairH;
 
       // v11d: ONLY Dog +1.5 is profitable. Fav -1.5 killed (negative at all thresholds)
-      // Dog +1.5: BET at 8%+ edge (65% cover, +8.8% ROI), WATCH at 5%+
-      var rlDogBet=!isNHL&&favEdge>=8&&dogSpread!=null&&dogSpread>0;
-      var rlDogWatch=!isNHL&&favEdge>=5&&favEdge<8&&dogSpread!=null&&dogSpread>0;
+      // Dog +1.5: BET at 8%+ edge (65% cover, +8.8% ROI), WATCH at 5%+ — MLB ONLY
+      var rlDogBet=!isNHL&&!isNBA&&favEdge>=8&&dogSpread!=null&&dogSpread>0;
+      var rlDogWatch=!isNHL&&!isNBA&&favEdge>=5&&favEdge<8&&dogSpread!=null&&dogSpread>0;
+
+      // NBA ATS: bet ML-edge side ATS at ≥15% ML edge (60.4% ATS, +15.4% ROI)
+      var nbaATSBet=isNBA&&g._aeTop>=15;
+      var nbaATSWatch=isNBA&&g._aeTop>=10&&g._aeTop<15;
 
       // Tags
       var tagH="";
       if(rlDogBet)tagH='<span class="tag tag-e" style="background:rgba(0,201,255,.1);color:var(--ac2);border-color:rgba(0,201,255,.2)">DOG +1.5 BET</span>';
       else if(rlDogWatch)tagH='<span class="tag tag-w">DOG +1.5 WATCH</span>';
+      if(nbaATSBet)tagH='<span class="tag tag-e">ATS BET</span>';
+      else if(nbaATSWatch)tagH='<span class="tag tag-w">ATS WATCH</span>';
       if(isNHL){
+        if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
+        if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
+      }
+      if(isNBA){
         if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
         if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
       }
 
       // +EV filter: only show games with signals
-      if(S.evOnly&&!rlDogBet&&!rlDogWatch)return;
+      if(S.evOnly&&!rlDogBet&&!rlDogWatch&&!nbaATSBet&&!nbaATSWatch)return;
 
       h+='<div class="pl-card"><div class="gh">';
       h+='<div style="flex:1 1 180px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">';
@@ -3724,14 +3905,24 @@ function render(){
       if(isNHL&&(g.homeGoalie||g.awayGoalie)){
         h+='<div style="font-size:10px;color:var(--tm);margin-top:2px">🥅 '+(g.awayGoalie||"TBD")+' vs '+(g.homeGoalie||"TBD")+'</div>';
       }
-      // v11c: Show model adjustments
-      if(!isNHL){
+      // v11c: Show model adjustments (MLB only)
+      if(!isNHL&&!isNBA){
         var adjItems=[];
         if(g.wxTotalAdj&&g.wxTotalAdj!==0)adjItems.push(g.wxDesc);
         if(g.umpMLAdj&&g.umpMLAdj!==0)adjItems.push(g.umpDesc);
         adjItems.push("📊 v11d model");
         if(adjItems.length){
           h+='<div style="font-size:9px;color:var(--ac2);margin-top:3px">'+adjItems.join(' · ')+'</div>';
+        }
+      }
+      // NBA spread context
+      if(isNBA){
+        var nbaCtx=[];
+        if(g.homeB2B&&!g.awayB2B)nbaCtx.push("🔴 "+g.home+" B2B");
+        if(g.awayB2B&&!g.homeB2B)nbaCtx.push("🔴 "+g.away+" B2B");
+        nbaCtx.push("🧠 NBA v3 model");
+        if(nbaCtx.length){
+          h+='<div style="font-size:9px;color:var(--ac2);margin-top:3px">'+nbaCtx.join(' · ')+'</div>';
         }
       }
       h+='</div>';
@@ -3753,10 +3944,11 @@ function render(){
       h+='</div></div>';
 
       // Fav edge display
-      h+='<div style="text-align:center;min-width:80px"><div class="sh">Fav Edge</div>';
+      h+='<div style="text-align:center;min-width:80px"><div class="sh">'+(isNBA?"ML Edge":"Fav Edge")+'</div>';
       var edgeCls=favEdge>=12?"ev-p":favEdge>=8?"ev-p":"ev-0";
-      h+='<div class="ev '+edgeCls+'">'+(favEdge>0?"+":"")+favEdge+'%</div>';
-      h+='<div style="font-size:9px;color:var(--td);margin-top:2px">'+favTeam+'</div>';
+      if(isNBA){edgeCls=g._aeTop>=15?"ev-p":g._aeTop>=8?"ev-p":"ev-0";}
+      h+='<div class="ev '+edgeCls+'">'+(isNBA?((g._aeTop>0?"+":"")+g._aeTop):((favEdge>0?"+":"")+favEdge))+'%</div>';
+      h+='<div style="font-size:9px;color:var(--td);margin-top:2px">'+(isNBA?(g._aeSide==="HOME"?g.home:g.away):favTeam)+'</div>';
       h+='</div>';
 
       h+='</div>';
@@ -3778,7 +3970,39 @@ function render(){
         h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+favEdge+'%</div>';
         h+='<div style="font-size:9px;color:var(--td)">Below 8% BET threshold (monitoring)</div>';
         h+='</div>';
-      }else if(favEdge<5){
+      }
+      // ── NBA ATS: Spread bet at ≥15% ML edge ──
+      if(isNBA){
+        var nbaMLEdge=g._aeTop||0;
+        var nbaSide=g._aeSide;
+        var nbaSpTeam=nbaSide==="HOME"?g.home:g.away;
+        var nbaSpLine=nbaSide==="HOME"?hSpreadShow:aSpreadShow;
+        var nbaSpOdds=nbaSide==="HOME"?(actBestHSO>-9999?actBestHSO:null):(actBestASO>-9999?actBestASO:null);
+        var nbaSpBook=nbaSide==="HOME"?actHSBook:actASBook;
+        var nbaSpLabel=nbaSpLine!=null?(nbaSpLine>0?"+"+nbaSpLine:""+nbaSpLine):"—";
+        if(nbaMLEdge>=15&&nbaSpOdds!=null&&nbaSpBook){
+          h+='<div class="bet-rec" style="margin-top:8px;background:rgba(0,255,163,.07);border-color:rgba(0,255,163,.25)">';
+          h+='<div><div class="bet-label">NBA ATS BET</div><div class="bet-team" style="font-size:14px">'+nbaSpTeam+' '+nbaSpLabel+'</div></div>';
+          h+='<div><div class="bet-label">Odds</div><div class="bet-line" style="font-size:16px">'+fml(nbaSpOdds)+'</div></div>';
+          h+='<div><div class="bet-label">Book</div><div class="bet-book">'+nbaSpBook.n+'</div></div>';
+          h+='<div><div class="bet-label">ML Edge</div><div class="bet-edge">+'+nbaMLEdge+'%</div></div>';
+          h+='<div style="font-size:9px;color:var(--td)">60.4% ATS @ 15%+ ML edge · +15.4% ROI backtested</div>';
+          h+='</div>';
+        }else if(isNBA&&nbaMLEdge>=8&&nbaMLEdge<15&&nbaSpOdds!=null&&nbaSpBook){
+          h+='<div class="bet-watch" style="margin-top:8px">';
+          h+='<div><div class="bet-label">ATS Watch</div><div class="bet-team" style="font-size:13px">'+nbaSpTeam+' '+nbaSpLabel+'</div></div>';
+          h+='<div class="bet-line">'+fml(nbaSpOdds)+'</div>';
+          h+='<div class="bet-book">@ '+nbaSpBook.n+'</div>';
+          h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+nbaMLEdge+'%</div>';
+          h+='<div style="font-size:9px;color:var(--td)">Below 15% ATS threshold (needs stronger ML edge)</div>';
+          h+='</div>';
+        }else if(isNBA&&nbaMLEdge<8){
+          h+='<div style="margin-top:0;padding:6px 12px;font-size:10px;color:var(--td);background:var(--alt);border:1px solid var(--bdL);border-top:none;border-radius:0 0 8px 8px">';
+          h+='No spread signal — ML edge +'+nbaMLEdge+'% is below 8% watch threshold.';
+          h+='</div>';
+        }
+      }
+      else if(favEdge<5&&!isNBA){
         h+='<div style="margin-top:0;padding:6px 12px;font-size:10px;color:var(--td);background:var(--alt);border:1px solid var(--bdL);border-top:none;border-radius:0 0 8px 8px">';
         h+='No '+plLabel+' signal — fav edge +'+favEdge+'% is below 5% threshold.';
         h+='</div>';
