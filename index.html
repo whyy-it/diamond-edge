@@ -4079,9 +4079,9 @@ function render(){
       // Tags
       var tagH="";
       if(rlDogBet)tagH='<span class="tag tag-e" style="background:rgba(0,201,255,.1);color:var(--ac2);border-color:rgba(0,201,255,.2)">DOG +1.5 BET</span>';
-      else if(rlDogWatch)tagH='<span class="tag tag-w">DOG +1.5 WATCH</span>';
+      else if(rlDogWatch&&!S.evOnly)tagH='<span class="tag tag-w">DOG +1.5 WATCH</span>';
       if(nbaATSBet)tagH='<span class="tag tag-e">ATS BET</span>';
-      else if(nbaATSWatch)tagH='<span class="tag tag-w">ATS WATCH</span>';
+      else if(nbaATSWatch&&!S.evOnly)tagH='<span class="tag tag-w">ATS WATCH</span>';
       if(isNHL){
         if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
         if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
@@ -4091,8 +4091,8 @@ function render(){
         if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
       }
 
-      // +EV filter: only show games with signals
-      if(S.evOnly&&!rlDogBet&&!rlDogWatch&&!nbaATSBet&&!nbaATSWatch)return;
+      // +EV filter: only show BET-level games when toggled
+      if(S.evOnly&&!rlDogBet&&!nbaATSBet)return;
 
       h+='<div class="pl-card"><div class="gh">';
       h+='<div style="flex:1 1 180px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">';
@@ -4159,7 +4159,7 @@ function render(){
         h+='<div><div class="bet-label">Fav Edge</div><div class="bet-edge" style="color:var(--ac2)">+'+favEdge+'%</div></div>';
         h+='<div style="font-size:9px;color:var(--td)">65% cover @ 8%+ · ROI +8.8% · Covers if dog wins OR loses by 1</div>';
         h+='</div>';
-      }else if(rlDogWatch&&dogBook&&dogOdds!=null){
+      }else if(rlDogWatch&&!S.evOnly&&dogBook&&dogOdds!=null){
         h+='<div class="bet-watch" style="margin-top:0;border-top:none;border-top-left-radius:0;border-top-right-radius:0">';
         h+='<div><div class="bet-label">Watch Dog +1.5</div><div class="bet-team" style="font-size:13px">'+dogTeam+' +1.5</div></div>';
         h+='<div class="bet-line">'+fml(dogOdds)+'</div>';
@@ -4185,7 +4185,7 @@ function render(){
           h+='<div><div class="bet-label">ML Edge</div><div class="bet-edge">+'+nbaMLEdge+'%</div></div>';
           h+='<div style="font-size:9px;color:var(--td)">60.4% ATS @ 15%+ ML edge · +15.4% ROI backtested</div>';
           h+='</div>';
-        }else if(isNBA&&nbaMLEdge>=8&&nbaMLEdge<15&&nbaSpOdds!=null&&nbaSpBook){
+        }else if(isNBA&&!S.evOnly&&nbaMLEdge>=8&&nbaMLEdge<15&&nbaSpOdds!=null&&nbaSpBook){
           h+='<div class="bet-watch" style="margin-top:8px">';
           h+='<div><div class="bet-label">ATS Watch</div><div class="bet-team" style="font-size:13px">'+nbaSpTeam+' '+nbaSpLabel+'</div></div>';
           h+='<div class="bet-line">'+fml(nbaSpOdds)+'</div>';
@@ -4193,13 +4193,13 @@ function render(){
           h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+nbaMLEdge+'%</div>';
           h+='<div style="font-size:9px;color:var(--td)">Below 15% ATS threshold (needs stronger ML edge)</div>';
           h+='</div>';
-        }else if(isNBA&&nbaMLEdge<8){
+        }else if(isNBA&&!S.evOnly&&nbaMLEdge<8){
           h+='<div style="margin-top:0;padding:6px 12px;font-size:10px;color:var(--td);background:var(--alt);border:1px solid var(--bdL);border-top:none;border-radius:0 0 8px 8px">';
           h+='No spread signal — ML edge +'+nbaMLEdge+'% is below 8% watch threshold.';
           h+='</div>';
         }
       }
-      else if(favEdge<5&&!isNBA){
+      else if(!S.evOnly&&favEdge<5&&!isNBA){
         h+='<div style="margin-top:0;padding:6px 12px;font-size:10px;color:var(--td);background:var(--alt);border:1px solid var(--bdL);border-top:none;border-radius:0 0 8px 8px">';
         h+='No '+plLabel+' signal — fav edge +'+favEdge+'% is below 5% threshold.';
         h+='</div>';
