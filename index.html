@@ -1336,7 +1336,7 @@ function computeNBAv1Features(g){
   var hF=fatigue[g.home]||{b2b:false,restDays:3};
   var aF=fatigue[g.away]||{b2b:false,restDays:3};
 
-  // Baselines (prior-year stats — used for pace, efg, tov, oreb, ft_rate only)
+  // Baselines (prior-year stats)
   var bl_h=NBA_TEAM_BASELINE[g.home]||{offRtg:110,defRtg:112,netRtg:-2,pace:100,efg:.530,tovPct:14,orebPct:26,ftRate:.26};
   var bl_a=NBA_TEAM_BASELINE[g.away]||{offRtg:110,defRtg:112,netRtg:-2,pace:100,efg:.530,tovPct:14,orebPct:26,ftRate:.26};
 
@@ -1344,19 +1344,32 @@ function computeNBAv1Features(g){
   var aGP=Math.max(aS.gp||1,1);
   var hWP=(hS.wins||0)/hGP; var aWP=(aS.wins||0)/aGP;
 
-  // Net rating: real margin/game from scoreboard, blended with baseline
-  var blend_h=Math.min(0.9,hGP/60);
-  var blend_a=Math.min(0.9,aGP/60);
-  var h_net_raw=hS.netRtg||hS.avgMargin||0;
-  var a_net_raw=aS.netRtg||aS.avgMargin||0;
-  var h_net=(h_net_raw!==0&&hS.sampleGames>=5)?bl_h.netRtg*(1-blend_h)+h_net_raw*blend_h:bl_h.netRtg;
-  var a_net=(a_net_raw!==0&&aS.sampleGames>=5)?bl_a.netRtg*(1-blend_a)+a_net_raw*blend_a:bl_a.netRtg;
+  // ════════════════════════════════════════════
+  // CRITICAL: f_net_rtg and f_margin must be DIFFERENT signals
+  // In training: f_net_rtg = prior-year team rating (stable)
+  //              f_margin = rolling L10 margin (recent form)
+  // ════════════════════════════════════════════
 
-  // PPG for/against: real from scoreboard
-  var hPF=hS.ppg||hS.offRtg||(hS.ptsFor?hS.ptsFor/hGP:0)||bl_h.offRtg;
-  var hPA=hS.papg||hS.defRtg||(hS.ptsAgainst?hS.ptsAgainst/hGP:0)||bl_h.defRtg;
-  var aPF=aS.ppg||aS.offRtg||(aS.ptsFor?aS.ptsFor/aGP:0)||bl_a.offRtg;
-  var aPA=aS.papg||aS.defRtg||(aS.ptsAgainst?aS.ptsAgainst/aGP:0)||bl_a.defRtg;
+  // f_net_rtg: STABLE season-long team quality
+  // Blend prior-year baseline with full-season win%-derived estimate
+  // NBA research: net_rtg ≈ (win% - 0.5) × 30
+  var blend_season=Math.min(0.85,hGP/82);// full-season blend (82 games = full year)
+  var a_blend_season=Math.min(0.85,aGP/82);
+  var h_net_from_wp=(hWP-0.5)*30;// e.g. .600 team → +3.0 net rtg
+  var a_net_from_wp=(aWP-0.5)*30;
+  var h_net_stable=(hGP>=15)?bl_h.netRtg*(1-blend_season)+h_net_from_wp*blend_season:bl_h.netRtg;
+  var a_net_stable=(aGP>=15)?bl_a.netRtg*(1-a_blend_season)+a_net_from_wp*a_blend_season:bl_a.netRtg;
+
+  // f_margin: RECENT FORM from 25-day sample margins
+  // Only use the sample data — this is the volatile/recent signal
+  var h_margin_recent=hS.avgMargin||0;
+  var a_margin_recent=aS.avgMargin||0;
+
+  // Pyth: use real PPG from scoreboard sample (25 days)
+  var hPF=hS.ppg||(hS.ptsFor?hS.ptsFor/Math.max(hS.sampleGames||1,1):0)||bl_h.offRtg;
+  var hPA=hS.papg||(hS.ptsAgainst?hS.ptsAgainst/Math.max(hS.sampleGames||1,1):0)||bl_h.defRtg;
+  var aPF=aS.ppg||(aS.ptsFor?aS.ptsFor/Math.max(aS.sampleGames||1,1):0)||bl_a.offRtg;
+  var aPA=aS.papg||(aS.ptsAgainst?aS.ptsAgainst/Math.max(aS.sampleGames||1,1):0)||bl_a.defRtg;
 
   function nba_pyth(pf,pa){var e=14;return Math.pow(pf,e)/(Math.pow(pf,e)+Math.pow(pa,e))||0.5;}
   var hPyth=nba_pyth(hPF,hPA); var aPyth=nba_pyth(aPF,aPA);
@@ -1366,7 +1379,7 @@ function computeNBAv1Features(g){
   var aL10W=aS.l10w||0;var aL10L=aS.l10l||0;var aL10T=Math.max(aL10W+aL10L,1);
   var hL10=hL10W/hL10T; var aL10=aL10W/aL10T;
 
-  // L20 win%: real from scoreboard
+  // L20 win%: from scoreboard or full season
   var hL20=hS.l20wp||hWP;var aL20=aS.l20wp||aWP;
 
   // Rest
@@ -1377,17 +1390,13 @@ function computeNBAv1Features(g){
   var hAbbr=NBA_ABBREVS[g.home]||"";var aAbbr=NBA_ABBREVS[g.away]||"";
   var tzDiff=Math.abs((NBA_TZ[hAbbr]||0)-(NBA_TZ[aAbbr]||0));
 
-  // Recent margin from scoreboard data (for f_margin)
-  var h_margin=hS.avgMargin||h_net_raw||0;
-  var a_margin=aS.avgMargin||a_net_raw||0;
-
   var features={
     f_home:1.0,
-    f_net_rtg:(h_net-a_net)/10,
+    f_net_rtg:(h_net_stable-a_net_stable)/10,  // STABLE: season-long quality
     f_pyth:(hPyth-aPyth)*5,
     f_l10:(hL10-aL10)*3,
     f_l20:(hL20-aL20)*3,
-    f_margin:(h_margin-a_margin)/10,
+    f_margin:(h_margin_recent-a_margin_recent)/10,  // RECENT: 25-day sample form
     f_pace:(bl_h.pace-bl_a.pace)/5,
     f_rest:Math.min(2,Math.max(-2,h_rest-a_rest)),
     f_b2b:a_b2b-h_b2b,
@@ -1397,10 +1406,9 @@ function computeNBAv1Features(g){
     f_ft_rate:(bl_h.ftRate-bl_a.ftRate)*10,
     f_travel:tzDiff/3*(a_rest<=1?1:0),
     f_streak:Math.min(2,Math.max(-2,((hS.streakType==="W"?hS.streak||0:-(hS.streak||0))-(aS.streakType==="W"?aS.streak||0:-(aS.streak||0)))/3)),
-    f_b2b_x_rtg:(a_b2b-h_b2b)*Math.abs((h_net-a_net)/10),
+    f_b2b_x_rtg:(a_b2b-h_b2b)*Math.abs((h_net_stable-a_net_stable)/10),
     f_rest_x_form:Math.min(2,Math.max(-2,h_rest-a_rest))*(hL10-aL10)*3,
     f_pace_x_efg:(bl_h.pace-bl_a.pace)/5*(bl_h.efg-bl_a.efg)*20,
-    // v3: Scoring trend — recent PPG differential from real game scores
     f_scoring_trend:((hS.recentPPG||hPF)-(aS.recentPPG||aPF))/10,
   };
 
