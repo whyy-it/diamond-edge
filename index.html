@@ -1332,9 +1332,11 @@ function calcInjuryImpact(teamName, injuries){
 function computeNBAv1Features(g){
   var standings=S.nba.standings||{};
   var fatigue=S.nba.fatigue||{};
-  var hS=standings[g.home]||{};var aS=standings[g.away]||{};
-  var hF=fatigue[g.home]||{b2b:false,restDays:3};
-  var aF=fatigue[g.away]||{b2b:false,restDays:3};
+  var NBA_NAME_ALIASES={"Los Angeles Clippers":"LA Clippers","LA Clippers":"Los Angeles Clippers"};
+  var hS=standings[g.home]||standings[NBA_NAME_ALIASES[g.home]||""]||{};
+  var aS=standings[g.away]||standings[NBA_NAME_ALIASES[g.away]||""]||{};
+  var hF=fatigue[g.home]||fatigue[NBA_NAME_ALIASES[g.home]||""]||{b2b:false,restDays:3};
+  var aF=fatigue[g.away]||fatigue[NBA_NAME_ALIASES[g.away]||""]||{b2b:false,restDays:3};
 
   // Baselines (prior-year stats)
   var bl_h=NBA_TEAM_BASELINE[g.home]||{offRtg:110,defRtg:112,netRtg:-2,pace:100,efg:.530,tovPct:14,orebPct:26,ftRate:.26};
@@ -1418,14 +1420,26 @@ function computeNBAv1Features(g){
 
 function enrichNBAGames(games){
   var standings=S.nba.standings||{};var fatigue=S.nba.fatigue||{};var injuries=S.nba.injuries||{};
-  // Safety: check if standings actually loaded (any team with wins > 0)
+  
+  // Name aliases: Odds API ↔ ESPN can differ
+  var NBA_NAME_ALIASES={"Los Angeles Clippers":"LA Clippers","LA Clippers":"Los Angeles Clippers"};
+  function findStandings(name){
+    return standings[name]||standings[NBA_NAME_ALIASES[name]||""]||{};
+  }
+  function findFatigue(name){
+    return fatigue[name]||fatigue[NBA_NAME_ALIASES[name]||""]||{b2b:false,restDays:3};
+  }
+  function findInjuries(name){
+    return injuries[name]||injuries[NBA_NAME_ALIASES[name]||""]||[];
+  }
+  
   var standingsLoaded=Object.values(standings).some(function(s){return(s.wins||0)>0;});
   if(!standingsLoaded)console.log("[DE] WARNING: NBA standings empty — model predictions will use baselines only");
   return games.map(function(g){
     var hAbbr=NBA_ABBREVS[g.home]||"";var aAbbr=NBA_ABBREVS[g.away]||"";
-    var hS=standings[g.home]||{};var aS=standings[g.away]||{};
-    var hF=fatigue[g.home]||{b2b:false,restDays:3};
-    var aF=fatigue[g.away]||{b2b:false,restDays:3};
+    var hS=findStandings(g.home);var aS=findStandings(g.away);
+    var hF=findFatigue(g.home);
+    var aF=findFatigue(g.away);
 
     g.homeB2B=hF.b2b;g.awayB2B=aF.b2b;g.homeRest=hF.restDays||3;g.awayRest=aF.restDays||3;
     g.homeRecord=(hS.wins||0)+"-"+(hS.losses||0);
@@ -1442,8 +1456,9 @@ function enrichNBAGames(games){
     var aInj=calcInjuryImpact(g.away,injuries);
     g.homeInjury=hInj; g.awayInjury=aInj;
     g.injurySwing=+(aInj.totalImpact-hInj.totalImpact).toFixed(1);
-    g.homeInjuryList=(injuries[g.home]||[]).filter(function(i){return i.status==="out"||i.status==="doubtful";});
-    g.awayInjuryList=(injuries[g.away]||[]).filter(function(i){return i.status==="out"||i.status==="doubtful";});
+    var hInjList=findInjuries(g.home);var aInjList=findInjuries(g.away);
+    g.homeInjuryList=(Array.isArray(hInjList)?hInjList:[]).filter(function(i){return i.status==="out"||i.status==="doubtful";});
+    g.awayInjuryList=(Array.isArray(aInjList)?aInjList:[]).filter(function(i){return i.status==="out"||i.status==="doubtful";});
 
     // ═══ NBA V1 ML MODEL (base, no injury adjustment — backtested +26% ROI) ═══
     var features=computeNBAv1Features(g);
@@ -1461,11 +1476,19 @@ function enrichNBAGames(games){
     g.modelTopEdge=Math.max(g.modelHEdge,g.modelAEdge);
     g.modelBetSide=g.modelTopEdge>5?(g.modelHEdge>=g.modelAEdge?"HOME":"AWAY"):null;
 
-    // Safety: suppress bets if standings didn't load (baselines alone produce garbage edges)
+    // Safety: suppress bets if standings didn't load
     if(!standingsLoaded){
       g.modelTopEdge=0;g.modelHEdge=0;g.modelAEdge=0;g.modelBetSide=null;
       g.standingsWarning=true;
     }
+    // Safety: suppress if EITHER team has no data loaded (name mismatch, etc.)
+    var hGP2=(hS.gp||hS.wins||0);var aGP2=(aS.gp||aS.wins||0);
+    if(hGP2===0||aGP2===0){
+      g.modelTopEdge=0;g.modelHEdge=0;g.modelAEdge=0;g.modelBetSide=null;
+      g.dataWarning=true;
+    }
+    // Cap edge at 40% — extreme edges on long-shot lines are noise
+    if(g.modelTopEdge>40){g.modelTopEdge=40;g.modelHEdge=Math.min(40,g.modelHEdge);g.modelAEdge=Math.min(40,g.modelAEdge);g.edgeCapped=true;}
 
     // ═══ SIGNALS ═══
     var signals=[];
@@ -1492,6 +1515,8 @@ function enrichNBAGames(games){
       signals.push({icon:"💤",text:(g.restDiff>0?g.home:g.away)+" rest advantage",type:g.restDiff>0?"boost":"fade"});}
     if(g.tzDiff>=2&&(g.awayRest||3)<=1)signals.push({icon:"✈️",text:g.away+" crossed "+g.tzDiff+" TZ on short rest",type:"boost"});
     if(g.standingsWarning)signals.push({icon:"⚠️",text:"Standings not loaded — edges suppressed, predictions unreliable",type:"neutral"});
+    if(g.dataWarning)signals.push({icon:"⚠️",text:"Missing data for one or both teams — edges suppressed",type:"neutral"});
+    if(g.edgeCapped)signals.push({icon:"📊",text:"Edge capped at 40% (long-shot line amplification)",type:"neutral"});
     if(!signals.length)signals.push({icon:"🏀",text:"No strong signals",type:"neutral"});
     g.signals=signals;
 
