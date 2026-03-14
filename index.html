@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Diamond Edge — MLB + NHL v5 + NBA v1 Betting Model</title>
+<title>Diamond Edge — Sports Betting Model</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0c0e17;--card:#141724;--alt:#111320;--head:#111422;--bd:#1f2338;--bdL:#181c30;--acc:#00ffa3;--ac2:#00c9ff;--tx:#e5e8f2;--tm:#9ca1b8;--td:#5e6380;--tf:#3c4058;--neg:#ff4d6a;--warn:#ff9f43;--ovBg:rgba(0,255,163,0.07);--unBg:rgba(255,77,106,0.07);--ice:#38bdf8;--iceBg:rgba(56,189,248,0.07)}
@@ -378,7 +378,6 @@ var NBA_STAR_IMPACT={
   "Dejounte Murray":{team:"New Orleans Pelicans",impact:3.5,pos:"G"},
   "Brandon Ingram":{team:"New Orleans Pelicans",impact:3.5,pos:"F"},
   "Kawhi Leonard":{team:"Los Angeles Clippers",impact:5.5,pos:"F"},
-  "LA Clippers":{team:"Los Angeles Clippers",impact:5.5,pos:"F"}, // alias
   "Paul George":{team:"Philadelphia 76ers",impact:4.5,pos:"F"},
   "James Harden":{team:"Los Angeles Clippers",impact:4.0,pos:"G"},
   "Kyrie Irving":{team:"Dallas Mavericks",impact:4.5,pos:"G"},
@@ -1466,7 +1465,7 @@ function enrichNBAGames(games){
     g.homeInjuryList=(Array.isArray(hInjList)?hInjList:[]).filter(function(i){return i.status==="out"||i.status==="doubtful";});
     g.awayInjuryList=(Array.isArray(aInjList)?aInjList:[]).filter(function(i){return i.status==="out"||i.status==="doubtful";});
 
-    // ═══ NBA V1 ML MODEL (base, no injury adjustment — backtested +26% ROI) ═══
+    // ═══ NBA V3 ML MODEL (base, no injury adjustment — backtested +27.4% ROI @8%) ═══
     var features=computeNBAv1Features(g);
     var mlProb=predictNBA_ML(features);
     g.modelProb=+mlProb.toFixed(4);
@@ -2835,8 +2834,13 @@ function render(){
   recomputeActiveEdges(S.nba.games||[], false, true);
 
   var games=S.games.slice();
-  // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
-  if(S.evOnly)games=games.filter(function(g){return g._aeTop>3});
+  // +EV filter: use league-specific backtested profitable thresholds
+  // NHL: 5% home / 7% away, NBA: 8%, MLB: 10%
+  if(S.evOnly)games=games.filter(function(g){
+    var side=g._aeSide;
+    var thresh=isNHL?(side==="HOME"?5:7):isNBA?8:10;
+    return g._aeTop>=thresh;
+  });
   if(S.sortBy==="edge")games.sort(function(a,b){return b._aeTop-a._aeTop});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
   var edgeOf=function(g){return g._aeTop};
@@ -2855,7 +2859,8 @@ function render(){
   var h="";
 
   // ── LEAGUE BAR ──
-  h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">v11d</span></div></div>';
+  var versionLabel=isNHL?"NHL v5":isNBA?"NBA v3":"MLB v11d";
+  h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">'+versionLabel+'</span></div></div>';
   // Today's Bets global button (FIRST after leagues)
   var betsOn=S.league==="bets";
   h+='<button class="lbtn'+(betsOn?" on":"")+'" onclick="S.league=\'bets\';S.tab=\'bets\';render()" style="'+(betsOn?"border-bottom-color:var(--acc);color:var(--acc)":"")+'"><span style="font-size:14px">📋</span>Bets</button>';
@@ -2951,7 +2956,7 @@ function render(){
     h+='<button class="cb'+(S.sortBy==="edge"?" on":"")+'" onclick="S.sortBy=\'edge\';render()"><span class="d"></span>By Edge</button>';
     h+='<button class="cb'+(S.sortBy==="time"?" on":"")+'" onclick="S.sortBy=\'time\';render()"><span class="d"></span>By Time</button>';
     h+='<div class="sep"></div>';
-    h+='<button class="cb'+(S.evOnly?" on":"")+'" onclick="S.evOnly=!S.evOnly;render()"><span class="d"></span>+EV Only</button>';
+    h+='<button class="cb'+(S.evOnly?" on":"")+'" onclick="S.evOnly=!S.evOnly;render()"><span class="d"></span>Bets Only</button>';
     h+='<div style="flex:1"></div>';
     var abApi=ab.filter(function(b){return b.api}).length;
     h+='<button class="cb" onclick="S.showBooks=!S.showBooks;render()">📚 '+abApi+' active / '+ab.length+' on</button>';
@@ -2982,13 +2987,13 @@ function render(){
     h+='<div class="empty"><div class="empty-i">'+leagueIcon+'</div>';
     h+='<div class="empty-t sg">No '+(isNHL?"NHL":isNBA?"NBA":"MLB")+' Games Available</div>';
     if(isNBA){
-      h+='<div class="empty-d">The NBA regular season runs October through April, with playoffs through June. Once games are on the board, this dashboard populates with live ML odds from all 11 PA sportsbooks, trained model predictions (66.9% acc), injury reports, back-to-back detection, and rest differentials.</div>';
-      h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">NBA Model Status</div><div style="font-size:12px;line-height:1.8">';
+      h+='<div class="empty-d">The NBA regular season runs October through April, with playoffs through June. Once games are on the board, this dashboard populates with live ML odds from all 11 PA sportsbooks, trained model predictions (66.6% acc), injury reports, back-to-back detection, and rest differentials.</div>';
+      h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">NBA v3 Model Status</div><div style="font-size:12px;line-height:1.8">';
       h+='<div>✅ Direct Odds API (basketball_nba)</div>';
       h+='<div>✅ NBA Standings + Rest/B2B Detection</div>';
       h+='<div>✅ ESPN Injury Report (star player tracking)</div>';
       h+='<div>✅ 55+ Star Impact Database (spread swing values)</div>';
-      h+='<div>✅ ML Model (18 features, 66.9% acc, +26% ROI)</div>';
+      h+='<div>✅ ML Model (19 features, 66.6% acc, +27.4% ROI @8%)</div>';
       h+='<div>✅ Injury-Adjusted Spread Model (prob → margin + star OUT swing)</div>';
       h+='<div>✅ O/U Model (pace + efficiency + injury adjustment)</div>';
       h+='<div>✅ Travel fatigue (timezone crossings)</div>';
@@ -3440,7 +3445,7 @@ function render(){
       h+='<div class="mono" style="font-size:10px;color:var(--td)">'+fd(g.time)+' · '+ft(g.time)+'</div>';
 
       // MLB: pitcher info
-      if(!isNHL){
+      if(!isNHL&&!isNBA){
         var info=S.mlb.lineups[g.home]||{};
         if(info.homePitcher)h+='<div style="font-size:10px;color:var(--tm);margin-top:2px">'+info.awayPitcher+' vs '+info.homePitcher+'</div>';
       }
@@ -3560,8 +3565,22 @@ function render(){
         }
       }
 
-      // MLB Context row — v11c: show model adjustments
-      if(!isNHL){
+      // NBA Context row — v3 model signals
+      if(isNBA){
+        var ctxItems=[];
+        if(g.homeB2B||g.awayB2B){
+          if(g.homeB2B&&!g.awayB2B)ctxItems.push("🔴 "+g.home+" B2B");
+          if(g.awayB2B&&!g.homeB2B)ctxItems.push("🔴 "+g.away+" B2B");
+          if(g.homeB2B&&g.awayB2B)ctxItems.push("🟡 Both B2B");
+        }
+        if(Math.abs(g.restDiff||0)>=2)ctxItems.push("💤 "+(g.restDiff>0?g.home:g.away)+" rest edge");
+        if(g.tzDiff>=2)ctxItems.push("✈️ "+g.tzDiff+" TZ crossed");
+        ctxItems.push("🧠 NBA v3 model");
+        if(ctxItems.length){h+='<div class="ctx">';ctxItems.forEach(function(ci){h+='<span class="ctx-item">'+ci+'</span>'});h+='</div>';}
+      }
+
+      // MLB Context row — v11d: show model adjustments
+      if(!isNHL&&!isNBA){
         var info=S.mlb.lineups[g.home]||{};
         var wx=S.mlb.weather[g.home];
         var fat=S.mlb.fatigue[g.home]||{};
@@ -3923,7 +3942,7 @@ function render(){
   var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
   var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
   var ftNBAStr=ftNBA.total>0?"NBA: "+ftNBA.wins+"W-"+ftNBA.losses+"L · "+(ftNBA.profit>0?"+$":"$")+Math.abs(ftNBA.profit).toFixed(0)+" ("+ftNBA.roi+"% ROI)":"NBA: awaiting results";
-  h+='<div class="ft">DIAMOND EDGE v11d · '+ftNHLStr+' · '+ftMLBStr+' · '+ftNBAStr+' · 21+ · 1-800-GAMBLER</div>';
+  h+='<div class="ft">DIAMOND EDGE · MLB v11d · NHL v5 · NBA v3 · '+ftNHLStr+' · '+ftMLBStr+' · '+ftNBAStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
