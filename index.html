@@ -2801,17 +2801,19 @@ function render(){
   
   // ── Recompute edges from ACTIVE books for ALL leagues' games ──
   // This ensures filter, sort, display, bets tab, and status bar all use consistent values
-  function recomputeActiveEdges(gameList, forNHL){
+  function recomputeActiveEdges(gameList, forNHL, forNBA){
     gameList.forEach(function(g){
       var ahml=-9999,aaml=-9999;
       ab.forEach(function(bk){var d=g.bd[bk.id];if(!d)return;if(d.homeML!=null&&d.homeML>ahml)ahml=d.homeML;if(d.awayML!=null&&d.awayML>aaml)aaml=d.awayML;});
       var fH=(g.modelFairH||g.fairH);
       var fA=(g.modelFairA||g.fairA);
-      if(forNHL&&g.modelProb!=null&&ahml>-9999){
+      if((forNHL||forNBA)&&g.modelProb!=null&&ahml>-9999){
+        // Probability edge: model prob vs vig-removed market prob
         var hImp=ml2p(ahml);var aImp=ml2p(aaml);var vigT=hImp+aImp;
         g._aeH=+((g.modelProb-hImp/vigT)*100).toFixed(1);
         g._aeA=+(((1-g.modelProb)-aImp/vigT)*100).toFixed(1);
       }else if(ahml>-9999&&fH){
+        // MLB: EV-based edge
         g._aeH=+((1/ml2p(ahml))*(fH/100)*100-100).toFixed(1);
         g._aeA=+((1/ml2p(aaml))*(fA/100)*100-100).toFixed(1);
       }else{
@@ -2822,9 +2824,9 @@ function render(){
       g._aeSide=(g._aeH>=g._aeA)?"HOME":"AWAY";
     });
   }
-  recomputeActiveEdges(S.nhl.games||[], true);
-  recomputeActiveEdges(S.mlb.games||[], false);
-  recomputeActiveEdges(S.nba.games||[], false);
+  recomputeActiveEdges(S.nhl.games||[], true, false);
+  recomputeActiveEdges(S.mlb.games||[], false, false);
+  recomputeActiveEdges(S.nba.games||[], false, true);
 
   var games=S.games.slice();
   // +EV filter: on ML/PL tabs, filter by game edge. On props tab, show all games (filter happens at prop level)
