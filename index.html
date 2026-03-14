@@ -739,30 +739,34 @@ async function autoResolveTracked(){
     }catch(e){resolveStatus.errors.push("NHL "+dateStr2+": "+e.message);}
   }
 
-  // ── Fetch NBA scores ──
+  // ── Fetch NBA scores (via ESPN — reliable, no CORS issues) ──
   for(var di3=0;di3<datesToFetch.length;di3++){
     var dateStr3b=datesToFetch[di3];
     try{
-      var nbaUrl="https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json";
-      // For past dates, try the stats API
-      var today3=localDS();
-      if(dateStr3b!==today3){
-        nbaUrl="https://stats.nba.com/stats/scoreboardv3?GameDate="+dateStr3b+"&LeagueID=00";
-      }
-      var nr=await corsProxyFetch(nbaUrl);
+      var ds3=dateStr3b.replace(/-/g,"");// YYYYMMDD for ESPN
+      var nbaUrl="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates="+ds3;
+      var nr=null;
+      try{var ac3=new AbortController();var tm3=setTimeout(function(){ac3.abort()},6000);nr=await fetch(nbaUrl,{signal:ac3.signal});clearTimeout(tm3);}catch(e){}
+      if(!nr||!nr.ok){try{nr=await corsProxyFetch(nbaUrl);}catch(e2){}}
       if(nr&&nr.ok){
         var nd3=JSON.parse(await nr.text());
-        var nbGames=nd3.scoreboard?nd3.scoreboard.games:nd3.games||[];
-        nbGames.forEach(function(g){
-          var status=g.gameStatus||g.statusNum||0;
-          if(status<3)return; // Not final
-          var ht=g.homeTeam||{};var at=g.awayTeam||{};
-          var hName=(ht.teamCity||"")+" "+(ht.teamName||"");
-          var aName=(at.teamCity||"")+" "+(at.teamName||"");
-          hName=hName.trim();aName=aName.trim();
-          if(hName&&aName){
-            scores[aName+" @ "+hName+"_"+dateStr3b]={home:hName,away:aName,homeScore:ht.score||0,awayScore:at.score||0};
-          }
+        var events3=nd3.events||[];
+        events3.forEach(function(ev){
+          var completed=ev.status&&ev.status.type&&ev.status.type.completed;
+          if(!completed)return;
+          (ev.competitions||[]).forEach(function(comp){
+            var cs=comp.competitors||[];
+            if(cs.length!==2)return;
+            var home=cs.find(function(c){return c.homeAway==="home"});
+            var away=cs.find(function(c){return c.homeAway==="away"});
+            if(!home||!away)return;
+            var hName=home.team?home.team.displayName||home.team.name:"";
+            var aName=away.team?away.team.displayName||away.team.name:"";
+            var hScore=parseInt(home.score)||0;
+            var aScore=parseInt(away.score)||0;
+            if(!hName||!aName)return;
+            scores[aName+" @ "+hName+"_"+dateStr3b]={home:hName,away:aName,homeScore:hScore,awayScore:aScore};
+          });
         });
       }
     }catch(e){resolveStatus.errors.push("NBA "+dateStr3b+": "+e.message);}
@@ -2858,7 +2862,7 @@ async function loadNBA(){
 }
 
 function syncActive(){
-  if(S.league==="bets"||S.league==="tracker"){
+  if(S.league==="bets"||S.league==="tracker"||S.league==="books"){
     S.games=[];S.loading=false;S.error=null;S.lastFetch=null;
     return;
   }
@@ -2898,9 +2902,10 @@ function switchLeague(key){
   S.league=key;
   if(key==="bets"){S.tab="bets";}
   else if(key==="tracker"){S.tab="tracker";}
+  else if(key==="books"){S.tab="books";}
   else{S.tab="ml";S.expanded={};}
   syncActive();
-  if(key!=="bets"&&key!=="tracker"){
+  if(key!=="bets"&&key!=="tracker"&&key!=="books"){
     var ld=S[key]||{};
     if(!ld.lastFetch&&!ld.loading)loadCurrent();
     else render();
@@ -2991,9 +2996,12 @@ function render(){
     var cls="lbtn"+(S.league===lg.key?" on":"")+(lg.on?"":" off");
     h+='<button class="'+cls+'" onclick="'+(lg.on?"switchLeague('"+lg.key+"')":"")+'"><span style="font-size:14px">'+lg.icon+'</span>'+lg.label+(lg.on?"":'<span class="soon">SOON</span>')+'</button>';
   });
-  // Tracker button (LAST)
+  // Tracker button
   var trackerOn=S.league==="tracker";
   h+='<button class="lbtn'+(trackerOn?" on":"")+'" onclick="S.league=\'tracker\';S.tab=\'tracker\';render()" style="'+(trackerOn?"border-bottom-color:var(--warn);color:var(--warn)":"")+'"><span style="font-size:14px">📈</span>Tracker</button>';
+  // Books button
+  var booksOn2=S.league==="books";
+  h+='<button class="lbtn'+(booksOn2?" on":"")+'" onclick="switchLeague(\'books\')" style="'+(booksOn2?"border-bottom-color:var(--ac2);color:var(--ac2)":"")+'"><span style="font-size:14px">📚</span>Books</button>';
 
   // ── TRACKER STATS in top bar ──
   var ts=trackerStats();
@@ -3031,7 +3039,7 @@ function render(){
   }
 
   // ── STATUS (skip for global bets/tracker view) ──
-  if(S.league!=="bets"&&S.league!=="tracker"){
+  if(S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
   h+='<div class="status">';
   if(betCount>0){
     h+='<div class="sbox"><span class="sval mono" style="color:var(--acc)">'+betCount+'</span><span class="slbl">bets</span></div>';
@@ -3063,11 +3071,11 @@ function render(){
   if(S.remaining)h+='<span class="mono" style="font-size:9px;color:var(--tf)">API: '+S.remaining+'</span>';
   if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
   h+='<button class="rbtn" onclick="refreshAll()"'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh All')+'</button></div>';
-  } // end S.league!=="bets"&&S.league!=="tracker" status bar
+  } // end S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books" status bar
 
   // ── TABS (skip for global bets/tracker view) ──
-  if(S.league!=="bets"&&S.league!=="tracker"){
-  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":isNBA?"Spread":"Run Line",i:isNHL?"🏒":isNBA?"🏀":"⚾"},{k:"ou",l:"Over / Under",i:"📊"},{k:"books",l:"Books",i:"📚"}];
+  if(S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
+  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":isNBA?"Spread":"Run Line",i:isNHL?"🏒":isNBA?"🏀":"⚾"},{k:"ou",l:"Over / Under",i:"📊"}];
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
@@ -3094,16 +3102,16 @@ function render(){
     });
     h+='</div>';
   }
-  } // end S.league!=="bets"&&S.league!=="tracker" tabs+controls
+  } // end S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books" tabs+controls
 
   // ── CONTENT ──
   h+='<div class="cnt">';
 
-  if(S.loading&&S.league!=="bets"&&S.league!=="tracker"){
+  if(S.loading&&S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
     h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">'+leagueIcon+'</div>';
     h+='<div style="font-size:15px;font-weight:700;color:var(--tm)">Pulling live '+(isNHL?"NHL":isNBA?"NBA":"MLB")+' odds + game context...</div>';
     h+='<div style="font-size:12px;margin-top:8px;color:var(--td)">Odds API'+(isNHL?" · NHL Stats · Standings · Schedule":isNBA?" · NBA Standings · Rest/B2B · Injuries (ESPN)":" · MLB Stats · Weather")+'</div></div>';
-  } else if(S.error&&S.league!=="bets"&&S.league!=="tracker"){
+  } else if(S.error&&S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
     h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div style="font-size:14px;font-weight:700;color:var(--neg)">Error loading odds</div><div style="font-size:11px;margin-top:6px;color:var(--td);max-width:400px;margin:6px auto;word-break:break-word">'+S.error+'</div><button class="rbtn" style="margin-top:14px;padding:8px 20px;border-color:var(--acc);color:var(--acc)" onclick="refreshAll()">Try Again</button></div>';
   } else if(!games.length&&S.tab!=="books"&&S.tab!=="bets"&&S.tab!=="tracker"){
     h+='<div class="empty"><div class="empty-i">'+leagueIcon+'</div>';
@@ -3485,7 +3493,63 @@ function render(){
       }
       h+='</div>';
 
-      // ── Sort bets ──
+      // ═══ CUMULATIVE P&L CHART ═══
+      var gradedBets=trackedBets.filter(function(b){return b.result!=null&&b.time});
+      if(gradedBets.length>=2){
+        gradedBets.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
+        var cumData=[];var cum=0;
+        gradedBets.forEach(function(b){
+          cum+=b.payout||0;
+          cumData.push({date:localDateStr(b.time),profit:+cum.toFixed(2),label:b.player+" "+(b.result==="W"?"+$":"−$")+Math.abs(b.payout||0).toFixed(0)});
+        });
+
+        var cW=Math.max(320,Math.min(900,cumData.length*40));
+        var cH=160;var pad={t:20,r:20,b:30,l:50};
+        var iW=cW-pad.l-pad.r;var iH=cH-pad.t-pad.b;
+        var minP=Math.min(0,Math.min.apply(null,cumData.map(function(d){return d.profit})));
+        var maxP=Math.max(0,Math.max.apply(null,cumData.map(function(d){return d.profit})));
+        var range=Math.max(1,maxP-minP);
+        var xStep=cumData.length>1?iW/(cumData.length-1):iW;
+
+        function cx(i){return pad.l+i*xStep;}
+        function cy(v){return pad.t+iH-(((v-minP)/range)*iH);}
+        var zeroY=cy(0);
+
+        // Build SVG
+        var pts=cumData.map(function(d,i){return cx(i)+","+cy(d.profit)}).join(" ");
+        var fillPts=cx(0)+","+zeroY+" "+pts+" "+cx(cumData.length-1)+","+zeroY;
+        var lineColor=cum>=0?"var(--acc)":"var(--neg)";
+        var fillColor=cum>=0?"rgba(0,255,163,.08)":"rgba(255,77,106,.08)";
+
+        h+='<div style="margin:12px 0;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;overflow-x:auto">';
+        h+='<div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Cumulative Profit</div>';
+        h+='<svg viewBox="0 0 '+cW+' '+cH+'" style="width:100%;max-width:'+cW+'px;height:'+cH+'px;display:block">';
+        // Grid lines
+        var gridSteps=4;
+        for(var gi=0;gi<=gridSteps;gi++){
+          var gv=minP+(range/gridSteps)*gi;
+          var gy=cy(gv);
+          h+='<line x1="'+pad.l+'" y1="'+gy+'" x2="'+(cW-pad.r)+'" y2="'+gy+'" stroke="var(--bdL)" stroke-width="0.5"/>';
+          h+='<text x="'+(pad.l-6)+'" y="'+(gy+3)+'" text-anchor="end" fill="var(--td)" font-size="8" font-family="JetBrains Mono,monospace">'+(gv>=0?"$":"−$")+Math.abs(Math.round(gv))+'</text>';
+        }
+        // Zero line
+        h+='<line x1="'+pad.l+'" y1="'+zeroY+'" x2="'+(cW-pad.r)+'" y2="'+zeroY+'" stroke="var(--tf)" stroke-width="1" stroke-dasharray="4,3"/>';
+        // Fill area
+        h+='<polygon points="'+fillPts+'" fill="'+fillColor+'"/>';
+        // Line
+        h+='<polyline points="'+pts+'" fill="none" stroke="'+lineColor+'" stroke-width="2" stroke-linejoin="round"/>';
+        // Dots + date labels
+        cumData.forEach(function(d,i){
+          var dx=cx(i);var dy=cy(d.profit);
+          var dotCol=d.profit>=0?"var(--acc)":"var(--neg)";
+          h+='<circle cx="'+dx+'" cy="'+dy+'" r="3" fill="'+dotCol+'" stroke="var(--card)" stroke-width="1.5"><title>'+d.date+': '+(d.profit>=0?"+$":"−$")+Math.abs(d.profit)+' · '+d.label+'</title></circle>';
+          // Show date labels sparsely
+          if(cumData.length<=15||i%(Math.ceil(cumData.length/10))===0||i===cumData.length-1){
+            h+='<text x="'+dx+'" y="'+(cH-5)+'" text-anchor="middle" fill="var(--td)" font-size="7" font-family="JetBrains Mono,monospace">'+d.date.slice(5)+'</text>';
+          }
+        });
+        h+='</svg></div>';
+      }
       var sortedBets=trackedBets.slice();
       if(trackerSortBy==="book"){
         sortedBets.sort(function(a,b){return(a.book||"").localeCompare(b.book||"");});
@@ -3704,7 +3768,7 @@ function render(){
       var ecls=displayEdge>3?"ev-p":displayEdge<-3?"ev-n":"ev-0";
       var tagH="";
       if(meetsBetThresh)tagH='<span class="tag tag-e">'+(isNHL?"BET":isNBA?"BET":"EDGE")+'</span>';
-      else if(displayEdge>3)tagH='<span class="tag tag-w">WATCH</span>';
+      else if(displayEdge>3&&!S.evOnly)tagH='<span class="tag tag-w">WATCH</span>';
 
       // NHL B2B+CLV stacking — backtested at +21.8% ROI (3%+), +32.1% (5%+)
       if(isNHL&&g.b2bStack&&displayEdge>3){
@@ -3726,8 +3790,8 @@ function render(){
       }
 
       var sigTeam=betSide==="HOME"?g.home:betSide==="AWAY"?g.away:"";
-      var sig=meetsBetThresh?"▸ BET "+sigTeam:displayEdge>3?"Monitor":"No play";
-      var sigC=meetsBetThresh?"var(--acc)":displayEdge>3?"var(--warn)":"var(--td)";
+      var sig=meetsBetThresh?"▸ BET "+sigTeam:displayEdge>3&&!S.evOnly?"Monitor":"No play";
+      var sigC=meetsBetThresh?"var(--acc)":displayEdge>3&&!S.evOnly?"var(--warn)":"var(--td)";
 
       h+='<div class="gc"><div class="gh">';
       // Matchup
@@ -3828,6 +3892,14 @@ function render(){
       h+='<div style="font-size:9px;color:'+sigC+';margin-top:2px;opacity:.8">'+sig+'</div></div>';
       h+='</div>';
 
+      // ── Collapsible detail toggle ──
+      var isExp=S.expanded[g.id];
+      var detailCount=0;
+      if(isNHL&&g.signals)detailCount+=g.signals.length;
+      if(betTeam)detailCount++;
+      h+='<div style="display:flex;justify-content:flex-end;margin-top:4px"><button onclick="S.expanded[\''+g.id+'\']=!S.expanded[\''+g.id+'\'];render()" style="padding:2px 10px;border-radius:4px;font-size:8px;font-weight:600;border:1px solid var(--bdL);background:var(--alt);color:var(--tm);cursor:pointer">'+(isExp?"▾ Hide Details":"▸ Details")+'</button></div>';
+
+      if(isExp){
       // NHL Context row
       if(isNHL){
         var ctxItems=[];
@@ -3896,8 +3968,9 @@ function render(){
         ctxItems.push("📊 v11d model");
         if(ctxItems.length){h+='<div class="ctx">';ctxItems.forEach(function(ci){h+='<span class="ctx-item">'+ci+'</span>'});h+='</div>';}
       }
+      } // end isExp — context/signals
 
-      // ── BET RECOMMENDATION ──
+      // ── BET RECOMMENDATION (always visible) ──
       var betFairProb=betTeam===g.home?((g.modelFairH||g.fairH)):betTeam===g.away?((g.modelFairA||g.fairA)):null;
       var betFairOdds=betFairProb?fImp(betFairProb):null;
       var isB2BStack=isNHL&&g.b2bStack&&displayEdge>3;
@@ -3912,7 +3985,7 @@ function render(){
         if(isB2BStack){h+='<div style="font-size:9px;color:#f0c420;font-weight:600">B2B+CLV: +32% ROI backtested at 5%+</div>';}
         if(isNHL){h+='<div style="font-size:9px;color:var(--neg);font-weight:700;margin-top:2px">⚡ BET EARLY — opening lines only. Edge disappears by close.</div>';}
         h+='</div>';
-      }else if(betTeam&&displayEdge>3){
+      }else if(betTeam&&displayEdge>3&&!S.evOnly){
         h+='<div class="bet-watch">';
         h+='<div><div class="bet-label">'+(isB2BStack?"B2B+CLV Watch":"Watch")+'</div><div class="bet-team">'+betTeam+(isNHL?" ("+(betSide==="HOME"?"home":"away")+")":"")+'</div></div>';
         h+='<div class="bet-line">'+fml(betLine)+'</div>';
@@ -3923,7 +3996,8 @@ function render(){
         h+='</div>';
       }
 
-      // Book lines
+      // Book lines (collapsed)
+      if(isExp){
       var vb=ab.filter(function(bk){return g.bd[bk.id]});
       if(vb.length){
         h+='<div class="blr">';
@@ -3938,6 +4012,7 @@ function render(){
         });
         h+='</div>';
       }
+      } // end isExp — book lines
       h+='</div>';
     });
   }
