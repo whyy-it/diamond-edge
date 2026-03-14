@@ -718,11 +718,17 @@ async function autoResolveTracked(){
       var covers=isHome?(margin>=-1):(margin<=1);
       result=covers?"W":"L";
     }else if(tb.type==="SP"&&tb.market){
-      // NBA Spread: parse predicted margin from market name
-      // Bet on the team → they need to beat the spread
-      var total2=sc.homeScore+sc.awayScore;
-      if(isHome){result=margin>0?"W":"L";}// simplified — need actual spread
-      else{result=margin<0?"W":"L";}
+      // NBA Spread: market = "Spread -5.5" or "Spread +3"
+      // Parse the spread number from the market string
+      var spMatch=tb.market.match(/Spread\s*([+-]?\d+\.?\d*)/);
+      var spLine=spMatch?parseFloat(spMatch[1]):0;
+      // spLine is from the bet team's perspective (e.g., +5.5 or -3)
+      // Team covers if their actual margin + spread > 0
+      var teamMargin=isHome?margin:-margin;// bet team's margin
+      var coverMargin=teamMargin+spLine;
+      if(coverMargin>0)result="W";
+      else if(coverMargin<0)result="L";
+      else result="P";// push
     }else if(tb.type==="OU"&&tb.market){
       // O/U bet: player field contains "OVER" or "UNDER"
       var gameTotal=sc.homeScore+sc.awayScore;
@@ -3070,6 +3076,27 @@ function render(){
               var rlKf=(rlB*rlP-(1-rlP))/rlB; // f* = (bp - q) / b
               allBets.push({sport:sport,icon:icon,type:"RL",player:dogTeam3,market:"Dog +1.5",line:fml(bstDS),book:bstDBk.n,edge:edge3,kelly:Math.max(0,+(rlKf*100).toFixed(2)),fairProb:65.0,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
             }
+          }
+        }
+        // NBA Spread ATS: at ≥15% ML edge, bet the ML-edge side ATS
+        // Backtested: 60.4% ATS, +15.4% ROI on 2024-25 test (134 bets)
+        if(sNBA&&edge3>=15){
+          var spSide3=side3;// same side as ML pick
+          var spTeam3=spSide3==="HOME"?g.home:g.away;
+          // Find best spread odds for our side from active books
+          var bestSpOdds=-9999,bestSpBk=null,bestSpLine=null;
+          ab.forEach(function(bk){
+            var d=g.bd[bk.id];if(!d||d.hSpread==null)return;
+            var spOdds=spSide3==="HOME"?d.hSpreadOdds:d.aSpreadOdds;
+            var spPt=spSide3==="HOME"?d.hSpread:d.aSpread;
+            if(spOdds!=null&&spOdds>bestSpOdds){bestSpOdds=spOdds;bestSpBk=bk;bestSpLine=spPt;}
+          });
+          if(bestSpOdds>-9999&&bestSpBk&&bestSpLine!=null){
+            var spB=bestSpOdds>0?bestSpOdds/100:100/(-bestSpOdds);
+            var spP=0.604;// backtested ATS cover rate at 15%+ edge
+            var spKf=(spB*spP-(1-spP))/spB;
+            var spLabel=bestSpLine>0?"+"+bestSpLine:""+bestSpLine;
+            allBets.push({sport:sport,icon:icon,type:"SP",player:spTeam3,market:"Spread "+spLabel,line:fml(bestSpOdds),book:bestSpBk.n,edge:edge3,kelly:Math.max(0,+(spKf*100).toFixed(2)),fairProb:60.4,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
           }
         }
       });
