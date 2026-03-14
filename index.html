@@ -571,6 +571,7 @@ function addManualBet(form){
   var timeVal=form.gametime.value||"19:00";
   var result=form.result.value||null;
   if(!player||!line||!amount){alert("Fill in team, line, and wager.");return;}
+  if(!market){var mm={"ML":"Moneyline","SP":"Spread","PL":"Puck Line","RL":"Run Line","OU":"Over/Under"};market=mm[type]||type;}
   var time=dateVal?new Date(dateVal+"T"+timeVal+":00").toISOString():new Date().toISOString();
   var bet={sport:sport,icon:icon,type:type,player:player,market:market||type,line:line,book:book,amount:amount,time:time};
   var key=betKey(bet);
@@ -3066,7 +3067,7 @@ function render(){
 
   // ── TABS (skip for global bets/tracker view) ──
   if(S.league!=="bets"&&S.league!=="tracker"){
-  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":isNBA?"Spread":"Run Line",i:isNHL?"🏒":isNBA?"📏":"⚾"},{k:"ou",l:"Over / Under",i:"📊"},{k:"books",l:"Books",i:"📚"}];
+  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":isNBA?"Spread":"Run Line",i:isNHL?"🏒":isNBA?"🏀":"⚾"},{k:"ou",l:"Over / Under",i:"📊"},{k:"books",l:"Books",i:"📚"}];
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
@@ -3392,24 +3393,46 @@ function render(){
     // ── MANUAL ADD BET FORM ──
     if(showAddBet){
       var todayISO=new Date().toISOString().slice(0,10);
+      // Build team lists for autocomplete
+      var nhlTeams=Object.keys(NHL_ABBREVS).filter(function(t){return t.indexOf("é")<0;}).sort();
+      var nbaTeams=Object.keys(NBA_ABBREVS).filter(function(t){return t!=="LA Clippers";}).sort();
+      var mlbTeams=Object.keys(PARKS).sort();
+      var allTeams=[].concat(nhlTeams,nbaTeams,mlbTeams);
+      // Remove dupes
+      var teamSet={};allTeams.forEach(function(t){teamSet[t]=true;});
+      allTeams=Object.keys(teamSet).sort();
+
       h+='<div style="background:var(--card);border:1px solid var(--ac2);border-radius:10px;padding:14px;margin-bottom:12px">';
       h+='<div style="font-size:12px;font-weight:700;color:var(--ac2);margin-bottom:10px">Add Past / Manual Bet</div>';
+
+      // Datalist for team autocomplete
+      h+='<datalist id="dl-teams">';
+      allTeams.forEach(function(t){h+='<option value="'+t+'">';});
+      h+='</datalist>';
+
+      // Market auto-fill mapping
+      var marketMap='{"ML":"Moneyline","SP":"Spread","PL":"Puck Line","RL":"Run Line","OU":"Over/Under"}';
+
       h+='<form onsubmit="event.preventDefault();addManualBet(this)" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">';
 
-      // Row 1: Sport, Type, Team
+      // Sport
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Sport</label>';
-      h+='<select name="sport" style="width:70px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="nba">🏀 NBA</option><option value="mlb">⚾ MLB</option></select></div>';
+      h+='<select name="sport" onchange="var f=this.form;var bt=f.bettype;var wasRL=bt.value===\'RL\'||bt.value===\'PL\';if(this.value===\'nhl\'){bt.options[1].text=\'Puck Line\';bt.options[1].value=\'PL\';bt.options[2].style.display=\'none\';}else if(this.value===\'nba\'){bt.options[1].text=\'Spread\';bt.options[1].value=\'SP\';bt.options[2].style.display=\'none\';}else{bt.options[1].text=\'Spread\';bt.options[1].value=\'SP\';bt.options[2].style.display=\'\';};if(wasRL&&this.value===\'nhl\'){bt.value=\'PL\';}else if(wasRL){bt.value=\'SP\';};bt.dispatchEvent(new Event(\'change\'));" style="width:75px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="nba">🏀 NBA</option><option value="mlb">⚾ MLB</option></select></div>';
 
+      // Type (updates market on change)
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Type</label>';
-      h+='<select name="bettype" style="width:65px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="ML">ML</option><option value="SP">Spread</option><option value="RL">Run Line</option><option value="OU">O/U</option></select></div>';
+      h+='<select name="bettype" onchange="var mm='+marketMap+';this.form.market.value=mm[this.value]||this.value;" style="width:85px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none">';
+      h+='<option value="ML">Moneyline</option><option value="PL">Puck Line</option><option value="RL" style="display:none">Run Line</option><option value="OU">Over/Under</option></select></div>';
 
+      // Team with autocomplete
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Team / Side</label>';
-      h+='<input name="player" type="text" placeholder="e.g. New York Rangers" style="width:170px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
+      h+='<input name="player" type="text" list="dl-teams" placeholder="Start typing..." autocomplete="off" style="width:190px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
 
+      // Market (auto-filled from type, editable for custom)
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Market</label>';
-      h+='<input name="market" type="text" placeholder="Moneyline" style="width:100px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
+      h+='<input name="market" type="text" value="Moneyline" style="width:100px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
 
-      // Row 2: Line, Book, Wager, Date, Time, Result
+      // Line, Book, Wager, Date, Time, Result
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Line / Odds</label>';
       h+='<input name="line" type="text" placeholder="+150" style="width:70px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;font-family:\'JetBrains Mono\',monospace;outline:none"></div>';
 
