@@ -526,6 +526,7 @@ var trackerSortBy="time"; // "time" or "book"
 var trackerEditKey=null; // key of bet currently being edited
 // Bets tab sort state
 var betsSortBy="time"; // "time" or "book"
+var betsLeagueFilter={nhl:true,mlb:true,nba:true}; // toggle leagues on/off in bets tab
 
 function editTrackedBet(key,field,value){
   var tb=findTracked(key);if(!tb)return;
@@ -966,14 +967,15 @@ async function fetchNHLSchedule(){
         var aFull=(aName+" "+aCommon).trim();
         // Goalie info from starting lineup if available
         var hGoalie=null,aGoalie=null,hGoalieConfirmed=false,aGoalieConfirmed=false;
-        // The schedule endpoint may include goalie info in different ways
+        // Schedule endpoint goalieInNet is the PROJECTED starter, not confirmed
+        // Only landing page / gamecenter sources count as confirmed
         if(g.homeTeam&&g.homeTeam.goalieInNet){
           hGoalie=g.homeTeam.goalieInNet.default||null;
-          hGoalieConfirmed=true;
+          hGoalieConfirmed=false; // Schedule = projection only
         }
         if(g.awayTeam&&g.awayTeam.goalieInNet){
           aGoalie=g.awayTeam.goalieInNet.default||null;
-          aGoalieConfirmed=true;
+          aGoalieConfirmed=false; // Schedule = projection only
         }
         result[ht.abbrev||""]={
           gameId:g.id,homeAbbrev:ht.abbrev,awayAbbrev:at.abbrev,
@@ -997,34 +999,34 @@ async function fetchNHLSchedule(){
         var hTeam=landing.homeTeam||{};var aTeam=landing.awayTeam||{};
         var hAb=hTeam.abbrev||"";
         if(!result[hAb])continue;
-        // goalieInNet on landing page
-        if(hTeam.goalieInNet&&hTeam.goalieInNet.default&&!result[hAb].homeGoalieConfirmed){
+        // goalieInNet on landing page — ALWAYS overrides schedule projection
+        if(hTeam.goalieInNet&&hTeam.goalieInNet.default){
           result[hAb].homeGoalie=hTeam.goalieInNet.default;
           result[hAb].homeGoalieConfirmed=true;
         }
-        if(aTeam.goalieInNet&&aTeam.goalieInNet.default&&!result[hAb].awayGoalieConfirmed){
+        if(aTeam.goalieInNet&&aTeam.goalieInNet.default){
           result[hAb].awayGoalie=aTeam.goalieInNet.default;
           result[hAb].awayGoalieConfirmed=true;
         }
         // Also check lineScore.homeTeam/awayTeam for goalie info (LIVE/CRIT games)
         var ls=landing.linescore||landing.lineScore||{};
-        if(ls.homeTeam&&ls.homeTeam.goalie&&!result[hAb].homeGoalieConfirmed){
+        if(ls.homeTeam&&ls.homeTeam.goalie){
           var hgName=ls.homeTeam.goalie.firstName?ls.homeTeam.goalie.firstName.default+" "+ls.homeTeam.goalie.lastName.default:null;
           if(hgName){result[hAb].homeGoalie=hgName;result[hAb].homeGoalieConfirmed=true;}
         }
-        if(ls.awayTeam&&ls.awayTeam.goalie&&!result[hAb].awayGoalieConfirmed){
+        if(ls.awayTeam&&ls.awayTeam.goalie){
           var agName=ls.awayTeam.goalie.firstName?ls.awayTeam.goalie.firstName.default+" "+ls.awayTeam.goalie.lastName.default:null;
           if(agName){result[hAb].awayGoalie=agName;result[hAb].awayGoalieConfirmed=true;}
         }
-        // Check matchup.goalieComparison for PRE-game confirmed starters
+        // Check matchup.goalieComparison for PRE-game confirmed starters — ALWAYS overrides
         var mc=landing.matchup||{};
         var gc=mc.goalieComparison||{};
-        if(gc.homeTeam&&gc.homeTeam.starter&&!result[hAb].homeGoalieConfirmed){
+        if(gc.homeTeam&&gc.homeTeam.starter){
           var hSt=gc.homeTeam.starter;
           var hStName=hSt.firstName?hSt.firstName.default+" "+hSt.lastName.default:null;
           if(hStName){result[hAb].homeGoalie=hStName;result[hAb].homeGoalieConfirmed=true;}
         }
-        if(gc.awayTeam&&gc.awayTeam.starter&&!result[hAb].awayGoalieConfirmed){
+        if(gc.awayTeam&&gc.awayTeam.starter){
           var aSt=gc.awayTeam.starter;
           var aStName=aSt.firstName?aSt.firstName.default+" "+aSt.lastName.default:null;
           if(aStName){result[hAb].awayGoalie=aStName;result[hAb].awayGoalieConfirmed=true;}
@@ -3161,11 +3163,16 @@ function render(){
     h+='<div style="font-size:9px;color:var(--td)">Kelly stakes auto-scaled · total risk ≤ 25% of bankroll</div>';
     h+='</div>';
 
-    // Sort controls
-    h+='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">';
+    // Sort controls + league filter
+    h+='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap">';
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Sort:</span>';
     h+='<button class="cb'+(betsSortBy==="time"?" on":"")+'" onclick="betsSortBy=\'time\';render()"><span class="d"></span>By Time</button>';
     h+='<button class="cb'+(betsSortBy==="book"?" on":"")+'" onclick="betsSortBy=\'book\';render()"><span class="d"></span>By Book</button>';
+    h+='<div class="sep"></div>';
+    h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
+    h+='<button class="cb'+(betsLeagueFilter.nhl?" on":"")+'" onclick="betsLeagueFilter.nhl=!betsLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL</button>';
+    h+='<button class="cb'+(betsLeagueFilter.mlb?" on":"")+'" onclick="betsLeagueFilter.mlb=!betsLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
+    h+='<button class="cb'+(betsLeagueFilter.nba?" on":"")+'" onclick="betsLeagueFilter.nba=!betsLeagueFilter.nba;render()"><span class="d"></span>🏀 NBA</button>';
     h+='</div>';
 
     // Collect bets from ALL leagues
@@ -3242,6 +3249,11 @@ function render(){
           }
         }
       });
+    });
+
+    // Filter by selected leagues
+    allBets=allBets.filter(function(b){
+      return betsLeagueFilter[b.sport]!==false;
     });
 
     // Filter to today's games (local time) that haven't started yet
