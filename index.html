@@ -2888,7 +2888,7 @@ async function loadMLB(){
 async function fetchDailyFaceoff(){
   try{
     var url="https://www.dailyfaceoff.com/starting-goalies/";
-    var resp=await corsProxyFetch(url);
+    var resp=await fetch(CF_WORKER+encodeURIComponent(url));
     if(!resp||!resp.ok)return{};
     var html=await resp.text();
     // Extract __NEXT_DATA__ JSON from the page
