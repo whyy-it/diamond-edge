@@ -2963,9 +2963,10 @@ async function fetchDailyFaceoff(){
     var today=new Date();
     var tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
     function dfDate(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+    var _cb=Date.now();
     var urls=[
-      "https://www.dailyfaceoff.com/starting-goalies/"+dfDate(today),
-      "https://www.dailyfaceoff.com/starting-goalies/"+dfDate(tomorrow)
+      "https://www.dailyfaceoff.com/starting-goalies/"+dfDate(today)+"?_="+_cb,
+      "https://www.dailyfaceoff.com/starting-goalies/"+dfDate(tomorrow)+"?_="+_cb
     ];
     var result={};
     for(var ui=0;ui<urls.length;ui++){
