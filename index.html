@@ -550,7 +550,7 @@ var trackedBets=loadTracker();
 function betKey(b){
   // Unique key per bet: sport+player+market+date
   var d=new Date(b.time||Date.now()).toISOString().slice(0,10);
-  return(b.sport||"")+"_"+(b.player||"")+"_"+(b.market||"")+"_"+d;
+  return(b.sport||"")+"_"+(b.player||"")+"_"+(b.type||"ML")+"_"+d;
 }
 function findTracked(key){
   return trackedBets.find(function(tb){return tb.key===key});
