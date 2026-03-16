@@ -448,7 +448,7 @@ function predictNBA_ML(features){
 // ── STATE ──
 var S={
   mode:(function(){try{var m=localStorage.getItem("de_mode");if(m==="dark"||m==="light")return m;}catch(e){}var h=new Date().getHours();return h>=7&&h<19?"light":"dark";})(),
-  league:"nhl",tab:"ml",sortBy:"time",evOnly:false,
+  league:"bets",tab:"bets",sortBy:"time",evOnly:false,
   booksOn:(function(){try{var s=localStorage.getItem("de_books");if(s)return JSON.parse(s);}catch(e){}return Object.fromEntries(PA.map(function(b){return[b.id,true]}));})(),
   showBooks:false,
   bankroll:(function(){try{var b=localStorage.getItem("de_bankroll");if(b)return parseFloat(b);}catch(e){}return 1000;})(),
