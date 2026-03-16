@@ -2979,7 +2979,7 @@ async function fetchDailyFaceoff(){
     if(!m)return{};
     var data=JSON.parse(m[1]);
     var games=data.props&&data.props.pageProps&&data.props.pageProps.data||[];
-    var result={};
+    // result already declared above
     // Build lookup by team name → {goalieName, status}
     games.forEach(function(g){
       var hName=g.homeTeamName||"";
