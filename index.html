@@ -454,7 +454,7 @@ var S={
   bankroll:(function(){try{var b=localStorage.getItem("de_bankroll");if(b)return parseFloat(b);}catch(e){}return 1000;})(),
   // Per-league data
   mlb:{games:[],loading:false,error:null,lastFetch:null,lineups:{},weather:{},fatigue:{},pitcherStatcast:{},teamStats:{},standings:{},recentScores:{},fangraphs:{},savantTeam:{}},
-  nhl:{games:[],loading:false,error:null,lastFetch:null,schedule:{},standings:{},fatigue:{},goalies:{}},
+  nhl:{games:[],loading:false,error:null,lastFetch:null,schedule:{},standings:{},fatigue:{},goalies:{},dailyfaceoff:{}},
   nba:{games:[],loading:false,error:null,lastFetch:null,standings:{},fatigue:{},teamStats:{},schedule:{},injuries:{}},
   // Active pointers
   games:[],loading:true,error:null,remaining:null,lastFetch:null,
@@ -2471,7 +2471,7 @@ function computeNHLv5Features(g){
   var hTP=mp.priorTeams[hMP]||{};var aTP=mp.priorTeams[aMP]||{};
   var hasMP=Object.keys(hT).length>5&&Object.keys(aT).length>5;
 
-  // Goalie data (current + prior, B2B-aware)
+  // Goalie data (current + prior, B2B-aware, DailyFaceoff-aware)
   var hGoalies=mp.goalies[hMP]||[];var aGoalies=mp.goalies[aMP]||[];
   var hPGoalies=mp.priorGoalies[hMP]||[];var aPGoalies=mp.priorGoalies[aMP]||[];
   function getGoalie(cur,prior,idx){
@@ -2482,15 +2482,47 @@ function computeNHLv5Features(g){
     var w=((c.gp||0)-10)/20;
     return{gsax_pg:(p.gsax_pg||0)*(1-w)+(c.gsax_pg||0)*w,
            sv_pct:(p.sv_pct||0.910)*(1-w)+(c.sv_pct||0.910)*w,
-           hd_sv_pct:(p.hd_sv_pct||0.850)*(1-w)+(c.hd_sv_pct||0.850)*w};
+           hd_sv_pct:(p.hd_sv_pct||0.850)*(1-w)+(c.hd_sv_pct||0.850)*w,
+           name:c.name||""};
+  }
+  // Find goalie by name in MoneyPuck array (for DailyFaceoff matching)
+  function findGoalieByName(cur,prior,name){
+    if(!name)return null;
+    var nameLower=name.toLowerCase().trim();
+    for(var i=0;i<cur.length;i++){
+      var gName=(cur[i].name||"").toLowerCase().trim();
+      // Try exact match first
+      if(gName===nameLower)return getGoalie(cur,prior,i);
+      // Try last name match (DailyFaceoff="Connor Ingram", MP may have "Connor.Ingram" or similar)
+      var nameParts=nameLower.split(" ");var gParts=gName.split(/[\s.]+/);
+      if(nameParts.length>=2&&gParts.length>=2&&nameParts[nameParts.length-1]===gParts[gParts.length-1]&&nameParts[0]===gParts[0])return getGoalie(cur,prior,i);
+      // Try last name only (fallback)
+      if(nameParts.length>=2&&gParts.length>=2&&nameParts[nameParts.length-1]===gParts[gParts.length-1])return getGoalie(cur,prior,i);
+    }
+    return null;// Not found in MoneyPuck data
   }
   var hStarter=getGoalie(hGoalies,hPGoalies,0);
   var aStarter=getGoalie(aGoalies,aPGoalies,0);
   var hBackup=getGoalie(hGoalies,hPGoalies,1);
   var aBackup=getGoalie(aGoalies,aPGoalies,1);
-  // Effective goalie (backup if B2B)
-  var hEff=hB2B?hBackup:hStarter;
-  var aEff=aB2B?aBackup:aStarter;
+
+  // ═══ DailyFaceoff override: use confirmed goalie's actual stats ═══
+  // g.homeGoalie and g.awayGoalie are set by DailyFaceoff in enrichNHLGames before this function is called
+  var hDFGoalie=g.homeGoalie?findGoalieByName(hGoalies,hPGoalies,g.homeGoalie):null;
+  var aDFGoalie=g.awayGoalie?findGoalieByName(aGoalies,aPGoalies,g.awayGoalie):null;
+
+  // Effective goalie priority: DailyFaceoff confirmed > B2B backup logic > default starter
+  var hEff, aEff;
+  if(hDFGoalie&&g.homeGoalieConfirmed){
+    hEff=hDFGoalie;// Use DailyFaceoff confirmed goalie's actual stats
+  }else{
+    hEff=hB2B?hBackup:hStarter;// Fallback to B2B logic
+  }
+  if(aDFGoalie&&g.awayGoalieConfirmed){
+    aEff=aDFGoalie;// Use DailyFaceoff confirmed goalie's actual stats
+  }else{
+    aEff=aB2B?aBackup:aStarter;// Fallback to B2B logic
+  }
 
   // MoneyPuck feature helpers
   var hMGP=Math.max(blendStat(hT,hTP,"games_played",82),1);
@@ -2548,11 +2580,19 @@ function computeNHLv5Features(g){
   // Store MP status on game for display
   g.mpLoaded=hasMP;
   g.mpFeatureCount=hasMP?27:10;
-  // Store goalie names for display
+  // Store goalie names and stats — use effective goalie (may be DailyFaceoff-matched)
   if(hGoalies[0])g.mpHomeGoalie=hGoalies[0].name||"";
   if(aGoalies[0])g.mpAwayGoalie=aGoalies[0].name||"";
-  if(hGoalies[0])g.mpHomeGSAx=hGoalies[0].gsax||0;
-  if(aGoalies[0])g.mpAwayGSAx=aGoalies[0].gsax||0;
+  // GSAx: use the effective goalie's stats (accounts for DailyFaceoff confirmed starter)
+  g.mpHomeGSAx=hEff.gsax_pg?hEff.gsax_pg*(hEff.gp||30):hEff.gsax||0;
+  g.mpAwayGSAx=aEff.gsax_pg?aEff.gsax_pg*(aEff.gp||30):aEff.gsax||0;
+  // Log when DailyFaceoff overrides the default starter
+  if(hDFGoalie&&g.homeGoalieConfirmed&&hGoalies[0]&&(hDFGoalie.name||"").toLowerCase()!==(hGoalies[0].name||"").toLowerCase()){
+    console.log("[DE] Goalie override: "+g.home+" using "+g.homeGoalie+" (DF confirmed) instead of "+hGoalies[0].name+" (MP #1 GP)");
+  }
+  if(aDFGoalie&&g.awayGoalieConfirmed&&aGoalies[0]&&(aDFGoalie.name||"").toLowerCase()!==(aGoalies[0].name||"").toLowerCase()){
+    console.log("[DE] Goalie override: "+g.away+" using "+g.awayGoalie+" (DF confirmed) instead of "+aGoalies[0].name+" (MP #1 GP)");
+  }
 
   return features;
 }
@@ -2719,11 +2759,35 @@ function processOdds(apiData){
 
 function enrichNHLGames(games){
   var sched=S.nhl.schedule||{};var standings=S.nhl.standings||{};var fatigue=S.nhl.fatigue||{};
+  var df=S.nhl.dailyfaceoff||{};
   return games.map(function(g){
     var hAbbr=NHL_ABBREVS[g.home]||"";var aAbbr=NHL_ABBREVS[g.away]||"";
     var schedInfo=sched[hAbbr]||{};
+
+    // ═══ GOALIE PRIORITY: DailyFaceoff > NHL API > MoneyPuck ═══
+    // 1. Start with NHL API schedule (usually empty now)
     g.homeGoalie=schedInfo.homeGoalie||null;g.awayGoalie=schedInfo.awayGoalie||null;
     g.homeGoalieConfirmed=schedInfo.homeGoalieConfirmed||false;g.awayGoalieConfirmed=schedInfo.awayGoalieConfirmed||false;
+
+    // 2. DailyFaceoff OVERRIDES — primary confirmed source
+    var dfInfo=df[g.home]||df[g.away]||null;
+    if(dfInfo){
+      // Match by checking if this game's home team matches DailyFaceoff's home team
+      if(dfInfo.homeTeam===g.home||dfInfo.homeTeam===g.home){
+        if(dfInfo.homeGoalie){g.homeGoalie=dfInfo.homeGoalie;g.homeGoalieConfirmed=dfInfo.homeGoalieConfirmed;}
+        if(dfInfo.awayGoalie){g.awayGoalie=dfInfo.awayGoalie;g.awayGoalieConfirmed=dfInfo.awayGoalieConfirmed;}
+        g.homeGoalieStatus=dfInfo.homeGoalieStatus||"";
+        g.awayGoalieStatus=dfInfo.awayGoalieStatus||"";
+        g.dfLoaded=true;
+      }else if(dfInfo.awayTeam===g.home){
+        // Teams are flipped in our lookup — swap
+        if(dfInfo.awayGoalie){g.homeGoalie=dfInfo.awayGoalie;g.homeGoalieConfirmed=dfInfo.awayGoalieConfirmed;}
+        if(dfInfo.homeGoalie){g.awayGoalie=dfInfo.homeGoalie;g.awayGoalieConfirmed=dfInfo.homeGoalieConfirmed;}
+        g.homeGoalieStatus=dfInfo.awayGoalieStatus||"";
+        g.awayGoalieStatus=dfInfo.homeGoalieStatus||"";
+        g.dfLoaded=true;
+      }
+    }
     var hFat=fatigue[hAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
     var aFat=fatigue[aAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
     g.homeB2B=hFat.b2b;g.awayB2B=aFat.b2b;g.homeRest=hFat.restDays;g.awayRest=aFat.restDays;
@@ -2770,7 +2834,7 @@ function enrichNHLGames(games){
       if(Math.abs(features.f_gsax)>0.02)signals.push({icon:"🥅",text:(features.f_gsax>0?"Home":"Away")+" goalie GSAx advantage: "+(features.f_gsax>0?"+":"")+features.f_gsax.toFixed(2),type:features.f_gsax>0?"boost":"fade"});
     }else{
       signals.push({icon:"⚠️",text:"MoneyPuck data not loaded — using "+g.mpFeatureCount+" features",type:"neutral"});}
-    if(!g.homeGoalieConfirmed&&!g.awayGoalieConfirmed)signals.push({icon:"🥅",text:"Goalies TBD — check morning skate",type:"neutral"});
+    if(!g.homeGoalieConfirmed&&!g.awayGoalieConfirmed)signals.push({icon:"🥅",text:g.dfLoaded?"Goalies not yet confirmed — via DailyFaceoff":"Goalies TBD — check DailyFaceoff",type:"neutral"});
     if(!signals.length)signals.push({icon:"📊",text:"No strong signals",type:"neutral"});
     g.signals=signals;
 
@@ -2819,10 +2883,63 @@ async function loadMLB(){
   S.mlb.loading=false;syncActive();render();
 }
 
+// ═══ DAILYFACEOFF STARTING GOALIES ═══
+// Primary source for confirmed/projected starters — NHL API no longer provides this data
+async function fetchDailyFaceoff(){
+  try{
+    var url="https://www.dailyfaceoff.com/starting-goalies/";
+    var resp=await corsProxyFetch(url);
+    if(!resp||!resp.ok)return{};
+    var html=await resp.text();
+    // Extract __NEXT_DATA__ JSON from the page
+    var m=html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/);
+    if(!m)return{};
+    var data=JSON.parse(m[1]);
+    var games=data.props&&data.props.pageProps&&data.props.pageProps.data||[];
+    var result={};
+    // Build lookup by team name → {goalieName, status}
+    games.forEach(function(g){
+      var hName=g.homeTeamName||"";
+      var aName=g.awayTeamName||"";
+      var hGoalie=g.homeGoalieName||null;
+      var aGoalie=g.awayGoalieName||null;
+      var hStatus=g.homeNewsStrengthName||"";// "Confirmed", "Likely", "Expected", "Unconfirmed"
+      var aStatus=g.awayNewsStrengthName||"";
+      var hConfirmed=hStatus.toLowerCase()==="confirmed";
+      var aConfirmed=aStatus.toLowerCase()==="confirmed";
+      // Store by home team name (matches Odds API names used in g.home)
+      result[hName]={
+        homeGoalie:hGoalie,awayGoalie:aGoalie,
+        homeGoalieConfirmed:hConfirmed,awayGoalieConfirmed:aConfirmed,
+        homeGoalieStatus:hStatus,awayGoalieStatus:aStatus,
+        homeTeam:hName,awayTeam:aName,
+        // Also store stats for display
+        homeGAA:g.homeGoalieGoalsAgainstAvg,homeSV:g.homeGoalieSavePercentage,
+        awayGAA:g.awayGoalieGoalsAgainstAvg,awaySV:g.awayGoalieSavePercentage,
+        homeRecord:(g.homeGoalieWins||0)+"W-"+(g.homeGoalieLosses||0)+"L",
+        awayRecord:(g.awayGoalieWins||0)+"W-"+(g.awayGoalieLosses||0)+"L",
+      };
+      // Also index by away team name for reverse lookups
+      result[aName]={
+        homeGoalie:hGoalie,awayGoalie:aGoalie,
+        homeGoalieConfirmed:hConfirmed,awayGoalieConfirmed:aConfirmed,
+        homeGoalieStatus:hStatus,awayGoalieStatus:aStatus,
+        homeTeam:hName,awayTeam:aName,
+        homeGAA:g.homeGoalieGoalsAgainstAvg,homeSV:g.homeGoalieSavePercentage,
+        awayGAA:g.awayGoalieGoalsAgainstAvg,awaySV:g.awayGoalieSavePercentage,
+        homeRecord:(g.homeGoalieWins||0)+"W-"+(g.homeGoalieLosses||0)+"L",
+        awayRecord:(g.awayGoalieWins||0)+"W-"+(g.awayGoalieLosses||0)+"L",
+      };
+    });
+    console.log("[DE] DailyFaceoff: "+games.length+" games, goalies loaded");
+    return result;
+  }catch(e){console.log("[DE] DailyFaceoff error:",e);return{};}
+}
+
 async function loadNHL(){
   S.nhl.loading=true;S.nhl.error=null;syncActive();render();
   try{
-    var results=await Promise.allSettled([fetchNHLOdds(),fetchNHLSchedule(),fetchMoneyPuck(),fetchNHLStandings(),fetchNHLFatigue()]);
+    var results=await Promise.allSettled([fetchNHLOdds(),fetchNHLSchedule(),fetchMoneyPuck(),fetchNHLStandings(),fetchNHLFatigue(),fetchDailyFaceoff()]);
     if(results[0].status==="fulfilled"){
       S.nhl.games=processOdds(results[0].value||[]);
     }else{
@@ -2833,6 +2950,7 @@ async function loadNHL(){
     // results[2] = fetchMoneyPuck — stores data directly to S.nhl.mp internally, no assignment needed
     if(results[3].status==="fulfilled")S.nhl.standings=results[3].value||{};
     if(results[4].status==="fulfilled")S.nhl.fatigue=results[4].value||{};
+    if(results[5].status==="fulfilled")S.nhl.dailyfaceoff=results[5].value||{};
 
     // Enrich games with NHL model context
     S.nhl.games=enrichNHLGames(S.nhl.games);
@@ -3834,8 +3952,17 @@ function render(){
           h+='<div class="goalie-row">';
           var aGTag=g.awayGoalieConfirmed?"starter":"backup";
           var hGTag=g.homeGoalieConfirmed?"starter":"backup";
-          var aGSuf=g.awayGoalieConfirmed?" ✓":" (proj)";
-          var hGSuf=g.homeGoalieConfirmed?" ✓":" (proj)";
+          // Show DailyFaceoff status if available, otherwise generic confirmed/proj
+          var aGSuf=g.awayGoalieStatus?(" "+g.awayGoalieStatus):(g.awayGoalieConfirmed?" ✓":" (proj)");
+          var hGSuf=g.homeGoalieStatus?(" "+g.homeGoalieStatus):(g.homeGoalieConfirmed?" ✓":" (proj)");
+          if(g.awayGoalieStatus==="Confirmed")aGSuf=" ✓";
+          if(g.homeGoalieStatus==="Confirmed")hGSuf=" ✓";
+          if(g.awayGoalieStatus==="Likely"){aGSuf=" (likely)";aGTag="backup";}
+          if(g.homeGoalieStatus==="Likely"){hGSuf=" (likely)";hGTag="backup";}
+          if(g.awayGoalieStatus==="Expected"){aGSuf=" (expected)";aGTag="backup";}
+          if(g.homeGoalieStatus==="Expected"){hGSuf=" (expected)";hGTag="backup";}
+          if(g.awayGoalieStatus==="Unconfirmed"){aGSuf=" (unconfirmed)";aGTag="backup";}
+          if(g.homeGoalieStatus==="Unconfirmed"){hGSuf=" (unconfirmed)";hGTag="backup";}
           h+='<span>🥅 '+(g.awayGoalie?'<span class="'+aGTag+'">'+g.awayGoalie+aGSuf+'</span>':'<span style="color:var(--td)">TBD</span>');
           if(g.mpAwayGSAx!=null&&g.awayGoalie)h+=' <span style="font-size:9px;color:'+(g.mpAwayGSAx>0?"var(--acc)":"var(--neg)")+'">'+(g.mpAwayGSAx>0?"+":"")+g.mpAwayGSAx.toFixed(1)+' GSAx</span>';
           h+=' vs ';
