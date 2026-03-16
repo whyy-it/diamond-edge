@@ -644,7 +644,9 @@ function addManualBet(form){
   var timeVal=form.gametime.value||"19:00";
   var result=form.result.value||null;
   if(!player||!line||!amount){alert("Fill in team, line, and wager.");return;}
+  var spreadPt=form.spread_point?form.spread_point.value.trim():"";
   if(!market){var mm={"ML":"Moneyline","SP":"Spread","PL":"Puck Line","RL":"Run Line","OU":"Over/Under"};market=mm[type]||type;}
+  if(spreadPt&&type!=="ML"){market=market+" "+spreadPt;}
   var time=dateVal?new Date(dateVal+"T"+timeVal+":00").toISOString():new Date().toISOString();
   var bet={sport:sport,icon:icon,type:type,player:player,market:market||type,line:line,book:book,amount:amount,time:time};
   var key=betKey(bet);
@@ -659,6 +661,7 @@ function addManualBet(form){
   };
   if(result==="W"){
     var ml=parseInt(line.replace("+",""))||0;
+    if(ml===0&&(type==="SP"||type==="PL"||type==="RL"||type==="OU"))ml=-110;// Default -110 for spread/total
     if(ml>0)tb.payout=+(amount*(ml/100)).toFixed(2);
     else if(ml<0)tb.payout=+(amount*(100/(-ml))).toFixed(2);
   }else if(result==="L"){tb.payout=-amount;}
@@ -3670,31 +3673,57 @@ function render(){
       allTeams.forEach(function(t){h+='<option value="'+t+'">';});
       h+='</datalist>';
 
-      // Market auto-fill mapping
-      var marketMap='{"ML":"Moneyline","SP":"Spread","PL":"Puck Line","RL":"Run Line","OU":"Over/Under"}';
-
+      // Market auto-fill mapping — patch_tracker_v2
       h+='<form onsubmit="event.preventDefault();addManualBet(this)" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">';
 
-      // Sport
+      // Sport — changes available bet types
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Sport</label>';
-      h+='<select name="sport" onchange="var f=this.form;var bt=f.bettype;var wasRL=bt.value===\'RL\'||bt.value===\'PL\';if(this.value===\'nhl\'){bt.options[1].text=\'Puck Line\';bt.options[1].value=\'PL\';bt.options[2].style.display=\'none\';}else if(this.value===\'nba\'){bt.options[1].text=\'Spread\';bt.options[1].value=\'SP\';bt.options[2].style.display=\'none\';}else{bt.options[1].text=\'Spread\';bt.options[1].value=\'SP\';bt.options[2].style.display=\'\';};if(wasRL&&this.value===\'nhl\'){bt.value=\'PL\';}else if(wasRL){bt.value=\'SP\';};bt.dispatchEvent(new Event(\'change\'));" style="width:75px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="nba">🏀 NBA</option><option value="mlb">⚾ MLB</option></select></div>';
+      h+='<select name="sport" onchange="';
+      h+='var f=this.form,bt=f.bettype,sp=f.spread_point;';
+      h+='while(bt.options.length)bt.remove(0);';
+      h+='var o;';
+      h+='if(this.value===\'nhl\'){';
+      h+='  o=new Option(\'Moneyline\',\'ML\');bt.add(o);';
+      h+='  o=new Option(\'Puck Line\',\'PL\');bt.add(o);';
+      h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
+      h+='}else if(this.value===\'nba\'){';
+      h+='  o=new Option(\'Moneyline\',\'ML\');bt.add(o);';
+      h+='  o=new Option(\'Spread\',\'SP\');bt.add(o);';
+      h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
+      h+='}else{';
+      h+='  o=new Option(\'Moneyline\',\'ML\');bt.add(o);';
+      h+='  o=new Option(\'Run Line\',\'RL\');bt.add(o);';
+      h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
+      h+='}';
+      h+='bt.value=\'ML\';bt.dispatchEvent(new Event(\'change\'));';
+      h+='" style="width:75px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="nba">🏀 NBA</option><option value="mlb">⚾ MLB</option></select></div>';
 
-      // Type (updates market on change)
+      // Type — updates market label + shows/hides spread field
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Type</label>';
-      h+='<select name="bettype" onchange="var mm='+marketMap+';this.form.market.value=mm[this.value]||this.value;" style="width:85px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none">';
-      h+='<option value="ML">Moneyline</option><option value="PL">Puck Line</option><option value="RL" style="display:none">Run Line</option><option value="OU">Over/Under</option></select></div>';
+      h+='<select name="bettype" onchange="';
+      h+='var mm={ML:\'Moneyline\',SP:\'Spread\',PL:\'Puck Line\',RL:\'Run Line\',OU:\'Over/Under\'};';
+      h+='this.form.market.value=mm[this.value]||this.value;';
+      h+='var sp=document.getElementById(\'spread-field\');';
+      h+='if(sp){sp.style.display=(this.value===\'SP\'||this.value===\'PL\'||this.value===\'RL\'||this.value===\'OU\')?\'flex\':\'none\';}';
+      h+='var spLabel=document.getElementById(\'spread-label\');';
+      h+='if(spLabel){if(this.value===\'OU\')spLabel.textContent=\'Total\';else spLabel.textContent=\'Spread\';}';
+      h+='" style="width:100px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none">';
+      h+='<option value="ML">Moneyline</option><option value="PL">Puck Line</option><option value="OU">Over/Under</option></select></div>';
 
       // Team with autocomplete
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Team / Side</label>';
       h+='<input name="player" type="text" list="dl-teams" placeholder="Start typing..." autocomplete="off" style="width:190px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
 
-      // Market (auto-filled from type, editable for custom)
-      h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Market</label>';
-      h+='<input name="market" type="text" value="Moneyline" style="width:100px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;outline:none"></div>';
+      // Market (auto-filled, editable)
+      h+='<input name="market" type="hidden" value="Moneyline">';
 
-      // Line, Book, Wager, Date, Time, Result
+      // Spread / Point (hidden for ML, shown for SP/PL/RL/OU)
+      h+='<div id="spread-field" style="display:none;flex-direction:column;gap:2px"><label id="spread-label" style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Spread</label>';
+      h+='<input name="spread_point" type="text" placeholder="-3.5" style="width:65px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;font-family:\'JetBrains Mono\',monospace;outline:none"></div>';
+
+      // Line / Odds
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Line / Odds</label>';
-      h+='<input name="line" type="text" placeholder="+150" style="width:70px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;font-family:\'JetBrains Mono\',monospace;outline:none"></div>';
+      h+='<input name="line" type="text" placeholder="-110" style="width:70px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 6px;color:var(--tx);font-size:11px;font-family:\'JetBrains Mono\',monospace;outline:none"></div>';
 
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Book</label>';
       h+='<select name="book" style="width:90px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:10px;outline:none">';
@@ -3885,7 +3914,10 @@ function render(){
             h+='<tr style="background:rgba(0,201,255,.06);border-bottom:1px solid var(--bdL)">';
             h+='<td style="padding:5px 6px;font-size:12px;width:20px;text-align:center">'+tb.icon+'</td>';
             h+='<td style="padding:5px 6px;font-size:9px;color:var(--td);white-space:nowrap;width:60px">'+timeStr+'</td>';
-            h+='<td style="padding:5px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div><div style="font-size:8px;color:var(--td)">'+tb.market+(tb.matchup?" · "+tb.matchup:"")+'</div></td>';
+            h+='<td style="padding:5px 6px"><div style="font-weight:700;color:var(--tx)">'+tb.player+'</div>';
+            h+='<div style="display:flex;gap:4px;align-items:center;margin-top:2px">';
+            h+='<input type="text" value="'+(tb.market||"")+'" onchange="editTrackedBet(\''+escKey+'\',\'market\',this.value)" style="width:110px;background:var(--alt);border:1px solid var(--ac2);border-radius:4px;padding:2px 4px;color:var(--tx);font-size:9px;font-weight:600;outline:none" title="Edit market (e.g. Spread -3.5)">';
+            h+='</div></td>';
             // Editable line (odds)
             h+='<td style="padding:5px 4px;width:65px"><input type="text" value="'+(tb.line||"")+'" onchange="editTrackedBet(\''+escKey+'\',\'line\',this.value)" style="width:55px;background:var(--alt);border:1px solid var(--ac2);border-radius:4px;padding:3px 4px;color:var(--tx);font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none"></td>';
             // Editable book
