@@ -470,8 +470,80 @@ function loadTracker(){
   try{var s=localStorage.getItem(TRACKER_KEY);if(s)return JSON.parse(s);}catch(e){}
   return[];
 }
+
+// ═══ CROSS-DEVICE SYNC via Cloudflare KV ═══
+var SYNC_BASE="https://diamond-edge-proxy.wyatt-whitney.workers.dev";
+var syncPIN=(function(){try{return localStorage.getItem("de_sync_pin")||"";}catch(e){return"";}})();
+var syncStatus={lastSync:null,syncing:false,error:null,showModal:false};
+
+function getSyncData(){
+  return JSON.stringify({
+    v:2,ts:new Date().toISOString(),
+    bankroll:S.bankroll,booksOn:S.booksOn,mode:S.mode,
+    evOnly:S.evOnly||false,trackedBets:trackedBets,
+    betsLeagueFilter:typeof betsLeagueFilter!=="undefined"?betsLeagueFilter:{nhl:true,mlb:true,nba:true},
+    betsSortBy:typeof betsSortBy!=="undefined"?betsSortBy:"time",
+  });
+}
+function applySyncData(json){
+  try{
+    var d=JSON.parse(json);
+    if(d.bankroll!=null){S.bankroll=d.bankroll;try{localStorage.setItem("de_bankroll",S.bankroll)}catch(e){}}
+    if(d.booksOn){S.booksOn=d.booksOn;try{localStorage.setItem("de_books",JSON.stringify(S.booksOn))}catch(e){}}
+    if(d.mode){S.mode=d.mode;try{localStorage.setItem("de_mode",S.mode)}catch(e){}}
+    if(d.evOnly!=null)S.evOnly=d.evOnly;
+    if(d.trackedBets){trackedBets=d.trackedBets;try{localStorage.setItem(TRACKER_KEY,JSON.stringify(trackedBets))}catch(e){}}
+    if(d.betsLeagueFilter&&typeof betsLeagueFilter!=="undefined")betsLeagueFilter=d.betsLeagueFilter;
+    if(d.betsSortBy&&typeof betsSortBy!=="undefined")betsSortBy=d.betsSortBy;
+    syncStatus.lastSync=new Date();
+    console.log("[DE] Sync: applied remote data ("+trackedBets.length+" tracked bets)");
+    return true;
+  }catch(e){console.log("[DE] Sync apply error:",e);return false;}
+}
+async function syncPush(){
+  if(!syncPIN||syncPIN.length<4)return;
+  syncStatus.syncing=true;
+  try{
+    var resp=await fetch(SYNC_BASE+"/sync?pin="+encodeURIComponent(syncPIN),{
+      method:"POST",headers:{"Content-Type":"application/json"},body:getSyncData()
+    });
+    if(resp.ok){syncStatus.lastSync=new Date();syncStatus.error=null;console.log("[DE] Sync: pushed to KV");}
+    else{var err=await resp.json().catch(function(){return{error:"unknown"}});syncStatus.error=err.error||"Push failed";}
+  }catch(e){syncStatus.error=e.message;}
+  syncStatus.syncing=false;
+}
+async function syncPull(){
+  if(!syncPIN||syncPIN.length<4)return false;
+  syncStatus.syncing=true;render();
+  try{
+    var resp=await fetch(SYNC_BASE+"/sync?pin="+encodeURIComponent(syncPIN));
+    if(resp.ok){var json=await resp.text();applySyncData(json);syncStatus.error=null;syncStatus.syncing=false;render();return true;}
+    else if(resp.status===404){syncStatus.error=null;syncStatus.syncing=false;await syncPush();render();return true;}
+    else{var err=await resp.json().catch(function(){return{error:"unknown"}});syncStatus.error=err.error||"Pull failed";}
+  }catch(e){syncStatus.error=e.message;}
+  syncStatus.syncing=false;render();return false;
+}
+function setupSync(pin){
+  if(!pin||pin.length<4){syncStatus.error="PIN must be 4+ characters";render();return;}
+  syncPIN=pin;try{localStorage.setItem("de_sync_pin",pin)}catch(e){}
+  syncStatus.error=null;syncPush().then(function(){syncStatus.showModal=false;render();});
+}
+function connectSync(pin){
+  if(!pin||pin.length<4){syncStatus.error="PIN must be 4+ characters";render();return;}
+  syncPIN=pin;try{localStorage.setItem("de_sync_pin",pin)}catch(e){}
+  syncPull().then(function(ok){if(ok)syncStatus.showModal=false;render();});
+}
+function disconnectSync(){
+  syncPIN="";try{localStorage.removeItem("de_sync_pin")}catch(e){}
+  syncStatus.lastSync=null;syncStatus.error=null;syncStatus.showModal=false;render();
+}
+var _syncTimer=null;
+function triggerSync(){if(!syncPIN)return;clearTimeout(_syncTimer);_syncTimer=setTimeout(syncPush,3000);}
+if(syncPIN){setTimeout(function(){syncPull()},2000);}
+
 function saveTracker(bets){
   try{localStorage.setItem(TRACKER_KEY,JSON.stringify(bets));}catch(e){}
+  triggerSync();
 }
 var trackedBets=loadTracker();
 
@@ -3028,6 +3100,7 @@ async function refreshAll(){
 function toggleBook(id){
   S.booksOn[id]=!S.booksOn[id];
   try{localStorage.setItem("de_books",JSON.stringify(S.booksOn));}catch(e){}
+  triggerSync();
   render();
 }
 
@@ -3148,7 +3221,39 @@ function render(){
     h+='</div>';
   }
 
+  h+='<button class="thbtn" onclick="syncStatus.showModal=!syncStatus.showModal;render()" title="'+(syncPIN?'Synced':'Set up sync')+'" style="'+(syncPIN?'border-color:var(--acc);color:var(--acc)':'')+'">🔄</button>';
   h+='<button class="thbtn" onclick="S.mode=S.mode===\'dark\'?\'light\':\'dark\';try{localStorage.setItem(\'de_mode\',S.mode)}catch(e){};render()">'+(t==="dark"?"☀️":"🌙")+'</button></div>';
+
+    // ── SYNC MODAL ──
+  if(syncStatus.showModal){
+    h+='<div style="background:var(--card);border-bottom:1px solid var(--bd);padding:16px">';
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    h+='<span style="font-size:16px">🔄</span>';
+    h+='<span style="font-size:14px;font-weight:800;font-family:\'Space Grotesk\',sans-serif">Cross-Device Sync</span>';
+    if(syncPIN){h+='<span style="font-size:9px;padding:2px 8px;border-radius:4px;background:var(--ovBg);color:var(--acc);font-weight:700">Connected</span>';}
+    h+='<button onclick="syncStatus.showModal=false;render()" style="margin-left:auto;background:none;color:var(--td);font-size:16px;cursor:pointer">✕</button>';
+    h+='</div>';
+    if(syncPIN){
+      h+='<div style="font-size:11px;color:var(--tm);margin-bottom:10px">PIN: <span class="mono" style="color:var(--acc)">'+syncPIN.replace(/./g,"\u2022")+'</span></div>';
+      if(syncStatus.lastSync){h+='<div style="font-size:10px;color:var(--td);margin-bottom:10px">Last synced: '+syncStatus.lastSync.toLocaleTimeString()+'</div>';}
+      h+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      h+='<button onclick="syncPush().then(function(){render()})" style="padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--acc);background:rgba(0,255,163,.08);color:var(--acc);cursor:pointer"'+(syncStatus.syncing?' disabled':'')+'>⬆ Push Now</button>';
+      h+='<button onclick="syncPull().then(function(){render()})" style="padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2);cursor:pointer"'+(syncStatus.syncing?' disabled':'')+'>⬇ Pull Now</button>';
+      h+='<button onclick="disconnectSync()" style="padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Disconnect</button>';
+      h+='</div>';
+      if(syncStatus.error){h+='<div style="margin-top:8px;font-size:10px;color:var(--neg)">\u26a0 '+syncStatus.error+'</div>';}
+    }else{
+      h+='<div style="font-size:11px;color:var(--tm);margin-bottom:12px;line-height:1.6">Set a PIN to sync your tracked bets, bankroll, and book settings across devices.</div>';
+      h+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
+      h+='<input id="syncPinInput" type="text" placeholder="Enter PIN (4+ chars)" style="width:180px;padding:8px 12px;border-radius:6px;border:1px solid var(--bd);background:var(--alt);color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
+      h+='<button onclick="var p=document.getElementById(\'syncPinInput\').value;setupSync(p)" style="padding:8px 16px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--acc);background:rgba(0,255,163,.08);color:var(--acc);cursor:pointer">⬆ New Setup</button>';
+      h+='<button onclick="var p=document.getElementById(\'syncPinInput\').value;connectSync(p)" style="padding:8px 16px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2);cursor:pointer">⬇ Connect</button>';
+      h+='</div>';
+      h+='<div style="margin-top:8px;font-size:9px;color:var(--td)"><strong>New Setup:</strong> creates sync with your current data. <strong>Connect:</strong> pulls existing data from another device.</div>';
+      if(syncStatus.error){h+='<div style="margin-top:8px;font-size:10px;color:var(--neg)">\u26a0 '+syncStatus.error+'</div>';}
+    }
+    h+='</div>';
+  }
 
   // ── PROXY ERROR BANNER ──
   if(lastProxyError){
@@ -3289,7 +3394,7 @@ function render(){
     h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh All')+'</button>';
     h+='<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:4px 10px">';
     h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
-    h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
+    h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};triggerSync();render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
     h+='</div>';
     h+='<div style="font-size:9px;color:var(--td)">Kelly stakes auto-scaled · total risk ≤ 25% of bankroll</div>';
     h+='</div>';
