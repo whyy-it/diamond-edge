@@ -2887,7 +2887,17 @@ async function loadMLB(){
 // Primary source for confirmed/projected starters — NHL API no longer provides this data
 async function fetchDailyFaceoff(){
   try{
-    var url="https://www.dailyfaceoff.com/starting-goalies/";
+    // Fetch today AND tomorrow (app shows upcoming games which may be tomorrow)
+    var today=new Date();
+    var tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+    function dfDate(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+    var urls=[
+      "https://www.dailyfaceoff.com/starting-goalies/"+dfDate(today),
+      "https://www.dailyfaceoff.com/starting-goalies/"+dfDate(tomorrow)
+    ];
+    var result={};
+    for(var ui=0;ui<urls.length;ui++){
+    var url=urls[ui];
     var resp=await fetch(CF_WORKER+encodeURIComponent(url));
     if(!resp||!resp.ok)return{};
     var html=await resp.text();
@@ -2931,7 +2941,10 @@ async function fetchDailyFaceoff(){
         awayRecord:(g.awayGoalieWins||0)+"W-"+(g.awayGoalieLosses||0)+"L",
       };
     });
-    console.log("[DE] DailyFaceoff: "+games.length+" games, goalies loaded");
+    console.log("[DE] DailyFaceoff: "+games.length+" games from "+url);
+    }// end for each date
+    var totalGames=Object.keys(result).length/2;// each game adds 2 entries (home+away)
+    console.log("[DE] DailyFaceoff total: ~"+totalGames+" games loaded (today+tomorrow)");
     return result;
   }catch(e){console.log("[DE] DailyFaceoff error:",e);return{};}
 }
