@@ -8404,5 +8404,6544 @@
         ]
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-18T16:40:09Z",
+    "label": "manual",
+    "sport": "nhl",
+    "snapshot_type": "odds",
+    "event_count": 17,
+    "data": [
+      {
+        "id": "c781e17c9b7e43ff86ca0cdcda2fd20c",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-18T23:09:00Z",
+        "home_team": "New York Rangers",
+        "away_team": "New Jersey Devils",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -122
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 102
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 198,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 102,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -124,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -120
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 100
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 200,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -118
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -102
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 205,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -115
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -103
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 205,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -265,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -109,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -117
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -104
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 205,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -275,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -114,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-18T16:39:48Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -120
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 100
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 195,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -235,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 100,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -125
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 105
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 192,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -235,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-18T16:39:08Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -118
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 104
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 207,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -101,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-18T16:39:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -118
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 104
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 207,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -101,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-18T16:40:03Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -120
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 100
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 190,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -265,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-18T16:35:26Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -122
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 102
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 215,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -260,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -117,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -103,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -120
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 100
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 212,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-18T16:39:54Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": -124
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 101
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "New Jersey Devils",
+                    "price": 189,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -238,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -114,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -107,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ec0dcf609ea452b05d902d76b892c658",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-18T23:10:00Z",
+        "home_team": "Carolina Hurricanes",
+        "away_team": "Pittsburgh Penguins",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -140
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 116
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 168,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -210,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -108,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -145
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -148
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 124
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -192,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -108,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -150
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -124,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -152
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-18T16:39:48Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -145
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -145
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 152,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -180,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-18T16:40:03Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -145
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-18T16:35:26Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -150
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -185,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-18T16:39:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -140
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 123
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -195,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -106,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-18T16:39:08Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -140
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 123
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -195,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -106,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-18T16:39:54Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -150
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 123
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 164,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -204,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -107,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -114,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": -140
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Carolina Hurricanes",
+                    "price": 168,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Pittsburgh Penguins",
+                    "price": -195,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "069a610fbb90adb38785efe8ea88a213",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-18T23:40:00Z",
+        "home_team": "Washington Capitals",
+        "away_team": "Ottawa Senators",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -134
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 112
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 186,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -235,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -140,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 112,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -130
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 190,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -240,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -130
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 195,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -238,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 114,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -135,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -134
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 112
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 180,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -235,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -134
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 180,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -240,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-18T16:39:48Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -135
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 180,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -220,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -135
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 115
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 180,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -220,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-18T16:39:08Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -129
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 114
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 189,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -225,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -103,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-18T16:39:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -129
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 114
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 189,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -225,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -103,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-18T16:40:03Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -130
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 185,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -135,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-18T16:35:26Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -130
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 200,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -240,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -130
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 188,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -220,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-18T16:39:54Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -132
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": 108
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 184,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Washington Capitals",
+                    "price": -232,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -109,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3823357462fd967d18f73586a4703358",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T01:40:00Z",
+        "home_team": "Calgary Flames",
+        "away_team": "St Louis Blues",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:01Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 106
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -128
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:01Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -245,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 194,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:01Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -118,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -104,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 105
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -250,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 200,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 105
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -250,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 205,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 102
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -265,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 195,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -107,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 102
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -121
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -250,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 200,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -118,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -106,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-18T16:39:48Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 105
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -235,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 190,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 105
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -235,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 192,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-18T16:39:08Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 110
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -240,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 200,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -101,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-18T16:39:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 110
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -240,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 200,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -101,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-18T16:40:03Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 105
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -250,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 185,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-18T16:35:26Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 107
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -128
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -250,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 210,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -117,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -103,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 105
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -240,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 204,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -115,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -105,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-18T16:39:54Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": 103
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": -126
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Calgary Flames",
+                    "price": -236,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "St Louis Blues",
+                    "price": 189,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -111,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cc0a178e1b67dd05da493c110f6a086a",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T01:40:00Z",
+        "home_team": "Colorado Avalanche",
+        "away_team": "Dallas Stars",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -146
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 164,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 104,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -128,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -145
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -148
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 124
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -155
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 128
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 155,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 100,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -152
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 128
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 100,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-18T16:39:48Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -145
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -145
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 158,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 105,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-18T16:39:08Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -142
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -195,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 104,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-18T16:39:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -142
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -195,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 104,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-18T16:40:03Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -145
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-18T16:35:26Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -145
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 102,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -122,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -145
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 168,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -195,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 6.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 100,
+                    "point": 6.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-18T16:39:54Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": -151
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": 123
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Colorado Avalanche",
+                    "price": 161,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Dallas Stars",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -128,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "aa034f3d5a318a5142817618dc54cbfa",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T02:10:00Z",
+        "home_team": "Anaheim Ducks",
+        "away_team": "Philadelphia Flyers",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:01Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -156
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:01Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 156,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -194,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:01Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -104,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -118,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -160
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -155
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 128
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -127,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -155
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 164,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -198,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -152
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 128
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 163,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-03-18T16:39:48Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -150
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 155,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:48Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -102,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -118,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -155
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 152,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -180,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-03-18T16:39:08Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -148
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:08Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 102,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -118,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-03-18T16:39:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -148
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 102,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -118,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-03-18T16:40:03Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -150
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:03Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-03-18T16:35:26Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -155
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 133
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -195,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:35:26Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-03-18T16:39:06Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -150
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 129
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 164,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:06Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-03-18T16:39:54Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": -148
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 121
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Anaheim Ducks",
+                    "price": 159,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -197,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:54Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -122,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "0373028254e45b674f987e50a4bbb233",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T23:10:00Z",
+        "home_team": "Boston Bruins",
+        "away_team": "Winnipeg Jets",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": -148
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": 124
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": -145
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": 175,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": -210,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": -142
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": 118
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": 172,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": -215,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -128,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 104,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": -145
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": 122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Boston Bruins",
+                    "price": 175,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Winnipeg Jets",
+                    "price": -210,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -135,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 115,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "1571037e949c7a62c6aa0f3c594a698f",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T23:10:00Z",
+        "home_team": "Columbus Blue Jackets",
+        "away_team": "New York Rangers",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": -218
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 180
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": 120,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -142,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 114,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -135,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": -225
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 184
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": 116,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -142,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 116,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -142,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": -225
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 185
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": 115,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -140,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -140,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 115,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": -220
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": 180
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Columbus Blue Jackets",
+                    "price": 118,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "New York Rangers",
+                    "price": -140,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -135,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "259601128581caaa207c95135c0aff7e",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T23:10:00Z",
+        "home_team": "Detroit Red Wings",
+        "away_team": "Montr\u00e9al Canadiens",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": -110
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": 210,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -258,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -142,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 120,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": -115
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -105
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": 220,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -275,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": -115
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -104
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": 210,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -280,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -142,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 116,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": -110
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Detroit Red Wings",
+                    "price": 205,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Montr\u00e9al Canadiens",
+                    "price": -250,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -140,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 118,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "c2d8bd5835815f4107370b4ba9ee1636",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T23:10:00Z",
+        "home_team": "Ottawa Senators",
+        "away_team": "New York Islanders",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": 120
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -142
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": -218,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 180,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": 120
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -144
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": -210,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 168,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -138,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 112,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": 120
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -145
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": -210,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 175,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": 122
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": -145
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "New York Islanders",
+                    "price": -210,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Ottawa Senators",
+                    "price": 175,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "c61de5d8abe10744c5fb337ec50dea3c",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-19T23:40:00Z",
+        "home_team": "Minnesota Wild",
+        "away_team": "Chicago Blackhawks",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": 200
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": -245
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": -125,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": 105,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 114,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -135,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": 200
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": -250
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": -125,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": 105,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -140,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": 205
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": -255
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": -130,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": 104,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 116,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -142,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": 205
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": -250
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Chicago Blackhawks",
+                    "price": -125,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Wild",
+                    "price": 105,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -135,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "b6caa925af28045747ada8a612592aea",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-20T00:10:00Z",
+        "home_team": "Nashville Predators",
+        "away_team": "Seattle Kraken",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": -130
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": 110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": 190,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": -230,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": -140
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": 116
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": 172,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": -215,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -132,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 108,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": -140
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": 115
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": 185,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": -225,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": -135
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": 115
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Nashville Predators",
+                    "price": 185,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Seattle Kraken",
+                    "price": -225,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -135,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 115,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f81404632adecc70648182abc130750a",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-20T01:10:00Z",
+        "home_team": "Edmonton Oilers",
+        "away_team": "Florida Panthers",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": -148
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": 124
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": -150
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": 165,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": -200,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": -150
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": 168,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": -210,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -122,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": -145
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": 122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Edmonton Oilers",
+                    "price": 170,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Florida Panthers",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "e55d0f25aa1221df5be1126478ac58c7",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-20T02:00:00Z",
+        "home_team": "San Jose Sharks",
+        "away_team": "Buffalo Sabres",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": -150
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": 125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": 164,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": -205,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -112,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -108,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": -145
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": 175,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": -210,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": -142
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": 120
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": 180,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": -218,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": -145
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": 122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Buffalo Sabres",
+                    "price": 175,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Jose Sharks",
+                    "price": -210,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "eb0b43faa851ab35eb85a7822801e644",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-20T02:00:00Z",
+        "home_team": "Vancouver Canucks",
+        "away_team": "Tampa Bay Lightning",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -275
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": 220
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -104,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": -120,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -134,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -275
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": 220
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -110,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": -110,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -278
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": 225
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -110,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": -110,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -285
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": 228
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Tampa Bay Lightning",
+                    "price": -110,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Vancouver Canucks",
+                    "price": -110,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "5aaf98eb2e787ab8f4a7b4878804631a",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-20T02:00:00Z",
+        "home_team": "Vegas Golden Knights",
+        "away_team": "Utah Mammoth",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-03-18T16:40:02Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": 118
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": -142
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": -215,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": 172,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:40:02Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 116,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -142,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": 120
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": -145
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": -210,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": 175,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -140,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 115,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": 124
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": -148
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": -205,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": 170,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-03-18T16:36:38Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": 122
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": -145
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Utah Mammoth",
+                    "price": -205,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Vegas Golden Knights",
+                    "price": 170,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:36:38Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 115,
+                    "point": 6.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -135,
+                    "point": 6.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "45686e62dbc445766dbde5cb892c7b6a",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-03-20T02:40:00Z",
+        "home_team": "Los Angeles Kings",
+        "away_team": "Philadelphia Flyers",
+        "bookmakers": [
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-03-18T16:39:14Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Los Angeles Kings",
+                    "price": -162
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 136
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Los Angeles Kings",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -192,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:14Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-03-18T16:39:23Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Los Angeles Kings",
+                    "price": -160
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Los Angeles Kings",
+                    "price": 160,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Philadelphia Flyers",
+                    "price": -190,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-03-18T16:39:23Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -130,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 110,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
