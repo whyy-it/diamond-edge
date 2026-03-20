@@ -3887,7 +3887,6 @@ function render(){
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
     h+='<button class="cb'+(betsLeagueFilter.nhl?" on":"")+'" onclick="betsLeagueFilter.nhl=!betsLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL</button>';
     h+='<button class="cb'+(betsLeagueFilter.mlb?" on":"")+'" onclick="betsLeagueFilter.mlb=!betsLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
-    h+='<button class="cb'+(betsLeagueFilter.nba?" on":"")+'" onclick="betsLeagueFilter.nba=!betsLeagueFilter.nba;render()"><span class="d"></span>🏀 NBA</button>';
     h+='<button class="cb'+(betsLeagueFilter.nfl?" on":"")+'" onclick="betsLeagueFilter.nfl=!betsLeagueFilter.nfl;render()"><span class="d"></span>🏈 NFL</button>';
     h+='</div>';
 
@@ -3897,13 +3896,13 @@ function render(){
     var abAll2=ab; // Active books for calculations
     var activeIds={};abAll2.forEach(function(bk){activeIds[bk.id]=true;});
 
-    ["nhl","mlb","nba","nfl"].forEach(function(sport){
+    ["nhl","mlb","nfl"].forEach(function(sport){
       var ld=S[sport]||{};
       var gms=ld.games||[];
       var sNHL=sport==="nhl";
-      var sNBA=sport==="nba";
+      var sNBA=false;
       var sNFL=sport==="nfl";
-      var icon=sNHL?"🏒":sNBA?"🏀":sNFL?"🏈":"⚾";
+      var icon=sNHL?"🏒":sNFL?"🏈":"⚾";
 
       // ML bets
       gms.forEach(function(g){
@@ -4530,7 +4529,7 @@ function render(){
     }
     if(isNBA){
       var injCount=Object.values(S.nba.injuries||{}).reduce(function(s,a){return s+a.length},0);
-      h+='<div class="ib acc"><span style="font-size:14px">🏀</span><strong>NBA v3 ML Model (66.6% acc, +27.4% ROI @8% edge):</strong> 19 features, trained 2020-2022, ablation-tested 2024. ML bets at 8%+ edge with best-line shopping. Injuries shown as context ('+(injCount>0?injCount+' tracked':'loading...')+').</div>';
+      h+='<div class="ib" style="background:rgba(255,159,67,.06);border-color:rgba(255,159,67,.2);color:var(--warn)"><span style="font-size:14px">🏀</span><strong>NBA — Analysis Only (not profitable against closing lines).</strong> v3/v4 tested at 66% accuracy but negative ROI across all ML and ATS strategies. NBA lines are too efficient for this feature set. Showing model probabilities, B2B, injuries, and line comparisons as context — not actionable bet recommendations. ('+(injCount>0?injCount+' injuries tracked':'loading...')+').</div>';
     }
     if(isNFL){
       h+='<div class="ib acc"><span style="font-size:14px">🏈</span><strong>NFL v1 (alpha=0.7, backtested +11.7% ROI):</strong> ML@15% non-div + ATS@10% all games. Market-blended predictions. Division games excluded from ML bets. Shadow testing for 2026 season.</div>';
@@ -5231,8 +5230,8 @@ function render(){
   var ftNHL=trackerStatsBySport("nhl");var ftMLB=trackerStatsBySport("mlb");var ftNBA=trackerStatsBySport("nba");
   var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
   var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
-  var ftNBAStr=ftNBA.total>0?"NBA: "+ftNBA.wins+"W-"+ftNBA.losses+"L · "+(ftNBA.profit>0?"+$":"$")+Math.abs(ftNBA.profit).toFixed(0)+" ("+ftNBA.roi+"% ROI)":"NBA: awaiting results";
-  h+='<div class="ft">DIAMOND EDGE · MLB v11d · NHL v5 · NBA v3 · '+ftNHLStr+' · '+ftMLBStr+' · '+ftNBAStr+' · 21+ · 1-800-GAMBLER</div>';
+  var ftNBAStr=ftNBA.total>0?"NBA (legacy): "+ftNBA.wins+"W-"+ftNBA.losses+"L":"NBA: analysis only";
+  h+='<div class="ft">DIAMOND EDGE · MLB v11d · NHL v5 · NBA (analysis only) · '+ftNHLStr+' · '+ftMLBStr+' · '+ftNBAStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
