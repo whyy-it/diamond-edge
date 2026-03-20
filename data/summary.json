@@ -1,18 +1,25 @@
 {
-  "generated": "2026-03-20T10:04:06.808683+00:00",
+  "generated": "2026-03-20T11:21:21.984691+00:00",
   "sports": {
     "mlb": {
       "odds": {
         "days": 13,
-        "snapshots": 58,
-        "events": 183,
+        "snapshots": 59,
+        "events": 196,
         "first": "2026-03-08",
+        "last": "2026-03-20"
+      },
+      "props": {
+        "days": 1,
+        "snapshots": 1,
+        "events": 2,
+        "first": "2026-03-20",
         "last": "2026-03-20"
       },
       "scores": {
         "days": 13,
-        "snapshots": 71,
-        "events": 232,
+        "snapshots": 72,
+        "events": 245,
         "first": "2026-03-08",
         "last": "2026-03-20"
       }
@@ -20,15 +27,15 @@
     "nhl": {
       "odds": {
         "days": 13,
-        "snapshots": 58,
-        "events": 806,
+        "snapshots": 59,
+        "events": 822,
         "first": "2026-03-08",
         "last": "2026-03-20"
       },
       "scores": {
         "days": 13,
-        "snapshots": 71,
-        "events": 2542,
+        "snapshots": 72,
+        "events": 2584,
         "first": "2026-03-08",
         "last": "2026-03-20"
       }
@@ -36,22 +43,22 @@
     "nba": {
       "odds": {
         "days": 13,
-        "snapshots": 58,
-        "events": 506,
+        "snapshots": 59,
+        "events": 513,
         "first": "2026-03-08",
         "last": "2026-03-20"
       },
       "props": {
         "days": 4,
-        "snapshots": 16,
-        "events": 131,
+        "snapshots": 17,
+        "events": 137,
         "first": "2026-03-17",
         "last": "2026-03-20"
       },
       "scores": {
         "days": 13,
-        "snapshots": 71,
-        "events": 2235,
+        "snapshots": 72,
+        "events": 2267,
         "first": "2026-03-08",
         "last": "2026-03-20"
       }
