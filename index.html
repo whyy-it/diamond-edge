@@ -199,6 +199,54 @@ async function corsProxyFetch(url,opts){
 // Track last proxy error for UI banner
 var lastProxyError=null;
 
+// ═══ ODDS API COOLDOWN CACHE ═══
+// Caches odds responses in sessionStorage to avoid burning API credits
+// on page reloads, tab switches, and accidental refreshes.
+var ODDS_COOLDOWN_MS=15*60*1000; // 15 minutes
+var oddsCacheStats={hits:0,misses:0};
+
+function oddsCacheKey(sport){return "de_odds_cache_"+sport;}
+function oddsCacheGet(sport){
+  try{
+    var raw=sessionStorage.getItem(oddsCacheKey(sport));
+    if(!raw)return null;
+    var c=JSON.parse(raw);
+    var age=Date.now()-c.ts;
+    if(age<ODDS_COOLDOWN_MS){
+      console.log("[DE] Cache HIT for "+sport+" ("+Math.round(age/1000)+"s old, "+Math.round((ODDS_COOLDOWN_MS-age)/1000)+"s remaining)");
+      oddsCacheStats.hits++;
+      return c;
+    }
+    console.log("[DE] Cache EXPIRED for "+sport+" ("+Math.round(age/1000)+"s old)");
+  }catch(e){}
+  return null;
+}
+function oddsCacheSet(sport,data,apiBooks,remaining){
+  try{
+    sessionStorage.setItem(oddsCacheKey(sport),JSON.stringify({
+      ts:Date.now(),data:data,apiBooks:apiBooks,remaining:remaining
+    }));
+    oddsCacheStats.misses++;
+    console.log("[DE] Cache SET for "+sport+" (valid for "+Math.round(ODDS_COOLDOWN_MS/60000)+"min)");
+  }catch(e){console.log("[DE] Cache write failed:",e.message);}
+}
+function oddsCacheAge(sport){
+  try{
+    var raw=sessionStorage.getItem(oddsCacheKey(sport));
+    if(!raw)return null;
+    return Date.now()-JSON.parse(raw).ts;
+  }catch(e){}return null;
+}
+function oddsCacheClearAll(){
+  ["mlb","nhl","nba","nfl"].forEach(function(s){try{sessionStorage.removeItem(oddsCacheKey(s))}catch(e){}});
+  console.log("[DE] Cache cleared — next refresh will hit API");
+}
+// NFL offseason detection (season is Sep–Feb, offseason Mar–Aug)
+function isNFLOffseason(){
+  var m=new Date().getMonth(); // 0-indexed
+  return m>=2&&m<=7; // Mar(2) through Aug(7)
+}
+
 // CORS-safe fetch for NHL API (which blocks cross-origin from Netlify)
 async function fetchNHL(path){
   var r=await corsProxyFetch(NHL_BASE+path);
@@ -584,6 +632,19 @@ function computeNFLFeatures(g){
 // ── NFL FETCH FUNCTIONS ──
 
 async function fetchNFLOdds(){
+  // Skip during offseason (Mar-Aug) — saves ~25% of API credits
+  if(isNFLOffseason()){
+    console.log("[DE] NFL offseason — skipping odds fetch");
+    S.nfl.apiBooks=[];
+    return [];
+  }
+  // Check cooldown cache
+  var cached=oddsCacheGet("nfl");
+  if(cached){
+    S.nfl.apiBooks=cached.apiBooks||[];
+    if(cached.remaining)S.remaining=cached.remaining;
+    return cached.data;
+  }
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
   var url=ODDS_BASE+"/americanfootball_nfl/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
   console.log("[DE] NFL odds URL:",url.replace(API_KEY,"***"));
@@ -594,6 +655,7 @@ async function fetchNFLOdds(){
   var seen={};
   (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
   S.nfl.apiBooks=Object.keys(seen);
+  oddsCacheSet("nfl",data,S.nfl.apiBooks,S.remaining);
   console.log("[DE] NFL books returned:",S.nfl.apiBooks.join(", ")||"none");
   return data;
 }
@@ -1299,6 +1361,12 @@ function localDS(d){var dt=d||new Date();return dt.getFullYear()+"-"+String(dt.g
 // ═══════════════════════════════════════════════════════════
 
 async function fetchMLBOdds(){
+  var cached=oddsCacheGet("mlb");
+  if(cached){
+    S.mlb.apiBooks=cached.apiBooks||[];
+    if(cached.remaining)S.remaining=cached.remaining;
+    return cached.data;
+  }
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
   var url=ODDS_BASE+"/baseball_mlb/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
   console.log("[Diamond Edge] MLB odds URL:",url.replace(API_KEY,"***"));
@@ -1310,6 +1378,7 @@ async function fetchMLBOdds(){
   var seen={};
   (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
   S.mlb.apiBooks=Object.keys(seen);
+  oddsCacheSet("mlb",data,S.mlb.apiBooks,S.remaining);
   console.log("[Diamond Edge] MLB books returned:",S.mlb.apiBooks.join(", ")||"none");
   return data;
 }
@@ -1370,6 +1439,12 @@ async function fetchWeather(homeTeam){
 // ═══════════════════════════════════════════════════════════
 
 async function fetchNHLOdds(){
+  var cached=oddsCacheGet("nhl");
+  if(cached){
+    S.nhl.apiBooks=cached.apiBooks||[];
+    if(cached.remaining)S.remaining=cached.remaining;
+    return cached.data;
+  }
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
   var url=ODDS_BASE+"/icehockey_nhl/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
   console.log("[Diamond Edge] NHL odds URL:",url.replace(API_KEY,"***"));
@@ -1378,10 +1453,10 @@ async function fetchNHLOdds(){
   if(!r.ok)throw new Error("Odds API "+r.status);
   var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
   var data=await r.json();
-  // Track which bookmakers actually returned data
   var seen={};
   (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
   S.nhl.apiBooks=Object.keys(seen);
+  oddsCacheSet("nhl",data,S.nhl.apiBooks,S.remaining);
   console.log("[Diamond Edge] NHL books returned:",S.nhl.apiBooks.join(", ")||"none");
   return data;
 }
@@ -1644,6 +1719,12 @@ async function fetchStatcastPitcherRates(){
 // ═══════════════════════════════════════════════════════════
 
 async function fetchNBAOdds(){
+  var cached=oddsCacheGet("nba");
+  if(cached){
+    S.nba.apiBooks=cached.apiBooks||[];
+    if(cached.remaining)S.remaining=cached.remaining;
+    return cached.data;
+  }
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
   var url=ODDS_BASE+"/basketball_nba/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
   console.log("[Diamond Edge] NBA odds URL:",url.replace(API_KEY,"***"));
@@ -1654,6 +1735,7 @@ async function fetchNBAOdds(){
   var seen={};
   (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
   S.nba.apiBooks=Object.keys(seen);
+  oddsCacheSet("nba",data,S.nba.apiBooks,S.remaining);
   console.log("[Diamond Edge] NBA books returned:",S.nba.apiBooks.join(", ")||"none");
   return data;
 }
@@ -3458,7 +3540,8 @@ function loadCurrent(){
   else if(S.league==="nfl")loadNFL();
 }
 
-async function refreshAll(){
+async function refreshAll(force){
+  if(force){oddsCacheClearAll();}
   S.mlb.lastFetch=null;S.nhl.lastFetch=null;S.nba.lastFetch=null;S.nfl.lastFetch=null;
   syncActive();render();
 
@@ -3684,8 +3767,15 @@ function render(){
   }
   h+='<div style="flex:1"></div>';
   if(S.remaining)h+='<span class="mono" style="font-size:9px;color:var(--tf)">API: '+S.remaining+'</span>';
+  var cacheAge=oddsCacheAge(S.league);
+  if(cacheAge!=null){
+    var cacheMin=Math.round(cacheAge/60000);
+    var cacheLeft=Math.max(0,Math.round((ODDS_COOLDOWN_MS-cacheAge)/60000));
+    h+='<span class="mono" style="font-size:9px;color:var(--acc);margin-left:6px" title="Cached odds — saves API credits">⚡ cached '+cacheMin+'m ago ('+cacheLeft+'m left)</span>';
+  }
   if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
-  h+='<button class="rbtn" onclick="refreshAll()"'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh All')+'</button></div>';
+  h+='<button class="rbtn" onclick="refreshAll()"'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh')+'</button>';
+  h+='<button class="rbtn" onclick="refreshAll(true)" style="margin-left:4px;color:var(--warn);border-color:var(--warn)"'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+' title="Bypass cache — uses API credits">⚡ Force</button></div>';
   } // end S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books" status bar
 
   // ── TABS (skip for global bets/tracker view) ──
@@ -3779,7 +3869,8 @@ function render(){
     h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
     h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📋 Today\'s Bet Sheet</div>';
     h+='<div style="font-size:11px;color:var(--td)">'+fd(new Date())+'</div>';
-    h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh All')+'</button>';
+    h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh')+'</button>';
+    h+='<button class="rbtn" onclick="refreshAll(true)" style="padding:6px 10px;font-size:11px;color:var(--warn);border-color:var(--warn)"'+(S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+' title="Bypass cache — uses API credits">⚡</button>';
     h+='<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:4px 10px">';
     h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
     h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};triggerSync();render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
