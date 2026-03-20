@@ -848,6 +848,7 @@ function getSyncData(){
     bankroll:S.bankroll,booksOn:S.booksOn,mode:S.mode,
     evOnly:S.evOnly||false,trackedBets:trackedBets,
     betsLeagueFilter:typeof betsLeagueFilter!=="undefined"?betsLeagueFilter:{nhl:true,mlb:true,nba:true,nfl:true},
+    trackerLeagueFilter:typeof trackerLeagueFilter!=="undefined"?trackerLeagueFilter:{nhl:true,mlb:true,nba:true,nfl:true},
     betsSortBy:typeof betsSortBy!=="undefined"?betsSortBy:"time",
   });
 }
@@ -860,6 +861,7 @@ function applySyncData(json){
     if(d.evOnly!=null)S.evOnly=d.evOnly;
     if(d.trackedBets){trackedBets=d.trackedBets;try{localStorage.setItem(TRACKER_KEY,JSON.stringify(trackedBets))}catch(e){}}
     if(d.betsLeagueFilter&&typeof betsLeagueFilter!=="undefined")betsLeagueFilter=d.betsLeagueFilter;
+    if(d.trackerLeagueFilter&&typeof trackerLeagueFilter!=="undefined")trackerLeagueFilter=d.trackerLeagueFilter;
     if(d.betsSortBy&&typeof betsSortBy!=="undefined")betsSortBy=d.betsSortBy;
     syncStatus.lastSync=new Date();
     console.log("[DE] Sync: applied remote data ("+trackedBets.length+" tracked bets)");
@@ -965,6 +967,7 @@ var trackerEditKey=null; // key of bet currently being edited
 // Bets tab sort state
 var betsSortBy="time"; // "time" or "book"
 var betsLeagueFilter={nhl:true,mlb:true,nba:true,nfl:true}; // toggle leagues on/off in bets tab
+var trackerLeagueFilter={nhl:true,mlb:true,nba:true,nfl:true}; // toggle leagues on/off in tracker tab
 
 function editTrackedBet(key,field,value){
   var tb=findTracked(key);if(!tb)return;
@@ -4148,15 +4151,36 @@ function render(){
       h+='</form></div>';
     }
 
-    // Sort controls
-    h+='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">';
+    // Sort controls + league filter
+    h+='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap">';
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Sort:</span>';
     h+='<button class="cb'+(trackerSortBy==="time"?" on":"")+'" onclick="trackerSortBy=\'time\';render()"><span class="d"></span>By Time</button>';
     h+='<button class="cb'+(trackerSortBy==="book"?" on":"")+'" onclick="trackerSortBy=\'book\';render()"><span class="d"></span>By Book</button>';
+    h+='<div class="sep"></div>';
+    h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
+    h+='<button class="cb'+(trackerLeagueFilter.nhl?" on":"")+'" onclick="trackerLeagueFilter.nhl=!trackerLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL</button>';
+    h+='<button class="cb'+(trackerLeagueFilter.mlb?" on":"")+'" onclick="trackerLeagueFilter.mlb=!trackerLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
+    h+='<button class="cb'+(trackerLeagueFilter.nba?" on":"")+'" onclick="trackerLeagueFilter.nba=!trackerLeagueFilter.nba;render()"><span class="d"></span>🏀 NBA</button>';
+    h+='<button class="cb'+(trackerLeagueFilter.nfl?" on":"")+'" onclick="trackerLeagueFilter.nfl=!trackerLeagueFilter.nfl;render()"><span class="d"></span>🏈 NFL</button>';
     h+='</div>';
 
-    var ts2=trackerStats();
-    if(trackedBets.length>0){
+    // Apply league filter
+    var trkFiltered=trackedBets.filter(function(b){return trackerLeagueFilter[b.sport]!==false;});
+
+    var ts2=(function(){
+      var fb=trkFiltered;
+      var total=fb.filter(function(b){return b.result!=null}).length;
+      var wins=fb.filter(function(b){return b.result==="W"}).length;
+      var losses=fb.filter(function(b){return b.result==="L"}).length;
+      var pushes=fb.filter(function(b){return b.result==="P"}).length;
+      var pending=fb.filter(function(b){return b.result==null}).length;
+      var totalWagered=fb.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.amount},0);
+      var totalPayout=fb.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.payout},0);
+      var roi=totalWagered>0?((totalPayout/totalWagered)*100).toFixed(1):0;
+      return{total:total,wins:wins,losses:losses,pushes:pushes,pending:pending,
+        wagered:totalWagered,payout:totalPayout,profit:+(totalPayout).toFixed(2),roi:roi};
+    })();
+    if(trkFiltered.length>0){
       // Overall stats summary
       h+='<div class="trk-sum">';
       h+='<div class="trk-stat"><div class="val" style="color:var(--tx)">'+ts2.total+'</div><div class="lbl">graded</div></div>';
@@ -4174,7 +4198,7 @@ function render(){
       h+='</div>';
 
       // ═══ CUMULATIVE P&L CHART ═══
-      var gradedBets=trackedBets.filter(function(b){return b.result!=null&&b.time});
+      var gradedBets=trkFiltered.filter(function(b){return b.result!=null&&b.time});
       if(gradedBets.length>=2){
         gradedBets.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
         var cumData=[];var cum=0;
@@ -4242,7 +4266,7 @@ function render(){
         });
         h+='</svg></div>';
       }
-      var sortedBets=trackedBets.slice();
+      var sortedBets=trkFiltered.slice();
       if(trackerSortBy==="book"){
         sortedBets.sort(function(a,b){return(a.book||"").localeCompare(b.book||"");});
       }else{
@@ -4398,6 +4422,9 @@ function render(){
         });
         h+='</table></div>';
       });
+    }else if(trackedBets.length>0){
+      h+='<div class="empty"><div class="empty-i">🔍</div><div class="empty-t sg">No Bets for Selected Leagues</div>';
+      h+='<div class="empty-d">Toggle the league filters above to see your tracked bets.</div></div>';
     }else{
       h+='<div class="empty"><div class="empty-i">📈</div><div class="empty-t sg">No Tracked Bets Yet</div>';
       h+='<div class="empty-d">All EV+ bets are auto-tracked when they appear on the Bets tab. Once games finish, click Auto-Resolve to fetch scores and grade results automatically.</div></div>';
