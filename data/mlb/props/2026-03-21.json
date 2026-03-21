@@ -848,5 +848,60 @@
         ]
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-21T23:59:09Z",
+    "label": "closing",
+    "sport": "mlb",
+    "snapshot_type": "props",
+    "event_count": 1,
+    "data": [
+      {
+        "id": "482db144520650cd646a5e4778c1fc02",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-03-26T00:05:00Z",
+        "home_team": "San Francisco Giants",
+        "away_team": "New York Yankees",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "markets": [
+              {
+                "key": "pitcher_strikeouts",
+                "last_update": "2026-03-21T23:58:36Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "description": "Max Fried",
+                    "price": 124,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "description": "Max Fried",
+                    "price": -166,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Logan Webb",
+                    "price": -138,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "description": "Logan Webb",
+                    "price": 104,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
