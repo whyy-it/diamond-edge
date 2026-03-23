@@ -287,5 +287,288 @@
         ]
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-23T11:57:38Z",
+    "label": "manual",
+    "sport": "mlb",
+    "snapshot_type": "props",
+    "event_count": 1,
+    "data": [
+      {
+        "id": "482db144520650cd646a5e4778c1fc02",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-03-26T00:05:00Z",
+        "home_team": "San Francisco Giants",
+        "away_team": "New York Yankees",
+        "bookmakers": [
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "markets": [
+              {
+                "key": "pitcher_strikeouts",
+                "last_update": "2026-03-23T11:56:04Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "description": "Logan Webb",
+                    "price": -135,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "description": "Logan Webb",
+                    "price": 105,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Max Fried",
+                    "price": 125,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "description": "Max Fried",
+                    "price": -165,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "markets": [
+              {
+                "key": "batter_home_runs",
+                "last_update": "2026-03-23T11:57:17Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "description": "Aaron Judge",
+                    "price": 245,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Giancarlo Stanton",
+                    "price": 390,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Ben Rice",
+                    "price": 425,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Rafael Devers",
+                    "price": 475,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Willy Adames",
+                    "price": 575,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Matt Chapman",
+                    "price": 575,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Jazz Chisholm Jr.",
+                    "price": 625,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Cody Bellinger",
+                    "price": 625,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Trent Grisham",
+                    "price": 625,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Heliot Ramos",
+                    "price": 700,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Austin Wells",
+                    "price": 750,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Ryan McMahon",
+                    "price": 750,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Harrison Bader",
+                    "price": 750,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Jerar Encarnaci\u00f3n",
+                    "price": 750,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Jose Caballero",
+                    "price": 1100,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Patrick Bailey",
+                    "price": 1100,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Jung Hoo Lee",
+                    "price": 1300,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Luis Arraez",
+                    "price": 1500,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Ben Rice",
+                    "price": 425,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Ben Rice",
+                    "price": 4500,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Aaron Judge",
+                    "price": 1750,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Aaron Judge",
+                    "price": 245,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Willy Adames",
+                    "price": 8000,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Willy Adames",
+                    "price": 575,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Giancarlo Stanton",
+                    "price": 4000,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Giancarlo Stanton",
+                    "price": 390,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Rafael Devers",
+                    "price": 5500,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Rafael Devers",
+                    "price": 475,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Matt Chapman",
+                    "price": 575,
+                    "point": 0.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Matt Chapman",
+                    "price": 8000,
+                    "point": 1.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "markets": [
+              {
+                "key": "pitcher_strikeouts",
+                "last_update": "2026-03-23T11:57:12Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "description": "Max Fried",
+                    "price": 124,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "description": "Max Fried",
+                    "price": -166,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Over",
+                    "description": "Logan Webb",
+                    "price": -138,
+                    "point": 5.5
+                  },
+                  {
+                    "name": "Under",
+                    "description": "Logan Webb",
+                    "price": 104,
+                    "point": 5.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
