@@ -270,7 +270,6 @@ var PA=[
 var LEAGUES=[
   {key:"mlb",label:"MLB",icon:"⚾",on:true,sport:"baseball_mlb"},
   {key:"nhl",label:"NHL",icon:"🏒",on:true,sport:"icehockey_nhl"},
-  {key:"nfl",label:"NFL",icon:"🏈",on:true,sport:"americanfootball_nfl"},{key:"nba",label:"NBA",icon:"🏀",on:true,sport:"basketball_nba"},
   {key:"ncaaf",label:"NCAAF",icon:"🎓",on:false},{key:"soccer",label:"Soccer",icon:"⚽",on:false},
 ];
 
@@ -3651,11 +3650,11 @@ function loadCurrent(){
 
 async function refreshAll(force){
   if(force){oddsCacheClearAll();}
-  S.mlb.lastFetch=null;S.nhl.lastFetch=null;S.nba.lastFetch=null;S.nfl.lastFetch=null;
+  S.mlb.lastFetch=null;S.nhl.lastFetch=null;
   syncActive();render();
 
-  // Load all sports in parallel
-  await Promise.allSettled([loadMLB(),loadNHL(),loadNBA(),loadNFL()]);
+  // Load only active betting sports (MLB + NHL)
+  await Promise.allSettled([loadMLB(),loadNHL()]);
 
   // Auto-resolve any pending tracked bets from completed games
   await autoResolveTracked();
@@ -3682,11 +3681,9 @@ function switchLeague(key){
     if(!ld.lastFetch&&!ld.loading)loadCurrent();
     else render();
   }else{
-    // Load all leagues if not loaded
+    // Load betting leagues if not loaded
     if(!S.nhl.lastFetch&&!S.nhl.loading)loadNHL();
     if(!S.mlb.lastFetch&&!S.mlb.loading)loadMLB();
-    if(!S.nba.lastFetch&&!S.nba.loading)loadNBA();
-    if(!S.nfl.lastFetch&&!S.nfl.loading)loadNFL();
     render();
   }
 }
@@ -3761,7 +3758,7 @@ function render(){
   var h="";
 
   // ── LEAGUE BAR ──
-  var versionLabel=isNHL?"NHL v5":isNBA?"NBA v3":isNFL?"NFL v1":"MLB v11d";
+  var versionLabel=isNHL?"NHL B2B":"MLB v11d";
   h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">'+versionLabel+'</span></div></div>';
   // Today's Bets global button (FIRST after leagues)
   var betsOn=S.league==="bets";
@@ -3883,8 +3880,8 @@ function render(){
     h+='<span class="mono" style="font-size:9px;color:var(--acc);margin-left:6px" title="Cached odds — saves API credits">⚡ cached '+cacheMin+'m ago ('+cacheLeft+'m left)</span>';
   }
   if(S.lastFetch)h+='<span class="mono" style="font-size:9px;color:var(--tf);margin-left:6px">'+ft(S.lastFetch)+'</span>';
-  h+='<button class="rbtn" onclick="refreshAll()"'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh')+'</button>';
-  h+='<button class="rbtn" onclick="refreshAll(true)" style="margin-left:4px;color:var(--warn);border-color:var(--warn)"'+(S.loading||S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+' title="Bypass cache — uses API credits">⚡ Force</button></div>';
+  h+='<button class="rbtn" onclick="refreshAll()"'+(S.loading||S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.loading||S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh')+'</button>';
+  h+='<button class="rbtn" onclick="refreshAll(true)" style="margin-left:4px;color:var(--warn);border-color:var(--warn)"'+(S.loading||S.mlb.loading||S.nhl.loading?' disabled':'')+' title="Bypass cache — uses API credits">⚡ Force</button></div>';
   } // end S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books" status bar
 
   // ── TABS (skip for global bets/tracker view) ──
@@ -3978,8 +3975,8 @@ function render(){
     h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
     h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📋 Today\'s Bet Sheet</div>';
     h+='<div style="font-size:11px;color:var(--td)">'+fd(new Date())+'</div>';
-    h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading||S.nba.loading?'Loading...':'↻ Refresh')+'</button>';
-    h+='<button class="rbtn" onclick="refreshAll(true)" style="padding:6px 10px;font-size:11px;color:var(--warn);border-color:var(--warn)"'+(S.mlb.loading||S.nhl.loading||S.nba.loading?' disabled':'')+' title="Bypass cache — uses API credits">⚡</button>';
+    h+='<button class="rbtn" onclick="refreshAll()" style="padding:6px 16px;font-size:11px"'+(S.mlb.loading||S.nhl.loading?' disabled':'')+'>'+(S.mlb.loading||S.nhl.loading?'Loading...':'↻ Refresh')+'</button>';
+    h+='<button class="rbtn" onclick="refreshAll(true)" style="padding:6px 10px;font-size:11px;color:var(--warn);border-color:var(--warn)"'+(S.mlb.loading||S.nhl.loading?' disabled':'')+' title="Bypass cache — uses API credits">⚡</button>';
     h+='<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:4px 10px">';
     h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
     h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};triggerSync();render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
@@ -4386,8 +4383,6 @@ function render(){
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
     h+='<button class="cb'+(trackerLeagueFilter.nhl?" on":"")+'" onclick="trackerLeagueFilter.nhl=!trackerLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL</button>';
     h+='<button class="cb'+(trackerLeagueFilter.mlb?" on":"")+'" onclick="trackerLeagueFilter.mlb=!trackerLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
-    h+='<button class="cb'+(trackerLeagueFilter.nba?" on":"")+'" onclick="trackerLeagueFilter.nba=!trackerLeagueFilter.nba;render()"><span class="d"></span>🏀 NBA</button>';
-    h+='<button class="cb'+(trackerLeagueFilter.nfl?" on":"")+'" onclick="trackerLeagueFilter.nfl=!trackerLeagueFilter.nfl;render()"><span class="d"></span>🏈 NFL</button>';
     h+='</div>';
 
     // Apply league filter
@@ -4702,58 +4697,42 @@ function render(){
         }
       }
 
-      // Backtested thresholds (side-aware for NHL):
-      //   MLB: BET at 10%+, WATCH at 3%+ (40,996 games)
-      //   NHL Home: BET at 5%+ (test ROI +17.6%), WATCH at 3%+
-      //   NHL Away: BET at 7%+ (test ROI +7.2% at 7, +20.2% at 10), WATCH at 3%+
-      //   Deep analysis: Home bets 2-3x more profitable than away bets
+      // Bet thresholds:
+      //   MLB: EDGE at 10%+ (walk-forward verified: 3/3 years, +9.9% ROI)
+      //   NHL: BET only on B2B specialist qualifying games (5/5 years, +6.6% ROI)
       var betThresh=10; // MLB default
+      var nhlB2BBet=null;
       if(isNHL){
-        betThresh=(betSide==="HOME")?5:7;
+        nhlB2BBet=computeNHLB2BFeatures(g);
+        betThresh=999;// NHL v5 general model never shows BET — only B2B specialist does
       }
-      if(isNBA){
-        betThresh=8;
-      }
-      if(isNFL){
-        betThresh=10;
-      }
-      var meetsBetThresh=displayEdge>=betThresh;
+      var meetsBetThresh=isNHL?(nhlB2BBet&&nhlB2BBet.isBet):displayEdge>=betThresh;
 
       var ecls=displayEdge>3?"ev-p":displayEdge<-3?"ev-n":"ev-0";
       var tagH="";
-      if(meetsBetThresh)tagH='<span class="tag tag-e">'+(isNHL?"BET":isNBA?"BET":isNFL?"BET":"EDGE")+'</span>';
-      else if(displayEdge>3&&!S.evOnly)tagH='<span class="tag tag-w">WATCH</span>';
-
-      // NHL B2B+CLV stacking — backtested at +21.8% ROI (3%+), +32.1% (5%+)
-      if(isNHL&&g.b2bStack&&displayEdge>3){
-        tagH+=' <span class="tag tag-stack">B2B+CLV</span>';
+      if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
+        tagH='<span class="tag tag-e">B2B BET</span>';
+      }else if(!isNHL&&meetsBetThresh){
+        tagH='<span class="tag tag-e">EDGE</span>';
+      }else if(displayEdge>3&&!S.evOnly){
+        tagH='<span class="tag tag-w">WATCH</span>';
       }
 
-      // NHL-specific tags
+      // NHL-specific context tags
       if(isNHL){
         if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
         if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
         if(Math.abs(g.restDiff||0)>=2)tagH+=' <span class="tag tag-rest">REST +'+(g.restDiff>0?"H":"A")+'</span>';
-      }
-      // NBA-specific tags
-      if(isNBA){
-        if(g.homeB2B)tagH+=' <span class="tag tag-b2b">HOME B2B</span>';
-        if(g.awayB2B)tagH+=' <span class="tag tag-b2b">AWAY B2B</span>';
-        if(Math.abs(g.restDiff||0)>=2)tagH+=' <span class="tag tag-rest">REST +'+(g.restDiff>0?"H":"A")+'</span>';
-        if(g.injurySwing&&Math.abs(g.injurySwing)>=3)tagH+=' <span class="tag tag-b2b">INJ '+(g.injurySwing>0?"+H":"+A")+' '+Math.abs(g.injurySwing).toFixed(0)+'</span>';
-      }
-      // NFL-specific tags
-      if(isNFL){
-        if(g.isDivGame)tagH+=' <span class="tag tag-w">DIVISION</span>';
-        if(g.shortWeek)tagH+=' <span class="tag tag-b2b">SHORT WEEK</span>';
-        if((g.homeRest||7)>=13||(g.awayRest||7)>=13)tagH+=' <span class="tag tag-rest">POST BYE</span>';
-        if(g.nflMlQualified)tagH+=' <span class="tag tag-e">ML+ATS</span>';
-        else if(g.nflAtsQualified)tagH+=' <span class="tag tag-i">ATS</span>';
       }
 
       var sigTeam=betSide==="HOME"?g.home:betSide==="AWAY"?g.away:"";
       var sig=meetsBetThresh?"▸ BET "+sigTeam:displayEdge>3&&!S.evOnly?"Monitor":"No play";
       var sigC=meetsBetThresh?"var(--acc)":displayEdge>3&&!S.evOnly?"var(--warn)":"var(--td)";
+      // NHL B2B: override signal with B2B-specific text
+      if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
+        sig="▸ FADE "+nhlB2BBet.tiredTeam+" (B2B)";
+        sigTeam=nhlB2BBet.restedTeam;
+      }
 
       h+='<div class="gc"><div class="gh">';
       // Matchup
@@ -4981,22 +4960,24 @@ function render(){
 
       if(betTeam&&meetsBetThresh){
         h+='<div class="bet-rec">';
-        h+='<div><div class="bet-label">'+(isB2BStack?"🔥 B2B+CLV Stacked Bet":"Recommended Bet")+'</div><div class="bet-team">'+betTeam+(isNHL?" ("+(betSide==="HOME"?"home":"away")+")":"")+'</div></div>';
+        if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
+          h+='<div><div class="bet-label">🏒 B2B Specialist Bet</div><div class="bet-team">Fade '+nhlB2BBet.tiredTeam+' (B2B) → Bet '+nhlB2BBet.restedTeam+'</div></div>';
+          h+='<div><div class="bet-label">Confidence</div><div class="bet-edge">'+(nhlB2BBet.prob*100).toFixed(0)+'%</div></div>';
+        }else{
+          h+='<div><div class="bet-label">Recommended Bet</div><div class="bet-team">'+betTeam+'</div></div>';
+        }
         h+='<div><div class="bet-label">Best Line</div><div class="bet-line">'+fml(betLine)+'</div></div>';
         if(betFairOdds){h+='<div><div class="bet-label">Fair Odds</div><div class="mono" style="font-size:16px;font-weight:700;color:var(--ac2)">'+betFairOdds+'</div></div>';}
         h+='<div><div class="bet-label">Book</div><div class="bet-book">'+betBookName+'</div></div>';
-        h+='<div><div class="bet-label">'+(isNHL?"Model Edge":"Edge")+'</div><div class="bet-edge">+'+displayEdge+'%</div></div>';
-        if(isB2BStack){h+='<div style="font-size:9px;color:#f0c420;font-weight:600">B2B+CLV: +32% ROI backtested at 5%+</div>';}
-        if(isNHL){h+='<div style="font-size:9px;color:var(--neg);font-weight:700;margin-top:2px">⚡ BET EARLY — opening lines only. Edge disappears by close.</div>';}
+        h+='<div><div class="bet-label">Edge</div><div class="bet-edge">+'+displayEdge+'%</div></div>';
         h+='</div>';
       }else if(betTeam&&displayEdge>3&&!S.evOnly){
         h+='<div class="bet-watch">';
-        h+='<div><div class="bet-label">'+(isB2BStack?"B2B+CLV Watch":"Watch")+'</div><div class="bet-team">'+betTeam+(isNHL?" ("+(betSide==="HOME"?"home":"away")+")":"")+'</div></div>';
+        h+='<div><div class="bet-label">Watch</div><div class="bet-team">'+betTeam+'</div></div>';
         h+='<div class="bet-line">'+fml(betLine)+'</div>';
         if(betFairOdds){h+='<div style="font-size:12px;color:var(--ac2);font-weight:600;font-family:\'JetBrains Mono\',monospace">fair '+betFairOdds+'</div>';}
         h+='<div class="bet-book">@ '+betBookName+'</div>';
         h+='<div style="font-size:11px;color:var(--warn);font-weight:700;font-family:\'JetBrains Mono\',monospace">+'+displayEdge+'%</div>';
-        if(isNHL&&betSide==="AWAY"){h+='<div style="font-size:9px;color:var(--td)">Away edge — needs 7%+ for BET signal</div>';}
         h+='</div>';
       }
 
@@ -5023,14 +5004,12 @@ function render(){
 
   // ═══ PUCK LINE / RUN LINE TAB ═══
   else if(S.tab==="pl"){
-    var plLabel=isNHL?"Puck Line":isNBA?"Spread":"Run Line";
-    var plSpreadVal=isNHL?"±1.5":isNBA?"ATS":"±1.5";
-    if(isNBA){
-      h+='<div class="ib acc"><span style="font-size:14px">🏀</span><strong>NBA v3 Spread (ATS):</strong> At ≥15% ML edge, bet the ML-edge side ATS. Backtested: <span style="color:var(--acc)">60.4% ATS, +15.4% ROI</span> on 2024-25 test (134 bets). Spread lines from your active books.</div>';
-    }else if(!isNHL){
+    var plLabel=isNHL?"Puck Line":"Run Line";
+    var plSpreadVal=isNHL?"±1.5":"±1.5";
+    if(!isNHL){
       h+='<div class="ib ice"><span style="font-size:14px">⚾</span><strong>v11d Backtested (honest, no bias):</strong> Dog +1.5 at 8%+ edge: 65% cover, <span style="color:var(--acc)">+8.8% ROI</span>. Fav -1.5 is negative at every threshold — removed. Only underdog +1.5 bets are shown.</div>';
     }else{
-      h+='<div class="ib ice"><span style="font-size:14px">🏒</span>'+plLabel+' ('+plSpreadVal+') — favorite must win by 2+. NHL puck line not yet backtested — using MLB-derived thresholds (10%+ edge on fav side). Best odds from your active books.</div>';
+      h+='<div class="ib ice"><span style="font-size:14px">🏒</span>'+plLabel+' ('+plSpreadVal+') — favorite must win by 2+. Best odds from your active books.</div>';
     }
 
     games.forEach(function(g){
@@ -5367,7 +5346,7 @@ function render(){
   var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
   var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
   var ftNBAStr=ftNBA.total>0?"NBA (legacy): "+ftNBA.wins+"W-"+ftNBA.losses+"L":"NBA: analysis only";
-  h+='<div class="ft">DIAMOND EDGE · MLB v11d ✅ · NHL B2B ✅ · NBA (analysis) · NFL (analysis) · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
+  h+='<div class="ft">DIAMOND EDGE · MLB v11d ✅ · NHL B2B ✅ · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
