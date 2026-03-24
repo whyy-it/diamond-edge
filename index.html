@@ -631,32 +631,10 @@ function computeNFLFeatures(g){
 // ── NFL FETCH FUNCTIONS ──
 
 async function fetchNFLOdds(){
-  // Skip during offseason (Mar-Aug) — saves ~25% of API credits
-  if(isNFLOffseason()){
-    console.log("[DE] NFL offseason — skipping odds fetch");
-    S.nfl.apiBooks=[];
-    return [];
-  }
-  // Check cooldown cache
-  var cached=oddsCacheGet("nfl");
-  if(cached){
-    S.nfl.apiBooks=cached.apiBooks||[];
-    if(cached.remaining)S.remaining=cached.remaining;
-    return cached.data;
-  }
-  var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
-  var url=ODDS_BASE+"/americanfootball_nfl/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
-  console.log("[DE] NFL odds URL:",url.replace(API_KEY,"***"));
-  var r=await fetch(url);
-  if(!r.ok)throw new Error("Odds API "+r.status);
-  var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
-  var data=await r.json();
-  var seen={};
-  (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
-  S.nfl.apiBooks=Object.keys(seen);
-  oddsCacheSet("nfl",data,S.nfl.apiBooks,S.remaining);
-  console.log("[DE] NFL books returned:",S.nfl.apiBooks.join(", ")||"none");
-  return data;
+  // NFL SHELVED — never fetch odds
+  console.log("[DE] NFL shelved — skipping odds fetch");
+  S.nfl.apiBooks=[];
+  return [];
 }
 
 async function fetchNFLStandings(){
@@ -852,21 +830,9 @@ function enrichNFLGames(games){
 }
 
 async function loadNFL(){
-  S.nfl.loading=true;S.nfl.error=null;syncActive();render();
-  try{
-    var results=await Promise.allSettled([fetchNFLOdds(),fetchNFLStandings(),fetchNFLFatigue()]);
-    if(results[0].status==="fulfilled"){
-      S.nfl.games=processOdds(results[0].value||[]);
-    }else{
-      S.nfl.error=results[0].reason?results[0].reason.message:"Failed to load NFL odds";
-      S.nfl.games=[];
-    }
-    if(results[1].status==="fulfilled")S.nfl.standings=results[1].value||{};
-    if(results[2].status==="fulfilled")S.nfl.fatigue=results[2].value||{};
-    S.nfl.games=enrichNFLGames(S.nfl.games);
-    S.nfl.lastFetch=new Date();
-  }catch(e){S.nfl.error=e.message;S.nfl.games=[];}
-  S.nfl.loading=false;syncActive();render();
+  // NFL SHELVED — no odds/standings/fatigue fetching
+  console.log("[DE] NFL shelved — skipping all fetches");
+  S.nfl.loading=false;
 }
 
 
@@ -1245,7 +1211,9 @@ async function autoResolveTracked(){
     }catch(e){resolveStatus.errors.push("NHL "+dateStr2+": "+e.message);}
   }
 
-  // ── Fetch NBA scores (via ESPN — reliable, no CORS issues) ──
+  // ── Fetch NBA scores — only if there are pending NBA bets ──
+  var hasNBABets=pending.some(function(b){return b.sport==="nba"});
+  if(hasNBABets){
   for(var di3=0;di3<datesToFetch.length;di3++){
     var dateStr3b=datesToFetch[di3];
     try{
@@ -1277,6 +1245,7 @@ async function autoResolveTracked(){
       }
     }catch(e){resolveStatus.errors.push("NBA "+dateStr3b+": "+e.message);}
   }
+  }// end hasNBABets
 
   // ── Resolve pending bets ──
   var resolved=0;
@@ -1718,25 +1687,10 @@ async function fetchStatcastPitcherRates(){
 // ═══════════════════════════════════════════════════════════
 
 async function fetchNBAOdds(){
-  var cached=oddsCacheGet("nba");
-  if(cached){
-    S.nba.apiBooks=cached.apiBooks||[];
-    if(cached.remaining)S.remaining=cached.remaining;
-    return cached.data;
-  }
-  var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
-  var url=ODDS_BASE+"/basketball_nba/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
-  console.log("[Diamond Edge] NBA odds URL:",url.replace(API_KEY,"***"));
-  var r=await fetch(url);
-  if(!r.ok)throw new Error("Odds API "+r.status);
-  var h=r.headers.get("x-requests-remaining");if(h)S.remaining=h;
-  var data=await r.json();
-  var seen={};
-  (data||[]).forEach(function(ev){(ev.bookmakers||[]).forEach(function(bm){seen[bm.key]=true;});});
-  S.nba.apiBooks=Object.keys(seen);
-  oddsCacheSet("nba",data,S.nba.apiBooks,S.remaining);
-  console.log("[Diamond Edge] NBA books returned:",S.nba.apiBooks.join(", ")||"none");
-  return data;
+  // NBA SHELVED — never fetch odds
+  console.log("[DE] NBA shelved — skipping odds fetch");
+  S.nba.apiBooks=[];
+  return [];
 }
 
 async function fetchNBAStandings(){
@@ -3609,24 +3563,9 @@ async function loadNHL(){
 }
 
 async function loadNBA(){
-  S.nba.loading=true;S.nba.error=null;syncActive();render();
-  try{
-    var results=await Promise.allSettled([fetchNBAOdds(),fetchNBAStandings(),fetchNBAFatigue(),fetchNBAInjuries()]);
-    if(results[0].status==="fulfilled"){
-      S.nba.games=processOdds(results[0].value||[]);
-    }else{
-      S.nba.error=results[0].reason?results[0].reason.message:"Failed to load NBA odds";
-      S.nba.games=[];
-    }
-    if(results[1].status==="fulfilled")S.nba.standings=results[1].value||{};
-    if(results[2].status==="fulfilled")S.nba.fatigue=results[2].value||{};
-    if(results[3].status==="fulfilled")S.nba.injuries=results[3].value||{};
-
-    // Enrich games with NBA model
-    S.nba.games=enrichNBAGames(S.nba.games);
-    S.nba.lastFetch=new Date();
-  }catch(e){S.nba.error=e.message;S.nba.games=[];}
-  S.nba.loading=false;syncActive();render();
+  // NBA SHELVED — no odds/standings/fatigue fetching
+  console.log("[DE] NBA shelved — skipping all fetches");
+  S.nba.loading=false;
 }
 
 function syncActive(){
@@ -3890,6 +3829,7 @@ function render(){
   // ── TABS (skip for global bets/tracker view) ──
   if(S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
   var tabs=[{k:"ml",l:"Money Line",i:"💰"}];
+  if(!isNHL){tabs.push({k:"pl",l:"Run Line",i:"⚾"});}// MLB Dog +1.5 verified profitable
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
