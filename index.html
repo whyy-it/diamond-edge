@@ -202,7 +202,7 @@ var lastProxyError=null;
 // ═══ ODDS API COOLDOWN CACHE ═══
 // Caches odds responses in sessionStorage to avoid burning API credits
 // on page reloads, tab switches, and accidental refreshes.
-var ODDS_COOLDOWN_MS=15*60*1000; // 15 minutes
+var ODDS_COOLDOWN_MS=30*60*1000; // 30 minutes
 var oddsCacheStats={hits:0,misses:0};
 
 function oddsCacheKey(sport){return "de_odds_cache_"+sport;}
@@ -908,8 +908,8 @@ function getSyncData(){
     v:2,ts:new Date().toISOString(),
     bankroll:S.bankroll,booksOn:S.booksOn,mode:S.mode,
     evOnly:S.evOnly||false,trackedBets:trackedBets,
-    betsLeagueFilter:typeof betsLeagueFilter!=="undefined"?betsLeagueFilter:{nhl:true,mlb:true,nba:true,nfl:true},
-    trackerLeagueFilter:typeof trackerLeagueFilter!=="undefined"?trackerLeagueFilter:{nhl:true,mlb:true,nba:true,nfl:true},
+    betsLeagueFilter:typeof betsLeagueFilter!=="undefined"?betsLeagueFilter:{nhl:true,mlb:true},
+    trackerLeagueFilter:typeof trackerLeagueFilter!=="undefined"?trackerLeagueFilter:{nhl:true,mlb:true},
     betsSortBy:typeof betsSortBy!=="undefined"?betsSortBy:"time",
   });
 }
@@ -1027,8 +1027,8 @@ var trackerSortBy="time"; // "time" or "book"
 var trackerEditKey=null; // key of bet currently being edited
 // Bets tab sort state
 var betsSortBy="time"; // "time" or "book"
-var betsLeagueFilter={nhl:true,mlb:true,nba:true,nfl:true}; // toggle leagues on/off in bets tab
-var trackerLeagueFilter={nhl:true,mlb:true,nba:true,nfl:true}; // toggle leagues on/off in tracker tab
+var betsLeagueFilter={nhl:true,mlb:true}; // toggle leagues on/off in bets tab
+var trackerLeagueFilter={nhl:true,mlb:true}; // toggle leagues on/off in tracker tab
 
 function editTrackedBet(key,field,value){
   var tb=findTracked(key);if(!tb)return;
@@ -1367,7 +1367,7 @@ async function fetchMLBOdds(){
     return cached.data;
   }
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
-  var url=ODDS_BASE+"/baseball_mlb/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
+  var url=ODDS_BASE+"/baseball_mlb/odds/?apiKey="+API_KEY+"&markets=h2h,spreads&oddsFormat=american&bookmakers="+bk;
   console.log("[Diamond Edge] MLB odds URL:",url.replace(API_KEY,"***"));
   console.log("[Diamond Edge] Requesting bookmakers:",bk);
   var r=await fetch(url);
@@ -1445,7 +1445,7 @@ async function fetchNHLOdds(){
     return cached.data;
   }
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
-  var url=ODDS_BASE+"/icehockey_nhl/odds/?apiKey="+API_KEY+"&markets=h2h,totals,spreads&oddsFormat=american&bookmakers="+bk;
+  var url=ODDS_BASE+"/icehockey_nhl/odds/?apiKey="+API_KEY+"&markets=h2h&oddsFormat=american&bookmakers="+bk;
   console.log("[Diamond Edge] NHL odds URL:",url.replace(API_KEY,"***"));
   console.log("[Diamond Edge] Requesting bookmakers:",bk);
   var r=await fetch(url);
@@ -3644,8 +3644,6 @@ function syncActive(){
 function loadCurrent(){
   if(S.league==="mlb")loadMLB();
   else if(S.league==="nhl")loadNHL();
-  else if(S.league==="nba")loadNBA();
-  else if(S.league==="nfl")loadNFL();
 }
 
 async function refreshAll(force){
@@ -3736,9 +3734,11 @@ function render(){
   // +EV filter: use league-specific backtested profitable thresholds
   // NHL: 5% home / 7% away, NBA: 8%, MLB: 10%
   if(S.evOnly)games=games.filter(function(g){
-    var side=g._aeSide;
-    var thresh=isNHL?(side==="HOME"?5:7):isNBA?8:isNFL?10:10;
-    return g._aeTop>=thresh;
+    if(isNHL){
+      var b2b=computeNHLB2BFeatures(g);
+      return b2b&&b2b.isBet;
+    }
+    return g._aeTop>=10;// MLB threshold
   });
   if(S.sortBy==="edge")games.sort(function(a,b){return b._aeTop-a._aeTop});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
@@ -3747,12 +3747,15 @@ function render(){
   var betCount=0,watchCount=0;
   S.games.forEach(function(g){
     var te=g._aeTop;
-    var bestSide2=g._aeSide;
-    var statThresh=isNHL?(bestSide2==="HOME"?5:7):isNBA?8:isNFL?10:10;
-    if(te>=statThresh)betCount++;
-    else if(te>=3)watchCount++;
-    // v11d: count dog +1.5 bets (8%+ edge) — MLB only
-    if(!isNHL&&!isNBA&&!isNFL&&te>=8)betCount++;
+    if(isNHL){
+      var b2b=computeNHLB2BFeatures(g);
+      if(b2b&&b2b.isBet)betCount++;
+    }else{
+      // MLB: 10%+ edge = EDGE, 8%+ = dog +1.5 bet
+      if(te>=10)betCount++;
+      else if(te>=8)betCount++;// dog +1.5
+      else if(te>=3)watchCount++;
+    }
   });
 
   var h="";
@@ -3886,7 +3889,7 @@ function render(){
 
   // ── TABS (skip for global bets/tracker view) ──
   if(S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
-  var tabs=[{k:"ml",l:"Money Line",i:"💰"},{k:"pl",l:isNHL?"Puck Line":isNBA?"Spread":isNFL?"Spread":"Run Line",i:isNHL?"🏒":isNBA?"🏀":isNFL?"🏈":"⚾"},{k:"ou",l:"Over / Under",i:"📊"}];
+  var tabs=[{k:"ml",l:"Money Line",i:"💰"}];
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
@@ -4183,17 +4186,16 @@ function render(){
     saveTracker(trackedBets);
 
     var totalBetAmount=allBets.reduce(function(s,b){return s+b.betAmount},0);
-    var nhlLoaded=S.nhl.lastFetch;var mlbLoaded=S.mlb.lastFetch;var nbaLoaded=S.nba.lastFetch;
+    var nhlLoaded=S.nhl.lastFetch;var mlbLoaded=S.mlb.lastFetch;
 
     // Loading status
-    if(!nhlLoaded&&!mlbLoaded&&!nbaLoaded){
+    if(!nhlLoaded&&!mlbLoaded){
       h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">📋</div><div style="font-size:15px;font-weight:700;color:var(--tm)">Loading odds for all leagues...</div></div>';
     }else{
       // Status badges
       h+='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"):"not loaded")+'</div>';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(mlbLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(mlbLoaded?"var(--acc)":"var(--neg)")+'">⚾ MLB '+(mlbLoaded?(S.mlb.games.length+" games"):"not loaded")+'</div>';
-      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nbaLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nbaLoaded?"var(--acc)":"var(--neg)")+'">🏀 NBA '+(nbaLoaded?(S.nba.games.length+" games"):"not loaded")+'</div>';
       h+='</div>';
 
       if(!allBets.length){
@@ -4728,10 +4730,13 @@ function render(){
       var sigTeam=betSide==="HOME"?g.home:betSide==="AWAY"?g.away:"";
       var sig=meetsBetThresh?"▸ BET "+sigTeam:displayEdge>3&&!S.evOnly?"Monitor":"No play";
       var sigC=meetsBetThresh?"var(--acc)":displayEdge>3&&!S.evOnly?"var(--warn)":"var(--td)";
-      // NHL B2B: override signal with B2B-specific text
+      // NHL: B2B specialist override, non-B2B shows "Analysis only"
       if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
         sig="▸ FADE "+nhlB2BBet.tiredTeam+" (B2B)";
         sigTeam=nhlB2BBet.restedTeam;
+      }else if(isNHL){
+        sig="Analysis only";
+        sigC="var(--td)";
       }
 
       h+='<div class="gc"><div class="gh">';
@@ -4844,8 +4849,14 @@ function render(){
       h+='<div><div class="sh">Away</div><div class="mono" style="font-size:14px;font-weight:700">'+fml(actAML>-9999?actAML:g.bestAML)+'</div></div>';
       h+='<div><div class="sh">Home</div><div class="mono" style="font-size:14px;font-weight:700">'+fml(actHML>-9999?actHML:g.bestHML)+'</div></div></div></div>';
       // Edge
-      h+='<div style="text-align:center;min-width:75px"><div class="sh">'+(isNHL?"Model Edge":isNBA?"Model Edge":isNFL?"Model Edge":"Edge")+'</div>';
-      h+='<div class="ev '+ecls+'">'+(displayEdge>0?"+":"")+displayEdge+'%</div>';
+      var edgeLabel=isNHL?(nhlB2BBet&&nhlB2BBet.isBet?"B2B Edge":"v5 Analysis"):"Edge";
+      var edgeMuted=isNHL&&!(nhlB2BBet&&nhlB2BBet.isBet);
+      h+='<div style="text-align:center;min-width:75px"><div class="sh">'+edgeLabel+'</div>';
+      if(edgeMuted){
+        h+='<div style="font-size:18px;font-weight:700;color:var(--td);opacity:0.5">'+(displayEdge>0?"+":"")+displayEdge+'%</div>';
+      }else{
+        h+='<div class="ev '+ecls+'">'+(displayEdge>0?"+":"")+displayEdge+'%</div>';
+      }
       if(isNHL&&g.contextAdj!==0){
         h+='<div style="font-size:8px;color:var(--td);margin-top:1px">mkt '+(g.topEdge>0?"+":"")+g.topEdge+'%</div>';
       }
