@@ -200,7 +200,7 @@ async function corsProxyFetch(url,opts){
 var lastProxyError=null;
 
 // ═══ ODDS API COOLDOWN CACHE ═══
-// Caches odds responses in sessionStorage to avoid burning API credits
+// Caches odds responses in localStorage to avoid burning API credits
 // on page reloads, tab switches, and accidental refreshes.
 var ODDS_COOLDOWN_MS=30*60*1000; // 30 minutes
 var oddsCacheStats={hits:0,misses:0};
@@ -208,7 +208,7 @@ var oddsCacheStats={hits:0,misses:0};
 function oddsCacheKey(sport){return "de_odds_cache_"+sport;}
 function oddsCacheGet(sport){
   try{
-    var raw=sessionStorage.getItem(oddsCacheKey(sport));
+    var raw=localStorage.getItem(oddsCacheKey(sport));
     if(!raw)return null;
     var c=JSON.parse(raw);
     var age=Date.now()-c.ts;
@@ -223,7 +223,7 @@ function oddsCacheGet(sport){
 }
 function oddsCacheSet(sport,data,apiBooks,remaining){
   try{
-    sessionStorage.setItem(oddsCacheKey(sport),JSON.stringify({
+    localStorage.setItem(oddsCacheKey(sport),JSON.stringify({
       ts:Date.now(),data:data,apiBooks:apiBooks,remaining:remaining
     }));
     oddsCacheStats.misses++;
@@ -232,13 +232,13 @@ function oddsCacheSet(sport,data,apiBooks,remaining){
 }
 function oddsCacheAge(sport){
   try{
-    var raw=sessionStorage.getItem(oddsCacheKey(sport));
+    var raw=localStorage.getItem(oddsCacheKey(sport));
     if(!raw)return null;
     return Date.now()-JSON.parse(raw).ts;
   }catch(e){}return null;
 }
 function oddsCacheClearAll(){
-  ["mlb","nhl","nba","nfl"].forEach(function(s){try{sessionStorage.removeItem(oddsCacheKey(s))}catch(e){}});
+  ["mlb","nhl","nba","nfl"].forEach(function(s){try{localStorage.removeItem(oddsCacheKey(s))}catch(e){}});
   console.log("[DE] Cache cleared — next refresh will hit API");
 }
 // NFL offseason detection (season is Sep–Feb, offseason Mar–Aug)
