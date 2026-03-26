@@ -4639,6 +4639,10 @@ function render(){
 
     games.forEach(function(g){
       var displayEdge=g._aeTop;
+      // NHL B2B specialist: override v5 model with B2B model output
+      if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
+        displayEdge=+((nhlB2BBet.prob-0.5)*100).toFixed(1);
+      }
       
       // Find best line from ACTIVE books for the recommendation
       var actHML=-9999,actAML=-9999,actHBook=null,actABook=null;
@@ -4650,6 +4654,10 @@ function render(){
       });
 
       var betSide=displayEdge>3?g._aeSide:null;
+      // NHL B2B: override betSide to match B2B model recommendation
+      if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
+        betSide=nhlB2BBet.restedSide;
+      }
 
       var dispHML=actHML,dispAML=actAML,dispHBook=actHBook,dispABook=actABook;
       // Check if active book line is +EV for the recommendation
@@ -4659,8 +4667,12 @@ function render(){
         var dispBk=betSide==="HOME"?dispHBook:dispABook;
         if(dispML>-9999){
           var dispEdge=betSide==="HOME"?g._aeH:g._aeA;
-          if(isNHL)dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
-          if(dispEdge>0){
+          if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
+            dispEdge=displayEdge;// Use B2B model edge, not v5
+          }else if(isNHL){
+            dispEdge=+(dispEdge+(g.contextAdj||0)).toFixed(1);
+          }
+          if(dispEdge>0||(isNHL&&nhlB2BBet&&nhlB2BBet.isBet)){
             betTeam=betSide==="HOME"?g.home:g.away;
             betLine=dispML;betBook=dispBk;betEdge=dispEdge;
             if(betBook){var bkObj=PA.find(function(b){return b.id===betBook});betBookName=bkObj?bkObj.n:betBook;}
@@ -4685,7 +4697,7 @@ function render(){
         tagH='<span class="tag tag-e">B2B BET</span>';
       }else if(!isNHL&&meetsBetThresh){
         tagH='<span class="tag tag-e">EDGE</span>';
-      }else if(displayEdge>3&&!S.evOnly){
+      }else if(!isNHL&&displayEdge>3&&!S.evOnly){
         tagH='<span class="tag tag-w">WATCH</span>';
       }
 
@@ -4714,10 +4726,54 @@ function render(){
       h+='<span class="tm sg">'+g.away+'</span><span class="at">@</span><span class="tm sg">'+g.home+'</span> '+tagH+'</div>';
       h+='<div class="mono" style="font-size:10px;color:var(--td)">'+fd(g.time)+' · '+ft(g.time)+'</div>';
 
-      // MLB: pitcher info
-      if(!isNHL&&!isNBA&&!isNFL){
+      // MLB: pitcher info (styled like NHL goalies)
+      if(!isNHL){
         var info=S.mlb.lineups[g.home]||{};
-        if(info.homePitcher)h+='<div style="font-size:10px;color:var(--tm);margin-top:2px">'+info.awayPitcher+' vs '+info.homePitcher+'</div>';
+        var psc=S.mlb.pitcherStatcast||{};
+        var hPName=info.homePitcher||"TBD";
+        var aPName=info.awayPitcher||"TBD";
+        var hPConf=hPName!=="TBD";
+        var aPConf=aPName!=="TBD";
+
+        h+='<div class="goalie-row">';
+        h+='<span>⚾ ';
+        // Away pitcher
+        if(aPConf){
+          h+='<span class="starter">'+aPName+' (prob)</span>';
+          // Show xERA if available
+          var aPSC=psc[aPName]||{};
+          if(aPSC.xbaAgainst){
+            var aXERA=(3.2+(aPSC.xbaAgainst-0.240)*40).toFixed(2);
+            var aXCol=parseFloat(aXERA)<3.80?"var(--acc)":parseFloat(aXERA)>4.50?"var(--neg)":"var(--tm)";
+            h+=' <span style="font-size:9px;color:'+aXCol+'">'+aXERA+' xERA</span>';
+          }
+        }else{
+          h+='<span style="color:var(--td)">TBD</span>';
+        }
+        h+=' vs ';
+        // Home pitcher
+        if(hPConf){
+          h+='<span class="starter">'+hPName+' (prob)</span>';
+          var hPSC=psc[hPName]||{};
+          if(hPSC.xbaAgainst){
+            var hXERA=(3.2+(hPSC.xbaAgainst-0.240)*40).toFixed(2);
+            var hXCol=parseFloat(hXERA)<3.80?"var(--acc)":parseFloat(hXERA)>4.50?"var(--neg)":"var(--tm)";
+            h+=' <span style="font-size:9px;color:'+hXCol+'">'+hXERA+' xERA</span>';
+          }
+        }else{
+          h+='<span style="color:var(--td)">TBD</span>';
+        }
+        h+='</span></div>';
+
+        // Records
+        var hStand=S.mlb.standings||{};
+        var hRec=hStand[g.home]||{};var aRec=hStand[g.away]||{};
+        if(hRec.wins!=null||aRec.wins!=null){
+          h+='<div style="font-size:10px;color:var(--td);margin-top:1px">';
+          h+=g.away+' '+(aRec.wins||0)+'-'+(aRec.losses||0);
+          h+=' · '+g.home+' '+(hRec.wins||0)+'-'+(hRec.losses||0);
+          h+='</div>';
+        }
       }
       // NHL: goalie + record info
       if(isNHL){
@@ -4798,7 +4854,17 @@ function render(){
       }
       h+='</div>';
       h+='<div style="text-align:center;min-width:120px">';
-      if(g.modelFairH){
+      if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
+        // B2B specialist model display
+        var b2bRestedP=+(nhlB2BBet.prob*100).toFixed(1);
+        var b2bTiredP=+(100-b2bRestedP).toFixed(1);
+        var restedIsHome=nhlB2BBet.restedSide==="HOME";
+        h+='<div class="sh">B2B Specialist</div><div style="display:flex;gap:14px;justify-content:center">';
+        h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:'+(restedIsHome?'var(--neg)':'var(--acc)')+'">'+(restedIsHome?b2bTiredP:b2bRestedP)+'%</div>';
+        h+='<div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairA+'%</div></div>';
+        h+='<div><div class="sh">Home</div><div class="mono" style="font-size:15px;font-weight:800;color:'+(restedIsHome?'var(--acc)':'var(--neg)')+'">'+(restedIsHome?b2bRestedP:b2bTiredP)+'%</div>';
+        h+='<div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairH+'%</div></div></div>';
+      }else if(g.modelFairH){
         var modelLabel=isNHL?"v5 Model / Market":isNBA?"NBA v3 / Market":isNFL?"NFL v1 / Market":"v11d Model / Market";
         h+='<div class="sh">'+modelLabel+'</div><div style="display:flex;gap:14px;justify-content:center">';
         h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairA+'%</div>';
@@ -4935,6 +5001,10 @@ function render(){
 
       // ── BET RECOMMENDATION (always visible) ──
       var betFairProb=betTeam===g.home?((g.modelFairH||g.fairH)):betTeam===g.away?((g.modelFairA||g.fairA)):null;
+      // NHL B2B: use B2B model probability, not v5
+      if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet&&betTeam){
+        betFairProb=+(nhlB2BBet.prob*100).toFixed(1);
+      }
       var betFairOdds=betFairProb?fImp(betFairProb):null;
       var isB2BStack=isNHL&&g.b2bStack&&displayEdge>3;
 
