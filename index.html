@@ -2732,10 +2732,17 @@ function computeNHLB2BFeatures(g){
   var aAbbr=NHL_ABBREVS[g.away]||"";
   var hMP=ABBR_TO_MP[hAbbr]||hAbbr;
   var aMP=ABBR_TO_MP[aAbbr]||aAbbr;
-  var hF=fatigue[hAbbr]||{b2b:false,restDays:3};
-  var aF=fatigue[aAbbr]||{b2b:false,restDays:3};
-  var hB2B=hF.b2b?true:false;
-  var aB2B=aF.b2b?true:false;
+  var hF=fatigue[hAbbr]||{b2b:false,b2bToday:false,b2bTomorrow:false,restDays:3};
+  var aF=fatigue[aAbbr]||{b2b:false,b2bToday:false,b2bTomorrow:false,restDays:3};
+  // Determine if THIS game is today or tomorrow, use the correct B2B flag
+  var gameIsToday=true;
+  if(g.time){
+    var gDate=new Date(g.time);
+    var now=new Date();
+    gameIsToday=(gDate.toDateString()===now.toDateString());
+  }
+  var hB2B=gameIsToday?(hF.b2bToday||false):(hF.b2bTomorrow||false);
+  var aB2B=gameIsToday?(aF.b2bToday||false):(aF.b2bTomorrow||false);
 
   // Must be asymmetric B2B
   if(hB2B===aB2B)return null;
@@ -3416,9 +3423,14 @@ function enrichNHLGames(games){
         g.dfLoaded=true;
       }
     }
-    var hFat=fatigue[hAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
-    var aFat=fatigue[aAbbr]||{b2b:false,restDays:99,gamesIn3Days:0};
-    g.homeB2B=hFat.b2b;g.awayB2B=aFat.b2b;g.homeRest=hFat.restDays;g.awayRest=aFat.restDays;
+    var hFat=fatigue[hAbbr]||{b2b:false,b2bToday:false,b2bTomorrow:false,restDays:99,gamesIn3Days:0};
+    var aFat=fatigue[aAbbr]||{b2b:false,b2bToday:false,b2bTomorrow:false,restDays:99,gamesIn3Days:0};
+    // Use game-date-specific B2B: today's games use b2bToday, tomorrow's use b2bTomorrow
+    var gIsToday=true;
+    if(g.time){var gD=new Date(g.time);var nw=new Date();gIsToday=(gD.toDateString()===nw.toDateString());}
+    g.homeB2B=gIsToday?(hFat.b2bToday||false):(hFat.b2bTomorrow||false);
+    g.awayB2B=gIsToday?(aFat.b2bToday||false):(aFat.b2bTomorrow||false);
+    g.homeRest=hFat.restDays;g.awayRest=aFat.restDays;
     g.homeGamesIn3=hFat.gamesIn3Days;g.awayGamesIn3=aFat.gamesIn3Days;
     g.restDiff=aFat.restDays-hFat.restDays;
     var hStand=standings[hAbbr]||{};var aStand=standings[aAbbr]||{};
@@ -4044,17 +4056,20 @@ function render(){
           var hasSpread3=false;
           abAll.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)hasSpread3=true;});
           if(hasSpread3){
-            // IMPORTANT: "favorite" = side with bigger EDGE vs market (matches backtest)
-            // NOT the team with >50% probability
-            var homeFav3=g._aeSide==="HOME";
-            var dogTeam3=homeFav3?g.away:g.home;
-            // Dog +1.5 only
-            var bstDS=-9999,bstDBk=null;
+            // Find the team with POSITIVE spread (+1.5) from the book — that's the market dog
+            // Don't rely on model favorite — let the book tell us who the underdog is
+            var dogTeam3=null,bstDS=-9999,bstDBk=null;
             abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d||d.hSpread==null)return;
-              var dOdds=homeFav3?d.aSpreadOdds:d.hSpreadOdds;
-              if(dOdds!=null&&dOdds>bstDS){bstDS=dOdds;bstDBk=bk;}
+              // Away team has +1.5 (is the dog)
+              if(d.aSpread!=null&&d.aSpread>0&&d.aSpreadOdds!=null){
+                if(d.aSpreadOdds>bstDS){bstDS=d.aSpreadOdds;bstDBk=bk;dogTeam3=g.away;}
+              }
+              // Home team has +1.5 (is the dog)
+              if(d.hSpread!=null&&d.hSpread>0&&d.hSpreadOdds!=null){
+                if(d.hSpreadOdds>bstDS){bstDS=d.hSpreadOdds;bstDBk=bk;dogTeam3=g.home;}
+              }
             });
-            if(bstDS>-9999&&bstDBk){
+            if(bstDS>-9999&&bstDBk&&dogTeam3){
               var rlB=bstDS>0?bstDS/100:100/(-bstDS); // net decimal odds
               var rlP=0.65; // backtest cover rate
               var rlKf=(rlB*rlP-(1-rlP))/rlB; // f* = (bp - q) / b
@@ -5139,9 +5154,9 @@ function render(){
       var mlEdgeH=g._aeH||0;
       var mlEdgeA=g._aeA||0;
 
-      // Determine favorite and underdog by EDGE (matches backtest)
-      // "Favorite" = side with bigger edge vs market, NOT necessarily >50% probability
-      var homeFav=(mlEdgeH>=mlEdgeA);
+      // Determine favorite and underdog from MARKET SPREAD (not model edge)
+      // The team with positive spread (+1.5) is the market underdog
+      var homeFav=(hSpreadShow!=null&&hSpreadShow<0);// home has -1.5 = market fav
       var favTeam=homeFav?g.home:g.away;
       var dogTeam=homeFav?g.away:g.home;
       var favEdge=homeFav?+mlEdgeH:+mlEdgeA;
@@ -5156,9 +5171,11 @@ function render(){
       var dogFairProb=homeFav?useFairA:useFairH;
 
       // v11d: ONLY Dog +1.5 is profitable. Fav -1.5 killed (negative at all thresholds)
-      // Dog +1.5: BET at 8%+ edge (65% cover, +8.8% ROI), WATCH at 5%+ — MLB ONLY
-      var rlDogBet=!isNHL&&!isNBA&&!isNFL&&favEdge>=8&&dogSpread!=null&&dogSpread>0;
-      var rlDogWatch=!isNHL&&!isNBA&&!isNFL&&favEdge>=5&&favEdge<8&&dogSpread!=null&&dogSpread>0;
+      // Dog +1.5: BET at 8%+ BEST edge (65% cover, +8.8% ROI), WATCH at 5%+ — MLB ONLY
+      // Uses g._aeTop (max edge either side) to match backtest's best_edge threshold
+      var bestEdge=g._aeTop||0;
+      var rlDogBet=!isNHL&&!isNBA&&!isNFL&&bestEdge>=8&&dogSpread!=null&&dogSpread>0;
+      var rlDogWatch=!isNHL&&!isNBA&&!isNFL&&bestEdge>=5&&bestEdge<8&&dogSpread!=null&&dogSpread>0;
 
       // NBA ATS: bet ML-edge side ATS at ≥15% ML edge (60.4% ATS, +15.4% ROI)
       var nbaATSBet=isNBA&&g._aeTop>=15;
