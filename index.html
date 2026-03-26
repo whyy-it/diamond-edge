@@ -4044,7 +4044,9 @@ function render(){
           var hasSpread3=false;
           abAll.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)hasSpread3=true;});
           if(hasSpread3){
-            var homeFav3=fH3>=50;
+            // IMPORTANT: "favorite" = side with bigger EDGE vs market (matches backtest)
+            // NOT the team with >50% probability
+            var homeFav3=g._aeSide==="HOME";
             var dogTeam3=homeFav3?g.away:g.home;
             // Dog +1.5 only
             var bstDS=-9999,bstDBk=null;
@@ -5137,8 +5139,9 @@ function render(){
       var mlEdgeH=g._aeH||0;
       var mlEdgeA=g._aeA||0;
 
-      // Determine favorite and underdog
-      var homeFav=useFairH>=50;
+      // Determine favorite and underdog by EDGE (matches backtest)
+      // "Favorite" = side with bigger edge vs market, NOT necessarily >50% probability
+      var homeFav=(mlEdgeH>=mlEdgeA);
       var favTeam=homeFav?g.home:g.away;
       var dogTeam=homeFav?g.away:g.home;
       var favEdge=homeFav?+mlEdgeH:+mlEdgeA;
