@@ -4691,7 +4691,14 @@ function render(){
       }
       var meetsBetThresh=isNHL?(nhlB2BBet&&nhlB2BBet.isBet):displayEdge>=betThresh;
 
+      // NHL: clear bet data for non-B2B games — v5 model is analysis only
+      if(isNHL&&!(nhlB2BBet&&nhlB2BBet.isBet)){
+        betTeam=null;betLine=null;betBook=null;betBookName=null;betEdge=0;
+      }
+
       var ecls=displayEdge>3?"ev-p":displayEdge<-3?"ev-n":"ev-0";
+      // NHL non-B2B: always muted
+      if(isNHL&&!(nhlB2BBet&&nhlB2BBet.isBet))ecls="ev-0";
       var tagH="";
       if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
         tagH='<span class="tag tag-e">B2B BET</span>';
@@ -4709,15 +4716,20 @@ function render(){
       }
 
       var sigTeam=betSide==="HOME"?g.home:betSide==="AWAY"?g.away:"";
-      var sig=meetsBetThresh?"▸ BET "+sigTeam:displayEdge>3&&!S.evOnly?"Monitor":"No play";
-      var sigC=meetsBetThresh?"var(--acc)":displayEdge>3&&!S.evOnly?"var(--warn)":"var(--td)";
-      // NHL: B2B specialist override, non-B2B shows "Analysis only"
+      var sig="No play"; var sigC="var(--td)";
       if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
         sig="▸ FADE "+nhlB2BBet.tiredTeam+" (B2B)";
         sigTeam=nhlB2BBet.restedTeam;
+        sigC="var(--acc)";
       }else if(isNHL){
         sig="Analysis only";
         sigC="var(--td)";
+      }else if(meetsBetThresh){
+        sig="▸ BET "+sigTeam;
+        sigC="var(--acc)";
+      }else if(displayEdge>3&&!S.evOnly){
+        sig="Monitor";
+        sigC="var(--warn)";
       }
 
       h+='<div class="gc"><div class="gh">';
@@ -5021,7 +5033,7 @@ function render(){
         h+='<div><div class="bet-label">Book</div><div class="bet-book">'+betBookName+'</div></div>';
         h+='<div><div class="bet-label">Edge</div><div class="bet-edge">+'+displayEdge+'%</div></div>';
         h+='</div>';
-      }else if(betTeam&&displayEdge>3&&!S.evOnly){
+      }else if(!isNHL&&betTeam&&displayEdge>3&&!S.evOnly){
         h+='<div class="bet-watch">';
         h+='<div><div class="bet-label">Watch</div><div class="bet-team">'+betTeam+'</div></div>';
         h+='<div class="bet-line">'+fml(betLine)+'</div>';
