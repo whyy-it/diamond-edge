@@ -1336,7 +1336,7 @@ async function fetchMLBOdds(){
     return cached.data;
   }
   var bk=PA.filter(function(b){return b.key&&b.api}).map(function(b){return b.key}).join(",");
-  var url=ODDS_BASE+"/baseball_mlb/odds/?apiKey="+API_KEY+"&markets=h2h,spreads&oddsFormat=american&bookmakers="+bk;
+  var url=ODDS_BASE+"/baseball_mlb/odds/?apiKey="+API_KEY+"&markets=h2h&oddsFormat=american&bookmakers="+bk;
   console.log("[Diamond Edge] MLB odds URL:",url.replace(API_KEY,"***"));
   console.log("[Diamond Edge] Requesting bookmakers:",bk);
   var r=await fetch(url);
@@ -3881,7 +3881,6 @@ function render(){
   // ── TABS (skip for global bets/tracker view) ──
   if(S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
   var tabs=[{k:"ml",l:"Money Line",i:"💰"}];
-  if(!isNHL){tabs.push({k:"pl",l:"Run Line",i:"⚾"});}// MLB Dog +1.5 verified profitable
   h+='<div class="tabs">';
   tabs.forEach(function(tb){h+='<button class="tbtn'+(S.tab===tb.k?" on":"")+'" onclick="S.tab=\''+tb.k+'\';render()"><span style="font-size:13px">'+tb.i+'</span>'+tb.l+'</button>'});
   h+='</div>';
@@ -4051,33 +4050,10 @@ function render(){
           var qKf3=kf3*0.25;// QUARTER-KELLY: backtested +9727% vs +1099% full Kelly, 15% max DD
           allBets.push({sport:sport,icon:icon,type:"ML",player:side3==="HOME"?g.home:g.away,market:"Moneyline",line:fml(ml3),book:bk3?bk3.n:"—",edge:edge3,kelly:Math.max(0,+(qKf3*100).toFixed(2)),fairProb:+(fp3*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:sNHL&&g.b2bStack&&edge3>3,projSource:"model",highVar:false,paperTrade:false,edgeUnit:"%"});
         }
-        // v11d: Dog +1.5 only at 8%+ edge (fav -1.5 killed) — MLB only
-        if(!sNHL&&!sNBA&&edge3>=8){
-          var hasSpread3=false;
-          abAll.forEach(function(bk){if(g.bd[bk.id]&&g.bd[bk.id].hSpread!=null)hasSpread3=true;});
-          if(hasSpread3){
-            // Find the team with POSITIVE spread (+1.5) from the book — that's the market dog
-            // Don't rely on model favorite — let the book tell us who the underdog is
-            var dogTeam3=null,bstDS=-9999,bstDBk=null;
-            abAll.forEach(function(bk){var d=g.bd[bk.id];if(!d||d.hSpread==null)return;
-              // Away team has +1.5 (is the dog)
-              if(d.aSpread!=null&&d.aSpread>0&&d.aSpreadOdds!=null){
-                if(d.aSpreadOdds>bstDS){bstDS=d.aSpreadOdds;bstDBk=bk;dogTeam3=g.away;}
-              }
-              // Home team has +1.5 (is the dog)
-              if(d.hSpread!=null&&d.hSpread>0&&d.hSpreadOdds!=null){
-                if(d.hSpreadOdds>bstDS){bstDS=d.hSpreadOdds;bstDBk=bk;dogTeam3=g.home;}
-              }
-            });
-            if(bstDS>-9999&&bstDBk&&dogTeam3){
-              var rlB=bstDS>0?bstDS/100:100/(-bstDS); // net decimal odds
-              var rlP=0.65; // backtest cover rate
-              var rlKf=(rlB*rlP-(1-rlP))/rlB; // f* = (bp - q) / b
-              var rlQKf=rlKf*0.25;// QUARTER-KELLY
-              allBets.push({sport:sport,icon:icon,type:"RL",player:dogTeam3,market:"Dog +1.5",line:fml(bstDS),book:bstDBk.n,edge:edge3,kelly:Math.max(0,+(rlQKf*100).toFixed(2)),fairProb:65.0,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
-            }
-          }
-        }
+        // v11d: Dog +1.5 DISABLED pending re-backtest — logic under review
+        // Original claim: 65% cover, +8.8% ROI at 8%+ edge
+        // Concern: betting AGAINST model's edge side is counterintuitive
+        // Will re-validate before re-enabling
         // NBA Spread ATS: at ≥15% ML edge, bet the ML-edge side ATS
         // Backtested: 60.4% ATS, +15.4% ROI on 2024-25 test (134 bets)
         if(sNBA&&edge3>=15){
