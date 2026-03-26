@@ -3924,7 +3924,7 @@ function render(){
     h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
     h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};triggerSync();render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
     h+='</div>';
-    h+='<div style="font-size:9px;color:var(--td)">Kelly stakes auto-scaled · total risk ≤ 25% of bankroll</div>';
+    h+='<div style="font-size:9px;color:var(--td)">MLB: ¼ Kelly · NHL: flat 1% per bet · backtested staking</div>';
     h+='</div>';
 
     // Sort controls + league filter
@@ -3971,7 +3971,7 @@ function render(){
           var kf3=(b3*fairP-(1-fairP))/b3;
           allBets.push({sport:"nhl",icon:"🏒",type:"ML",player:b2b.restedTeam,
             market:"B2B Fade ML",line:fml(restedML),book:restedBook.n,
-            edge:edge,kelly:Math.max(0,+(kf3*100).toFixed(2)),
+            edge:edge,kelly:1.0,// FLAT 1-UNIT: Kelly hurts NHL B2B (backtest: -64% half-Kelly vs +17% flat)
             fairProb:+(fairP*100).toFixed(1),
             matchup:g.away+" @ "+g.home,time:g.time,
             b2bStack:false,projSource:"b2b_model",highVar:false,paperTrade:false,edgeUnit:"%",
@@ -3996,7 +3996,8 @@ function render(){
           var fp3=side3==="HOME"?fH3/100:fA3/100;
           var b3=ml3>0?ml3/100:100/(-ml3);
           var kf3=(b3*fp3-(1-fp3))/b3;
-          allBets.push({sport:sport,icon:icon,type:"ML",player:side3==="HOME"?g.home:g.away,market:"Moneyline",line:fml(ml3),book:bk3?bk3.n:"—",edge:edge3,kelly:Math.max(0,+(kf3*100).toFixed(2)),fairProb:+(fp3*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:sNHL&&g.b2bStack&&edge3>3,projSource:"model",highVar:false,paperTrade:false,edgeUnit:"%"});
+          var qKf3=kf3*0.25;// QUARTER-KELLY: backtested +9727% vs +1099% full Kelly, 15% max DD
+          allBets.push({sport:sport,icon:icon,type:"ML",player:side3==="HOME"?g.home:g.away,market:"Moneyline",line:fml(ml3),book:bk3?bk3.n:"—",edge:edge3,kelly:Math.max(0,+(qKf3*100).toFixed(2)),fairProb:+(fp3*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:sNHL&&g.b2bStack&&edge3>3,projSource:"model",highVar:false,paperTrade:false,edgeUnit:"%"});
         }
         // v11d: Dog +1.5 only at 8%+ edge (fav -1.5 killed) — MLB only
         if(!sNHL&&!sNBA&&edge3>=8){
@@ -4015,7 +4016,8 @@ function render(){
               var rlB=bstDS>0?bstDS/100:100/(-bstDS); // net decimal odds
               var rlP=0.65; // backtest cover rate
               var rlKf=(rlB*rlP-(1-rlP))/rlB; // f* = (bp - q) / b
-              allBets.push({sport:sport,icon:icon,type:"RL",player:dogTeam3,market:"Dog +1.5",line:fml(bstDS),book:bstDBk.n,edge:edge3,kelly:Math.max(0,+(rlKf*100).toFixed(2)),fairProb:65.0,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
+              var rlQKf=rlKf*0.25;// QUARTER-KELLY
+              allBets.push({sport:sport,icon:icon,type:"RL",player:dogTeam3,market:"Dog +1.5",line:fml(bstDS),book:bstDBk.n,edge:edge3,kelly:Math.max(0,+(rlQKf*100).toFixed(2)),fairProb:65.0,matchup:g.away+" @ "+g.home,time:g.time,b2bStack:false,projSource:"backtest",highVar:false,paperTrade:false,edgeUnit:"%"});
             }
           }
         }
@@ -4087,26 +4089,52 @@ function render(){
       allBets.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
     }
 
-    // ═══ SIMULTANEOUS KELLY: optimal sizing across all concurrent bets ═══
-    // Build input for the solver
-    var simBets=allBets.map(function(b){
-      var mlNum=parseInt((b.line||"").replace("+",""))||0;
-      var bDecimal=mlNum>0?mlNum/100:mlNum<0?100/(-mlNum):1;
-      return{p:b.fairProb/100, b:bDecimal, kelly:b.kelly};
+    // ═══ STAKING: Quarter-Kelly for MLB, Flat 1-unit for NHL ═══
+    // Backtested: MLB quarter-Kelly +9727%, NHL Kelly loses money (-64%)
+    // MLB: simultaneous Kelly with quarter fractions
+    // NHL: flat 1% of bankroll per bet (bypass Kelly solver)
+    var mlbBets=allBets.filter(function(b){return b.sport==="mlb"});
+    var nhlBets=allBets.filter(function(b){return b.sport==="nhl"});
+    var kellyScale=1;
+    var simMultiplier=1;
+
+    // Simultaneous Kelly only for MLB bets
+    if(mlbBets.length>0){
+      var simBets=mlbBets.map(function(b){
+        var mlNum=parseInt((b.line||"").replace("+",""))||0;
+        var bDecimal=mlNum>0?mlNum/100:mlNum<0?100/(-mlNum):1;
+        return{p:b.fairProb/100, b:bDecimal, kelly:b.kelly};
+      });
+      var simResult=simultaneousKelly(simBets);
+      var simMultiplier=simResult.multiplier;
+      mlbBets.forEach(function(b,i){
+        b.simKelly=simResult.fractions[i]||b.kelly;
+      });
+      var totalSimKelly=mlbBets.reduce(function(s,b){return s+b.simKelly},0);
+      var kellyScale=totalSimKelly>20?(20/totalSimKelly):1;// cap MLB at 20% of bankroll
+      mlbBets.forEach(function(b){
+        b.scaledKelly=+(b.simKelly*kellyScale).toFixed(2);
+        b.betAmount=Math.max(1,Math.round(S.bankroll*b.scaledKelly/100));
+      });
+    }
+
+    // NHL: flat 1% of bankroll per bet
+    nhlBets.forEach(function(b){
+      b.simKelly=1.0;
+      b.scaledKelly=1.0;
+      b.betAmount=Math.max(1,Math.round(S.bankroll*0.01));// 1 unit = 1% of bankroll
     });
-    var simResult=simultaneousKelly(simBets);
-    var simMultiplier=simResult.multiplier;
-    
-    // Apply simultaneous Kelly fractions, then cap total at 25% of bankroll
-    allBets.forEach(function(b,i){
-      b.simKelly=simResult.fractions[i]||b.kelly;
-    });
-    var totalSimKelly=allBets.reduce(function(s,b){return s+b.simKelly},0);
-    var kellyScale=totalSimKelly>25?(25/totalSimKelly):1;
-    allBets.forEach(function(b){
-      b.scaledKelly=+(b.simKelly*kellyScale).toFixed(2);
-      b.betAmount=Math.max(1,Math.round(S.bankroll*b.scaledKelly/100));
-    });
+
+    // ═══ COMBINED CAP: total daily exposure ≤ 25% of bankroll ═══
+    var totalExposure=allBets.reduce(function(s,b){return s+b.betAmount},0);
+    var maxExposure=S.bankroll*0.25;
+    if(totalExposure>maxExposure){
+      var capScale=maxExposure/totalExposure;
+      allBets.forEach(function(b){
+        b.betAmount=Math.max(1,Math.round(b.betAmount*capScale));
+        b.scaledKelly=+(b.scaledKelly*capScale).toFixed(2);
+      });
+    }
 
     // ═══ AUTO-TRACK: every EV+ bet gets logged automatically ═══
     allBets.forEach(function(b){
@@ -4163,7 +4191,7 @@ function render(){
         h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BOOK</th>';
         h+='<th style="text-align:center;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PROJ</th>';
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">EDGE</th>';
-        h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">KELLY</th>';
+        h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">SIZE</th>';
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BET $</th>';
         h+='</tr>';
         allBets.forEach(function(b,i){
@@ -4196,9 +4224,10 @@ function render(){
         h+='<div style="font-size:11px;color:var(--tm);line-height:1.8">';
         h+='<div><strong>Sources:</strong> 🧠 = backtested CLV model · 🔬 = Statcast xBA / pitcher xBA-against projection · 📊 = Poisson season rates · 📚 = book consensus</div>';
         h+='<div><strong>Flags:</strong> 🔥 = B2B+CLV stacked · ⚡ = high variance (HR/goals) · 🧪 = paper trade (prop model validating)</div>';
-        h+='<div><strong>Edge:</strong> All edges shown in %. Kelly criterion for position sizing.</div>';
-        h+='<div><strong>Kelly:</strong> <span class="mono">f = (bp − q) / b</span> · Simultaneous Kelly optimizes across all concurrent bets (×'+simMultiplier.toFixed(3)+' multiplier for '+allBets.length+' bets).</div>';
-        h+='<div><strong>Cap:</strong> Kelly fractions target ≤ 25% of bankroll'+(kellyScale<1?" (scaled to "+(kellyScale*100).toFixed(0)+"%)":"")+'. $1 minimum per bet may push total slightly higher.</div>';
+        h+='<div><strong>Edge:</strong> All edges shown in %. Staking strategy backtested per sport.</div>';
+        h+='<div><strong>MLB staking:</strong> Quarter-Kelly criterion. <span class="mono">f = 0.25 × (bp − q) / b</span>. Simultaneous Kelly optimizes across concurrent bets. Backtested: +9,727% return on $10K.</div>';
+        h+='<div><strong>NHL staking:</strong> Flat 1 unit (1% of bankroll) per bet. Kelly criterion loses money on NHL B2B — model overestimates confidence. Backtested: flat +17% vs Kelly -64%.</div>';
+        h+='<div><strong>Cap:</strong> Total daily exposure capped at 25% of bankroll across all sports. MLB quarter-Kelly capped at 20%, NHL flat 1% per bet. If combined total exceeds 25%, all bets scaled proportionally.</div>';
         h+='</div></div>';
       }
     }
