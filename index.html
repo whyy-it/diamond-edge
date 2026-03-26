@@ -1353,8 +1353,12 @@ async function fetchMLBOdds(){
 
 async function fetchMLBSchedule(){
   try{
-    var today=localDS();
-    var url=MLB_BASE+"/schedule?sportId=1&date="+today+"&gameType=R&hydrate=probablePitcher,linescore,officials,team";
+    var today=new Date();
+    var tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
+    var ds1=localDS(today);
+    var ds2=localDS(tomorrow);
+    // Fetch 2-day range to get tomorrow's probable pitchers too
+    var url=MLB_BASE+"/schedule?sportId=1&startDate="+ds1+"&endDate="+ds2+"&gameType=R&hydrate=probablePitcher,linescore,officials,team";
     var r=await fetch(url);var d=await r.json();var result={};
     (d.dates||[]).forEach(function(dt){(dt.games||[]).forEach(function(g){
       var ht=g.teams.home.team||{};var at=g.teams.away.team||{};
@@ -1368,9 +1372,18 @@ async function fetchMLBSchedule(){
           else umpTend="neutral";
         }
       });
+      // Key by homeTeam+date to handle doubleheaders and multi-day
+      var gameDate=g.gameDate?g.gameDate.slice(0,10):"";
+      var key=ht.name+(gameDate?("_"+gameDate):"");
       result[ht.name]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
         homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
-        umpire:ump,umpTendency:umpTend};
+        homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
+        umpire:ump,umpTendency:umpTend,gameDate:gameDate};
+      // Also key by team+date for multi-day lookup
+      if(gameDate)result[ht.name+"_"+gameDate]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
+        homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
+        homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
+        umpire:ump,umpTendency:umpTend,gameDate:gameDate};
     });});return result;
   }catch(e){return{}}
 }
@@ -1392,13 +1405,40 @@ async function fetchMLBFatigue(){
   }return fatigue;
 }
 
-async function fetchWeather(homeTeam){
+async function fetchWeather(homeTeam, gameTime){
   var pk=PARKS[homeTeam];if(!pk)return null;
   if(pk[2])return{indoor:true,temp:72,wind:0,desc:"Dome"};
   try{
-    var url="https://api.open-meteo.com/v1/forecast?latitude="+pk[0]+"&longitude="+pk[1]+"&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph";
-    var r=await fetch(url);var d=await r.json();var cw=d.current_weather||{};
-    return{indoor:false,temp:Math.round(cw.temperature||70),wind:Math.round(cw.windspeed||5),desc:cw.weathercode<3?"Clear":"Cloudy"};
+    // Use hourly forecast at first pitch (not current weather)
+    // Open-Meteo with timezone=auto returns park-local times
+    var gameDate=gameTime?new Date(gameTime):new Date();
+    // Fetch 2-day window to handle UTC date boundary (west coast night games)
+    var d1=new Date(gameDate); d1.setUTCDate(d1.getUTCDate()-1);
+    var d2=new Date(gameDate); d2.setUTCDate(d2.getUTCDate()+1);
+    var ds1=d1.getUTCFullYear()+"-"+String(d1.getUTCMonth()+1).padStart(2,"0")+"-"+String(d1.getUTCDate()).padStart(2,"0");
+    var ds2=d2.getUTCFullYear()+"-"+String(d2.getUTCMonth()+1).padStart(2,"0")+"-"+String(d2.getUTCDate()).padStart(2,"0");
+    var url="https://api.open-meteo.com/v1/forecast?latitude="+pk[0]+"&longitude="+pk[1]
+      +"&hourly=temperature_2m,windspeed_10m,weathercode"
+      +"&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto"
+      +"&start_date="+ds1+"&end_date="+ds2;
+    var r=await fetch(url);var d=await r.json();
+    var hr=d.hourly||{};
+    var times=hr.time||[];
+    var temps=hr.temperature_2m||[];
+    var winds=hr.windspeed_10m||[];
+    var codes=hr.weathercode||[];
+    // Find the hourly slot closest to game time
+    var gameMs=gameDate.getTime();
+    var bestIdx=0; var bestDiff=Infinity;
+    for(var i=0;i<times.length;i++){
+      var diff=Math.abs(new Date(times[i]).getTime()-gameMs);
+      if(diff<bestDiff){bestDiff=diff;bestIdx=i;}
+    }
+    var temp=Math.round(temps[bestIdx]||70);
+    var wind=Math.round(winds[bestIdx]||5);
+    var code=codes[bestIdx]||0;
+    var desc=code<3?"Clear":code<50?"Cloudy":code<70?"Rain":"Storm";
+    return{indoor:false,temp:temp,wind:wind,desc:desc,forecast:true};
   }catch(e){return{indoor:false,temp:70,wind:5,desc:"Unknown"}}
 }
 
@@ -2480,7 +2520,7 @@ function computeFeatures(g){
   var st=S.mlb.standings||{};
   var rc=S.mlb.recentScores||{};
   var fat=S.mlb.fatigue||{};
-  var info=S.mlb.lineups[g.home]||{};
+  var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
 
   // Live team stats with baseline blending
   var lh=ts[g.home]||{};var la=ts[g.away]||{};
@@ -3230,7 +3270,7 @@ function calcUmpAdj(umpTendency,homePitchAdv){
 
 function enrichMLBGames(games){
   return games.map(function(g){
-    var info=S.mlb.lineups[g.home]||{};
+    var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
     var wx=S.mlb.weather[g.home];
 
     // ── Run v11b model ──
@@ -3461,7 +3501,7 @@ async function loadMLB(){
     if(results[8].status==="fulfilled")S.mlb.savantTeam=results[8].value||{};
     S.mlb.games.forEach(function(g){
       if(!S.mlb.weather[g.home]){
-        fetchWeather(g.home).then(function(w){if(w){S.mlb.weather[g.home]=w;S.mlb.games=enrichMLBGames(S.mlb.games);syncActive();render()}});
+        fetchWeather(g.home, g.time).then(function(w){if(w){S.mlb.weather[g.home]=w;S.mlb.games=enrichMLBGames(S.mlb.games);syncActive();render()}});
       }
     });
     // Apply v11b model enrichment
@@ -4740,7 +4780,7 @@ function render(){
 
       // MLB: pitcher info (styled like NHL goalies)
       if(!isNHL){
-        var info=S.mlb.lineups[g.home]||{};
+        var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
         var psc=S.mlb.pitcherStatcast||{};
         var hPName=info.homePitcher||"TBD";
         var aPName=info.awayPitcher||"TBD";
@@ -4985,7 +5025,7 @@ function render(){
 
       // MLB Context row — v11d: show model adjustments
       if(!isNHL&&!isNBA&&!isNFL){
-        var info=S.mlb.lineups[g.home]||{};
+        var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
         var wx=S.mlb.weather[g.home];
         var fat=S.mlb.fatigue[g.home]||{};
         var afat=S.mlb.fatigue[g.away]||{};
@@ -4993,7 +5033,7 @@ function render(){
         if(wx){
           if(wx.indoor)ctxItems.push("🏟 Dome");
           else{
-            var wxTag="🌡 "+wx.temp+"°F"+(wx.wind>10?" · 🌬 "+wx.wind+"mph":"");
+            var wxTag="🌡 "+wx.temp+"°F"+(wx.wind>10?" · 🌬 "+wx.wind+"mph":"")+(wx.forecast?" (1st pitch)":"");
             if(g.wxTotalAdj&&g.wxTotalAdj!==0)wxTag+=" ("+(g.wxTotalAdj>0?"+":"")+g.wxTotalAdj+"r)";
             ctxItems.push(wxTag);
           }
