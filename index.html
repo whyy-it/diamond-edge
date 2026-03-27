@@ -1371,15 +1371,23 @@ async function fetchMLBSchedule(){
       // Key by homeTeam+date to handle doubleheaders and multi-day
       var gameDate=g.gameDate?g.gameDate.slice(0,10):"";
       var key=ht.name+(gameDate?("_"+gameDate):"");
+      var gStatus=(g.status&&g.status.detailedState)||"Scheduled";
+      // Today's games with named pitchers are effectively confirmed (teams rarely change day-of)
+      // Tomorrow's games stay as "probable" — those can still change
+      // API detailedState doesn't move from "Scheduled" to "Pre-Game" until ~30 min before first pitch
+      var isToday=gameDate===ds1;
+      var pitchersConfirmed=(gStatus!=="Scheduled")||isToday;
       result[ht.name]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
         homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
         homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
-        umpire:ump,umpTendency:umpTend,gameDate:gameDate};
+        umpire:ump,umpTendency:umpTend,gameDate:gameDate,
+        gameStatus:gStatus,pitchersConfirmed:pitchersConfirmed};
       // Also key by team+date for multi-day lookup
       if(gameDate)result[ht.name+"_"+gameDate]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
         homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
         homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
-        umpire:ump,umpTendency:umpTend,gameDate:gameDate};
+        umpire:ump,umpTendency:umpTend,gameDate:gameDate,
+        gameStatus:gStatus,pitchersConfirmed:pitchersConfirmed};
     });});return result;
   }catch(e){return{}}
 }
@@ -4768,12 +4776,15 @@ function render(){
         var aPName=info.awayPitcher||"TBD";
         var hPConf=hPName!=="TBD";
         var aPConf=aPName!=="TBD";
+        var spConfirmed=info.pitchersConfirmed||false;
+        var spTag=spConfirmed?" ✓":" (prob)";
+        var spClass=spConfirmed?"starter":"starter";
 
         h+='<div class="goalie-row">';
         h+='<span>⚾ ';
         // Away pitcher
         if(aPConf){
-          h+='<span class="starter">'+aPName+' (prob)</span>';
+          h+='<span class="'+spClass+'">'+aPName+spTag+'</span>';
           // Show xERA if available
           var aPSC=psc[aPName]||{};
           if(aPSC.xbaAgainst){
@@ -4787,7 +4798,7 @@ function render(){
         h+=' vs ';
         // Home pitcher
         if(hPConf){
-          h+='<span class="starter">'+hPName+' (prob)</span>';
+          h+='<span class="'+spClass+'">'+hPName+spTag+'</span>';
           var hPSC=psc[hPName]||{};
           if(hPSC.xbaAgainst){
             var hXERA=(3.2+(hPSC.xbaAgainst-0.240)*40).toFixed(2);
