@@ -37251,5 +37251,2957 @@
         ]
       }
     ]
+  },
+  {
+    "timestamp": "2026-04-01T23:04:29Z",
+    "label": "closing",
+    "sport": "mlb",
+    "snapshot_type": "odds",
+    "event_count": 5,
+    "data": [
+      {
+        "id": "cc33d68ceec04cd9b09a8c631d7574a0",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-04-01T23:40:00Z",
+        "home_team": "Kansas City Royals",
+        "away_team": "Minnesota Twins",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -102
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -116
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -170,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 140,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -103
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -107
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -170,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 150,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 107,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -123,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-04-01T23:03:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -103
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -107
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -170,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 149,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-04-01T23:03:32Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -110
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -110
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -170,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 143,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -105
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -115
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -175,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 145,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 105,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -105
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -115
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -180,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 150,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -107
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -113
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -177,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 146,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -107,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -108
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -113
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -182,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 148,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -109,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -109
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -114
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -182,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 145,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -113,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-04-01T23:04:04Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -103
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -107
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -170,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 148,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-04-01T23:03:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -103
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -114
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -190,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 152,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -106,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -105
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -115
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -175,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 145,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-04-01T23:00:33Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:00:33Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -107
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -113
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:00:33Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -175,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 150,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:00:33Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fd93ab95f0912b81f977d64ebcc5df42",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-04-02T00:20:00Z",
+        "home_team": "Los Angeles Dodgers",
+        "away_team": "Cleveland Guardians",
+        "bookmakers": [
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 235
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -290
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 108,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 252
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -285
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 113,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -128,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -101,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -114,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-04-01T23:03:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 252
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -285
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 110,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -104,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -116,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-04-01T23:03:32Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 240
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -305
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 110,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 250
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -300
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 115,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -135,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 110,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -130,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 244
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -308
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 109,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -131,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -108,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 225
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -286
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 107,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -108,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -112,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 220
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -286
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 106,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -132,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -109,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -113,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "mybookieag",
+            "title": "MyBookie.ag",
+            "last_update": "2026-04-01T23:03:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 244
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -303
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 108,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -132,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -106,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 230
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -285
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 110,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-04-01T23:04:04Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 242
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -285
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 110,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "bovada",
+            "title": "Bovada",
+            "last_update": "2026-04-01T23:00:33Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:00:33Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 230
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -290
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:00:33Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 110,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:00:33Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 250
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -300
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Cleveland Guardians",
+                    "price": 110,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Los Angeles Dodgers",
+                    "price": -130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 8.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 8.0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "b69acd5d2b74c9782f22bd2463df8371",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-04-02T18:10:00Z",
+        "home_team": "Kansas City Royals",
+        "away_team": "Minnesota Twins",
+        "bookmakers": [
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-04-01T23:03:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -147
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 133
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 9.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -147
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 133
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -102,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -113,
+                    "point": 9.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -162
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 136
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": 125,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -150,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -122,
+                    "point": 9.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 100,
+                    "point": 9.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -155
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": 130,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -155,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 9.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -155
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 135
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": 135,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -160,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 105,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -125,
+                    "point": 9.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-04-01T23:03:32Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -155
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": 140,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -165,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 9.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -160
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 135
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 9.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -165
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 135
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": 123,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -152,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 9.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -104,
+                    "point": 9.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -167
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 135
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": 123,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -152,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 9.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -104,
+                    "point": 9.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": -156
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": 129
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Kansas City Royals",
+                    "price": 144,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "Minnesota Twins",
+                    "price": -175,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 9.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 9.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "e55dd97cbbe9b080f6059d380832d84f",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-04-03T01:40:00Z",
+        "home_team": "Arizona Diamondbacks",
+        "away_team": "Atlanta Braves",
+        "bookmakers": [
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-04-01T23:03:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 109
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -120
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 105,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 109
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -120
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -123,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 107,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 104
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -122
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -154,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 128,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 9.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 9.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-04-01T23:03:32Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 105
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -155,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -120,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 100,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 105
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -155,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 105,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betus",
+            "title": "BetUS",
+            "last_update": "2026-04-01T23:04:04Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 109
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -120
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:04Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": 105,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 105
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -155,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 9.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 9.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 105
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -125
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -155,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 130,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -118,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -102,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 106
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -132
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -159,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 128,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -122,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -103,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 107
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -130
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -159,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 128,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -122,
+                    "point": 8.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -103,
+                    "point": 8.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": 104
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": -126
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Arizona Diamondbacks",
+                    "price": -156,
+                    "point": 1.5
+                  },
+                  {
+                    "name": "Atlanta Braves",
+                    "price": 129,
+                    "point": -1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -101,
+                    "point": 9.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": -119,
+                    "point": 9.0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "c7e9785b27cff0b87f132c7c63daea75",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-04-03T01:45:00Z",
+        "home_team": "San Francisco Giants",
+        "away_team": "New York Mets",
+        "bookmakers": [
+          {
+            "key": "betonlineag",
+            "title": "BetOnline.ag",
+            "last_update": "2026-04-01T23:03:56Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -119
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 108
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:56Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 7.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 105,
+                    "point": 7.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "lowvig",
+            "title": "LowVig.ag",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -119
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 108
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -123,
+                    "point": 7.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 107,
+                    "point": 7.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanduel",
+            "title": "FanDuel",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -124
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 106
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 138,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -166,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "williamhill_us",
+            "title": "Caesars",
+            "last_update": "2026-04-01T23:03:32Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -125
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 105
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 135,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -160,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:32Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -110,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "espnbet",
+            "title": "theScore Bet",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -125
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 105
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 140,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -165,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -105,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -115,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "fanatics",
+            "title": "Fanatics",
+            "last_update": "2026-04-01T23:04:15Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -125
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 105
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 135,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -165,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:15Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betmgm",
+            "title": "BetMGM",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -125
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 105
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 135,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -160,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -125,
+                    "point": 7.0
+                  },
+                  {
+                    "name": "Under",
+                    "price": 105,
+                    "point": 7.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betrivers",
+            "title": "BetRivers",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -129
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 104
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 133,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -167,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "betparx",
+            "title": "betPARX",
+            "last_update": "2026-04-01T23:04:16Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -127
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 105
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 133,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -167,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:04:16Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": -113,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -110,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "draftkings",
+            "title": "DraftKings",
+            "last_update": "2026-04-01T23:03:53Z",
+            "markets": [
+              {
+                "key": "h2h",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": -126
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": 104
+                  }
+                ]
+              },
+              {
+                "key": "spreads",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "New York Mets",
+                    "price": 135,
+                    "point": -1.5
+                  },
+                  {
+                    "name": "San Francisco Giants",
+                    "price": -163,
+                    "point": 1.5
+                  }
+                ]
+              },
+              {
+                "key": "totals",
+                "last_update": "2026-04-01T23:03:53Z",
+                "outcomes": [
+                  {
+                    "name": "Over",
+                    "price": 100,
+                    "point": 7.5
+                  },
+                  {
+                    "name": "Under",
+                    "price": -120,
+                    "point": 7.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
