@@ -3757,7 +3757,7 @@ function render(){
       var b2b=computeNHLB2BFeatures(g);
       return b2b&&b2b.isBet;
     }
-    return g._aeTop>=10;// MLB threshold
+    return g._aeTop>=8;// MLB v11d backtested threshold
   });
   if(S.sortBy==="edge")games.sort(function(a,b){return b._aeTop-a._aeTop});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
