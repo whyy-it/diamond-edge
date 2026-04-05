@@ -1370,6 +1370,7 @@ async function fetchMLBSchedule(){
       });
       // Key by homeTeam+date to handle doubleheaders and multi-day
       var gameDate=g.gameDate?g.gameDate.slice(0,10):"";
+      var gameStartTime=g.gameDate||""; // full ISO datetime for doubleheader matching
       var key=ht.name+(gameDate?("_"+gameDate):"");
       var gStatus=(g.status&&g.status.detailedState)||"Scheduled";
       // Today's games with named pitchers are effectively confirmed (teams rarely change day-of)
@@ -1377,17 +1378,19 @@ async function fetchMLBSchedule(){
       // API detailedState doesn't move from "Scheduled" to "Pre-Game" until ~30 min before first pitch
       var isToday=gameDate===ds1;
       var pitchersConfirmed=(gStatus!=="Scheduled")||isToday;
-      result[ht.name]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
+      var entry={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
         homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
         homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
         umpire:ump,umpTendency:umpTend,gameDate:gameDate,
+        gameStartTime:gameStartTime,
         gameStatus:gStatus,pitchersConfirmed:pitchersConfirmed};
-      // Also key by team+date for multi-day lookup
-      if(gameDate)result[ht.name+"_"+gameDate]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
-        homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
-        homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
-        umpire:ump,umpTendency:umpTend,gameDate:gameDate,
-        gameStatus:gStatus,pitchersConfirmed:pitchersConfirmed};
+      // Store ALL games per team+date in array (doubleheader-safe)
+      var listKey=ht.name+"_"+gameDate+"_all";
+      if(!result[listKey])result[listKey]=[];
+      result[listKey].push(entry);
+      // Fallback keys: only set first game (don't overwrite for doubleheaders)
+      if(!result[ht.name])result[ht.name]=entry;
+      if(gameDate&&!result[ht.name+"_"+gameDate])result[ht.name+"_"+gameDate]=entry;
     });});return result;
   }catch(e){return{}}
 }
@@ -2523,7 +2526,7 @@ function computeFeatures(g){
   var st=S.mlb.standings||{};
   var rc=S.mlb.recentScores||{};
   var fat=S.mlb.fatigue||{};
-  var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+  var info=findMLBLineup(g.home,g.time);
 
   // Live team stats with baseline blending
   var lh=ts[g.home]||{};var la=ts[g.away]||{};
@@ -3278,9 +3281,31 @@ function calcUmpAdj(umpTendency,homePitchAdv){
 // ENRICH MLB GAMES — compute features, run model, set edges
 // ═══════════════════════════════════════════════════════════
 
+function findMLBLineup(teamName,gameTimeISO){
+  var L=S.mlb.lineups||{};
+  if(!gameTimeISO)return L[teamName]||{};
+  var dateStr=gameTimeISO.slice(0,10);
+  var listKey=teamName+"_"+dateStr+"_all";
+  var list=L[listKey];
+  if(list&&list.length>1){
+    // Doubleheader: match by closest game start time
+    var gt=new Date(gameTimeISO).getTime();
+    var best=list[0],bestDiff=Infinity;
+    list.forEach(function(entry){
+      if(entry.gameStartTime){
+        var diff=Math.abs(new Date(entry.gameStartTime).getTime()-gt);
+        if(diff<bestDiff){bestDiff=diff;best=entry;}
+      }
+    });
+    return best;
+  }
+  if(list&&list.length===1)return list[0];
+  return L[teamName+"_"+dateStr]||L[teamName]||{};
+}
+
 function enrichMLBGames(games){
   return games.map(function(g){
-    var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+    var info=findMLBLineup(g.home,g.time);
     var wx=S.mlb.weather[g.home];
 
     // ── Run v11b model ──
@@ -3732,7 +3757,7 @@ function render(){
       var b2b=computeNHLB2BFeatures(g);
       return b2b&&b2b.isBet;
     }
-    return g._aeTop>=10;// MLB threshold
+    return g._aeTop>=8;// MLB v11d backtested threshold
   });
   if(S.sortBy==="edge")games.sort(function(a,b){return b._aeTop-a._aeTop});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
@@ -4220,7 +4245,6 @@ function render(){
         h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BET</th>';
         h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">LINE</th>';
         h+='<th style="text-align:left;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BOOK</th>';
-        h+='<th style="text-align:center;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">PROJ</th>';
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">EDGE</th>';
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">SIZE</th>';
         h+='<th style="text-align:right;padding:6px 6px;color:var(--td);font-size:8px;letter-spacing:1px">BET $</th>';
@@ -4228,8 +4252,6 @@ function render(){
         allBets.forEach(function(b,i){
           var bg=i%2===0?"var(--card)":"var(--alt)";
           var edgeC=b.edge>=10?"var(--acc)":b.edge>=5?"var(--acc)":"var(--warn)";
-          var projIcon=b.projSource==="statcast"?"🔬":b.projSource==="statcast-k"?"🔬":b.projSource==="poisson"?"📊":b.projSource==="model"?"🧠":"📚";
-          var projTip=b.projSource==="statcast"?"Statcast xBA projection":b.projSource==="statcast-k"?"Statcast pitcher xBA-against + K rate":b.projSource==="poisson"?"Poisson from season stats":b.projSource==="model"?"Backtested CLV model":"Book consensus";
           var typeLabel=(b.type==="SP"&&b.sport==="nba"?"ATS":b.type)+(b.b2bStack?" 🔥":"")+(b.highVar?" ⚡":"")+(b.paperTrade?" 🧪":"");
           var edgeLabel="+"+b.edge+(b.edgeUnit||"%");
           var betColor=b.paperTrade?"var(--warn)":"var(--acc)";
@@ -4241,7 +4263,6 @@ function render(){
           h+='<td style="padding:6px;font-weight:600;color:var(--tm);font-size:10px">'+b.market+'</td>';
           h+='<td style="padding:6px;font-weight:700;color:var(--tx);font-family:\'JetBrains Mono\',monospace">'+b.line+'</td>';
           h+='<td style="padding:6px;font-size:10px;color:var(--tm)">'+b.book+'</td>';
-          h+='<td style="padding:6px;text-align:center;font-size:12px" title="'+projTip+'">'+projIcon+'</td>';
           h+='<td style="padding:6px;text-align:right;font-weight:700;color:'+edgeC+';font-family:\'JetBrains Mono\',monospace">'+edgeLabel+'</td>';
           h+='<td style="padding:6px;text-align:right;font-size:10px;color:var(--tm);font-family:\'JetBrains Mono\',monospace">'+b.scaledKelly+'%</td>';
           h+='<td style="padding:6px;text-align:right;font-weight:800;color:'+betColor+';font-size:14px;font-family:\'JetBrains Mono\',monospace">$'+b.betAmount+'</td>';
@@ -4269,7 +4290,6 @@ function render(){
     h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">';
     h+='<div style="font-size:16px;font-weight:800;color:var(--tx);font-family:\'Space Grotesk\',sans-serif">📈 Bet Tracker</div>';
     h+='<button onclick="autoResolveTracked()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid var(--acc);background:rgba(0,255,163,.08);color:var(--acc);cursor:pointer"'+(resolveStatus.running?" disabled":"")+'>🔄 '+(resolveStatus.running?"Resolving...":"Auto-Resolve")+'</button>';
-    h+='<button onclick="clearTracker()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--neg);cursor:pointer">Clear All</button>';
     h+='<button onclick="showAddBet=!showAddBet;render()" style="padding:5px 14px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid var(--ac2);background:rgba(0,201,255,.08);color:var(--ac2);cursor:pointer">'+(showAddBet?"▾ Close":"＋ Add Bet")+'</button>';
     if(resolveStatus.lastRun){
       var rAge=Math.round((new Date()-resolveStatus.lastRun)/1000);
@@ -4490,7 +4510,13 @@ function render(){
       }
       var sortedBets=trkFiltered.slice();
       if(trackerSortBy==="book"){
-        sortedBets.sort(function(a,b){return(a.book||"").localeCompare(b.book||"");});
+        sortedBets.sort(function(a,b){
+          var bc=(a.book||"").localeCompare(b.book||"");
+          if(bc!==0)return bc;
+          var ta=a.time?new Date(a.time).getTime():0;
+          var tb2=b.time?new Date(b.time).getTime():0;
+          return tb2-ta;
+        });
       }else{
         sortedBets.sort(function(a,b){
           var ta=a.time?new Date(a.time).getTime():0;
@@ -4553,8 +4579,8 @@ function render(){
         h+='<div style="overflow-x:auto;border:1px solid var(--bd);border-top:none;border-radius:0 0 8px 8px;margin-bottom:4px"><table style="width:100%;border-collapse:collapse;font-size:10px">';
         grp.bets.forEach(function(tb,idx){
           var bg=idx%2===0?"var(--card)":"var(--alt)";
-          var timeStr=tb.time?new Date(tb.time).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}):"";
-          var isEditing=trackerEditKey===tb.key;
+          var timeStr="";
+          if(tb.time){var tdt=new Date(tb.time);if(trackerSortBy==="book"){timeStr=tdt.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" "+tdt.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});}else{timeStr=tdt.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});}}          var isEditing=trackerEditKey===tb.key;
           var escKey=tb.key.replace(/'/g,"\\'");
 
           if(isEditing){
@@ -4644,6 +4670,10 @@ function render(){
         });
         h+='</table></div>';
       });
+      // Clear All — tucked at bottom to prevent accidents
+      h+='<div style="margin-top:24px;padding-top:14px;border-top:1px solid var(--bdL);display:flex;justify-content:flex-end">';
+      h+='<button onclick="if(confirm(\'Clear all tracked bets? This cannot be undone.\')){clearTracker()}" style="padding:4px 12px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid var(--bd);background:var(--alt);color:var(--td);cursor:pointer;opacity:0.7">Clear All Bets</button>';
+      h+='</div>';
     }else if(trackedBets.length>0){
       h+='<div class="empty"><div class="empty-i">🔍</div><div class="empty-t sg">No Bets for Selected Leagues</div>';
       h+='<div class="empty-d">Toggle the league filters above to see your tracked bets.</div></div>';
@@ -4770,7 +4800,7 @@ function render(){
 
       // MLB: pitcher info (styled like NHL goalies)
       if(!isNHL){
-        var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+        var info=findMLBLineup(g.home,g.time);
         var psc=S.mlb.pitcherStatcast||{};
         var hPName=info.homePitcher||"TBD";
         var aPName=info.awayPitcher||"TBD";
@@ -5018,7 +5048,7 @@ function render(){
 
       // MLB Context row — v11d: show model adjustments
       if(!isNHL&&!isNBA&&!isNFL){
-        var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+        var info=findMLBLineup(g.home,g.time);
         var wx=S.mlb.weather[g.home];
         var fat=S.mlb.fatigue[g.home]||{};
         var afat=S.mlb.fatigue[g.away]||{};
