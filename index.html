@@ -1384,8 +1384,10 @@ async function fetchMLBSchedule(){
         umpire:ump,umpTendency:umpTend,gameDate:gameDate,
         gameStartTime:gameStartTime,
         gameStatus:gStatus,pitchersConfirmed:pitchersConfirmed};
-      // Key by full start time (precise — handles doubleheaders)
-      if(gameStartTime)result[ht.name+"_"+gameStartTime]=entry;
+      // Store ALL games per team+date in array (doubleheader-safe)
+      var listKey=ht.name+"_"+gameDate+"_all";
+      if(!result[listKey])result[listKey]=[];
+      result[listKey].push(entry);
       // Fallback keys: only set first game (don't overwrite for doubleheaders)
       if(!result[ht.name])result[ht.name]=entry;
       if(gameDate&&!result[ht.name+"_"+gameDate])result[ht.name+"_"+gameDate]=entry;
@@ -3282,21 +3284,22 @@ function calcUmpAdj(umpTendency,homePitchAdv){
 function findMLBLineup(teamName,gameTimeISO){
   var L=S.mlb.lineups||{};
   if(!gameTimeISO)return L[teamName]||{};
-  // Try exact full-datetime match first (handles doubleheaders)
-  if(L[teamName+"_"+gameTimeISO])return L[teamName+"_"+gameTimeISO];
-  // Scan for closest start time on this date
   var dateStr=gameTimeISO.slice(0,10);
-  var gt=new Date(gameTimeISO).getTime();
-  var prefix=teamName+"_"+dateStr+"T";
-  var bestKey=null,bestDiff=Infinity;
-  Object.keys(L).forEach(function(k){
-    if(k.indexOf(prefix)===0){
-      var kTime=new Date(k.slice(teamName.length+1)).getTime();
-      var diff=Math.abs(kTime-gt);
-      if(diff<bestDiff){bestDiff=diff;bestKey=k;}
-    }
-  });
-  if(bestKey&&bestDiff<7200000)return L[bestKey];// within 2 hours
+  var listKey=teamName+"_"+dateStr+"_all";
+  var list=L[listKey];
+  if(list&&list.length>1){
+    // Doubleheader: match by closest game start time
+    var gt=new Date(gameTimeISO).getTime();
+    var best=list[0],bestDiff=Infinity;
+    list.forEach(function(entry){
+      if(entry.gameStartTime){
+        var diff=Math.abs(new Date(entry.gameStartTime).getTime()-gt);
+        if(diff<bestDiff){bestDiff=diff;best=entry;}
+      }
+    });
+    return best;
+  }
+  if(list&&list.length===1)return list[0];
   return L[teamName+"_"+dateStr]||L[teamName]||{};
 }
 
