@@ -238,7 +238,7 @@ function oddsCacheAge(sport){
   }catch(e){}return null;
 }
 function oddsCacheClearAll(){
-  ["mlb","nhl","nba","nfl"].forEach(function(s){try{localStorage.removeItem(oddsCacheKey(s))}catch(e){}});
+  ["mlb","nhl"].forEach(function(s){try{localStorage.removeItem(oddsCacheKey(s))}catch(e){}});
   console.log("[DE] Cache cleared — next refresh will hit API");
 }
 // NFL offseason detection (season is Sep–Feb, offseason Mar–Aug)
@@ -943,9 +943,12 @@ function saveTracker(bets){
 var trackedBets=loadTracker();
 
 function betKey(b){
-  // Unique key per bet: sport+player+market+date
-  var d=new Date(b.time||Date.now()).toISOString().slice(0,10);
-  return(b.sport||"")+"_"+(b.player||"")+"_"+(b.type||"ML")+"_"+d;
+  // Unique key per bet: sport+player+market+date+hour
+  // Hour included to differentiate doubleheader games
+  var dt=new Date(b.time||Date.now());
+  var d=dt.toISOString().slice(0,10);
+  var h=dt.getHours().toString().padStart(2,"0");
+  return(b.sport||"")+"_"+(b.player||"")+"_"+(b.type||"ML")+"_"+d+"_"+h;
 }
 function findTracked(key){
   return trackedBets.find(function(tb){return tb.key===key});
@@ -1029,7 +1032,7 @@ function ungradeResult(key){
 var showAddBet=false;
 function addManualBet(form){
   var sport=form.sport.value;
-  var icon=sport==="nhl"?"🏒":sport==="nba"?"🏀":"⚾";
+  var icon=sport==="nhl"?"🏒":"⚾";
   var type=form.bettype.value;
   var player=form.player.value.trim();
   var market=form.market.value.trim();
@@ -1183,7 +1186,12 @@ async function autoResolveTracked(){
         var ls=g.linescore||{};
         var hR=(ls.teams&&ls.teams.home)?ls.teams.home.runs||0:0;
         var aR=(ls.teams&&ls.teams.away)?ls.teams.away.runs||0:0;
-        if(hn&&an)scores[an+" @ "+hn+"_"+dateStr]={home:hn,away:an,homeScore:hR,awayScore:aR};
+        var gameTime=g.gameDate||"";
+        var scoreKey=an+" @ "+hn+"_"+dateStr;
+        var scoreEntry={home:hn,away:an,homeScore:hR,awayScore:aR,gameTime:gameTime};
+        // Store as array for doubleheaders
+        if(!scores[scoreKey])scores[scoreKey]=[];
+        scores[scoreKey].push(scoreEntry);
       });});
     }catch(e){resolveStatus.errors.push("MLB "+dateStr+": "+e.message);}
   }
@@ -1205,54 +1213,33 @@ async function autoResolveTracked(){
           if(NHL_ABBREVS[k]===aAbbr&&!aName)aName=k;
         });
         if(hName&&aName){
-          scores[aName+" @ "+hName+"_"+dateStr2]={home:hName,away:aName,homeScore:ht.score||0,awayScore:at.score||0};
+          var nhlKey=aName+" @ "+hName+"_"+dateStr2;
+          if(!scores[nhlKey])scores[nhlKey]=[];
+          scores[nhlKey].push({home:hName,away:aName,homeScore:ht.score||0,awayScore:at.score||0});
         }
       });
     }catch(e){resolveStatus.errors.push("NHL "+dateStr2+": "+e.message);}
   }
 
-  // ── Fetch NBA scores — only if there are pending NBA bets ──
-  var hasNBABets=pending.some(function(b){return b.sport==="nba"});
-  if(hasNBABets){
-  for(var di3=0;di3<datesToFetch.length;di3++){
-    var dateStr3b=datesToFetch[di3];
-    try{
-      var ds3=dateStr3b.replace(/-/g,"");// YYYYMMDD for ESPN
-      var nbaUrl="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates="+ds3;
-      var nr=null;
-      try{var ac3=new AbortController();var tm3=setTimeout(function(){ac3.abort()},6000);nr=await fetch(nbaUrl,{signal:ac3.signal});clearTimeout(tm3);}catch(e){}
-      if(!nr||!nr.ok){try{nr=await corsProxyFetch(nbaUrl);}catch(e2){}}
-      if(nr&&nr.ok){
-        var nd3=JSON.parse(await nr.text());
-        var events3=nd3.events||[];
-        events3.forEach(function(ev){
-          var completed=ev.status&&ev.status.type&&ev.status.type.completed;
-          if(!completed)return;
-          (ev.competitions||[]).forEach(function(comp){
-            var cs=comp.competitors||[];
-            if(cs.length!==2)return;
-            var home=cs.find(function(c){return c.homeAway==="home"});
-            var away=cs.find(function(c){return c.homeAway==="away"});
-            if(!home||!away)return;
-            var hName=home.team?home.team.displayName||home.team.name:"";
-            var aName=away.team?away.team.displayName||away.team.name:"";
-            var hScore=parseInt(home.score)||0;
-            var aScore=parseInt(away.score)||0;
-            if(!hName||!aName)return;
-            scores[aName+" @ "+hName+"_"+dateStr3b]={home:hName,away:aName,homeScore:hScore,awayScore:aScore};
-          });
-        });
-      }
-    }catch(e){resolveStatus.errors.push("NBA "+dateStr3b+": "+e.message);}
-  }
-  }// end hasNBABets
-
   // ── Resolve pending bets ──
   var resolved=0;
   pending.forEach(function(tb){
     var dateStr3=localDateStr(tb.time);
-    var sc=scores[tb.matchup+"_"+dateStr3];
-    if(!sc)return;
+    var scArr=scores[tb.matchup+"_"+dateStr3];
+    if(!scArr||!scArr.length)return;
+
+    // Pick correct game for doubleheaders: match by closest start time
+    var sc=scArr[0];
+    if(scArr.length>1&&tb.time){
+      var betTime=new Date(tb.time).getTime();
+      var bestDiff=Infinity;
+      scArr.forEach(function(s){
+        if(s.gameTime){
+          var diff=Math.abs(new Date(s.gameTime).getTime()-betTime);
+          if(diff<bestDiff){bestDiff=diff;sc=s;}
+        }
+      });
+    }
 
     // Determine if bet team is home or away
     var parts=tb.matchup.split(" @ ");
@@ -3715,7 +3702,7 @@ function render(){
   var isNHL=S.league==="nhl";
   var isNBA=S.league==="nba";
   var isNFL=S.league==="nfl";
-  var leagueIcon=isNHL?"🏒":isNBA?"🏀":isNFL?"🏈":"⚾";
+  var leagueIcon=isNHL?"🏒":isNFL?"🏈":"⚾";
   var ab=PA.filter(function(b){return S.booksOn[b.id]});
   var abAll=ab; // Active books for calculations — toggles affect edges + recommendations
   
@@ -3875,11 +3862,11 @@ function render(){
     h+='<div class="sbox"><span class="sval mono" style="color:var(--td)">0</span><span class="slbl">signals</span></div>';
   }
   h+='<div class="sbox"><span class="sval mono" style="color:var(--ac2)">'+S.games.length+'</span><span class="slbl">games</span></div>';
-  if(isNHL||isNBA||isNFL){
+  if(isNHL||isNFL){
     var b2bCount=S.games.filter(function(g){return g.homeB2B||g.awayB2B}).length;
     h+='<div class="sbox"><span class="sval mono" style="color:var(--neg)">'+b2bCount+'</span><span class="slbl">B2B</span></div>';
   }
-  var leagueTrack=trackerStatsBySport(isNHL?"nhl":isNBA?"nba":"mlb");
+  var leagueTrack=trackerStatsBySport(isNHL?"nhl":"mlb");
   if(leagueTrack.total>0){
     var ltCol=leagueTrack.profit>0?"var(--acc)":leagueTrack.profit<0?"var(--neg)":"var(--td)";
     h+='<div class="sbox" style="cursor:pointer" onclick="S.league=\'tracker\';S.tab=\'tracker\';render()">';
@@ -3941,26 +3928,14 @@ function render(){
 
   if(S.loading&&S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
     h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">'+leagueIcon+'</div>';
-    h+='<div style="font-size:15px;font-weight:700;color:var(--tm)">Pulling live '+(isNHL?"NHL":isNBA?"NBA":isNFL?"NFL":"MLB")+' odds + game context...</div>';
-    h+='<div style="font-size:12px;margin-top:8px;color:var(--td)">Odds API'+(isNHL?" · NHL Stats · Standings · Schedule":isNBA?" · NBA Standings · Rest/B2B · Injuries (ESPN)":isNFL?" · NFL Standings · Rest/Schedule (ESPN)":" · MLB Stats · Weather")+'</div></div>';
+    h+='<div style="font-size:15px;font-weight:700;color:var(--tm)">Pulling live '+(isNHL?"NHL":isNFL?"NFL":"MLB")+' odds + game context...</div>';
+    h+='<div style="font-size:12px;margin-top:8px;color:var(--td)">Odds API'+(isNHL?" · NHL Stats · Standings · Schedule":isNFL?" · NFL Standings · Rest/Schedule (ESPN)":" · MLB Stats · Weather")+'</div></div>';
   } else if(S.error&&S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
     h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div style="font-size:14px;font-weight:700;color:var(--neg)">Error loading odds</div><div style="font-size:11px;margin-top:6px;color:var(--td);max-width:400px;margin:6px auto;word-break:break-word">'+S.error+'</div><button class="rbtn" style="margin-top:14px;padding:8px 20px;border-color:var(--acc);color:var(--acc)" onclick="refreshAll()">Try Again</button></div>';
   } else if(!games.length&&S.tab!=="books"&&S.tab!=="bets"&&S.tab!=="tracker"){
     h+='<div class="empty"><div class="empty-i">'+leagueIcon+'</div>';
-    h+='<div class="empty-t sg">No '+(isNHL?"NHL":isNBA?"NBA":isNFL?"NFL":"MLB")+' Games Available</div>';
-    if(isNBA){
-      h+='<div class="empty-d">The NBA regular season runs October through April, with playoffs through June. Once games are on the board, this dashboard populates with live ML odds from all 11 PA sportsbooks, trained model predictions (66.6% acc), injury reports, back-to-back detection, and rest differentials.</div>';
-      h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">NBA v3 Model Status</div><div style="font-size:12px;line-height:1.8">';
-      h+='<div>✅ Direct Odds API (basketball_nba)</div>';
-      h+='<div>✅ NBA Standings + Rest/B2B Detection</div>';
-      h+='<div>✅ ESPN Injury Report (star player tracking)</div>';
-      h+='<div>✅ 55+ Star Impact Database (spread swing values)</div>';
-      h+='<div>✅ ML Model (19 features, 66.6% acc, +27.4% ROI @8%)</div>';
-      h+='<div>✅ Injury-Adjusted Spread Model (prob → margin + star OUT swing)</div>';
-      h+='<div>✅ O/U Model (pace + efficiency + injury adjustment)</div>';
-      h+='<div>✅ Travel fatigue (timezone crossings)</div>';
-      h+='<div>⏳ Awaiting NBA game odds...</div></div></div>';
-    }else if(isNHL){
+    h+='<div class="empty-t sg">No '+(isNHL?"NHL":isNFL?"NFL":"MLB")+' Games Available</div>';
+    if(isNHL){
       h+='<div class="empty-d">The NHL regular season runs October through April, with playoffs through June. Once games are on the board, this dashboard populates with live odds from all 11 PA sportsbooks, back-to-back detection, goalie confirmations, rest differentials, and special teams context.</div>';
       h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">NHL Model Status</div><div style="font-size:12px;line-height:1.8">';
       h+='<div>✅ Direct Odds API (icehockey_nhl)</div>';
@@ -4223,7 +4198,7 @@ function render(){
         allBets.forEach(function(b,i){
           var bg=i%2===0?"var(--card)":"var(--alt)";
           var edgeC=b.edge>=10?"var(--acc)":b.edge>=5?"var(--acc)":"var(--warn)";
-          var typeLabel=(b.type==="SP"&&b.sport==="nba"?"ATS":b.type)+(b.b2bStack?" 🔥":"")+(b.highVar?" ⚡":"")+(b.paperTrade?" 🧪":"");
+          var typeLabel=b.type+(b.b2bStack?" 🔥":"")+(b.highVar?" ⚡":"")+(b.paperTrade?" 🧪":"");
           var edgeLabel="+"+b.edge+(b.edgeUnit||"%");
           var betColor=b.paperTrade?"var(--warn)":"var(--acc)";
           h+='<tr style="background:'+bg+';border-bottom:1px solid var(--bdL)"'+(b.paperTrade?' title="Paper trade — prop model in validation"':'')+'>';
@@ -4316,7 +4291,7 @@ function render(){
       h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
       h+='}';
       h+='bt.value=\'ML\';bt.dispatchEvent(new Event(\'change\'));';
-      h+='" style="width:75px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="nba">🏀 NBA</option><option value="mlb">⚾ MLB</option></select></div>';
+      h+='" style="width:75px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="mlb">⚾ MLB</option></select></div>';
 
       // Type — updates market label + shows/hides spread field
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Type</label>';
@@ -4660,10 +4635,6 @@ function render(){
       // NHL info bar
       h+='<div class="ib ice"><span style="font-size:14px">🏒</span><strong>NHL B2B Specialist (walk-forward verified: 5/5 seasons, +6.6% ROI, 13/13 thresholds):</strong> Fades B2B team when rested opponent is favored by model at ≥55% confidence. v5 general model shown for analysis — only B2B asymmetric games generate bet recommendations.</div>';
     }
-    if(isNBA){
-      var injCount=Object.values(S.nba.injuries||{}).reduce(function(s,a){return s+a.length},0);
-      h+='<div class="ib" style="background:rgba(255,159,67,.06);border-color:rgba(255,159,67,.2);color:var(--warn)"><span style="font-size:14px">🏀</span><strong>NBA — Analysis Only (not profitable against closing lines).</strong> v3/v4 tested at 66% accuracy but negative ROI across all ML and ATS strategies. NBA lines are too efficient for this feature set. Showing model probabilities, B2B, injuries, and line comparisons as context — not actionable bet recommendations. ('+(injCount>0?injCount+' injuries tracked':'loading...')+').</div>';
-    }
     if(isNFL){
       h+='<div class="ib" style="background:rgba(255,159,67,.06);border-color:rgba(255,159,67,.2);color:var(--warn)"><span style="font-size:14px">🏈</span><strong>NFL — Analysis Only (not profitable against closing lines).</strong> v1 model tested at -27% ML ROI and -68% ATS ROI across 2023-2025. NFL lines are too efficient for the feature set available. Showing model probabilities, spreads, and rest/fatigue as context only.</div>';
     }
@@ -4911,7 +4882,7 @@ function render(){
         h+='<div><div class="sh">Home</div><div class="mono" style="font-size:15px;font-weight:800;color:'+(restedIsHome?'var(--acc)':'var(--neg)')+'">'+(restedIsHome?b2bRestedP:b2bTiredP)+'%</div>';
         h+='<div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairH+'%</div></div></div>';
       }else if(g.modelFairH){
-        var modelLabel=isNHL?"v5 Model / Market":isNBA?"NBA v3 / Market":isNFL?"NFL v1 / Market":"v11d Model / Market";
+        var modelLabel=isNHL?"v5 Model / Market":isNFL?"NFL v1 / Market":"v11d Model / Market";
         h+='<div class="sh">'+modelLabel+'</div><div style="display:flex;gap:14px;justify-content:center">';
         h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairA+'%</div>';
         h+='<div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.modelFairA)+'</div>';
@@ -5199,7 +5170,7 @@ function render(){
       h+='</div></div>';
 
       // Fav edge display
-      h+='<div style="text-align:center;min-width:80px"><div class="sh">'+(isNBA?"ML Edge":"Fav Edge")+'</div>';
+      h+='<div style="text-align:center;min-width:80px"><div class="sh">Fav Edge</div>';
       var edgeCls=favEdge>=12?"ev-p":favEdge>=8?"ev-p":"ev-0";
       if(isNBA){edgeCls=g._aeTop>=15?"ev-p":g._aeTop>=8?"ev-p":"ev-0";}
       h+='<div class="ev '+edgeCls+'">'+(isNBA?((g._aeTop>0?"+":"")+g._aeTop):((favEdge>0?"+":"")+favEdge))+'%</div>';
@@ -5399,10 +5370,9 @@ function render(){
   h+='</div>';
 
   // ── FOOTER ──
-  var ftNHL=trackerStatsBySport("nhl");var ftMLB=trackerStatsBySport("mlb");var ftNBA=trackerStatsBySport("nba");
+  var ftNHL=trackerStatsBySport("nhl");var ftMLB=trackerStatsBySport("mlb");
   var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
   var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
-  var ftNBAStr=ftNBA.total>0?"NBA (legacy): "+ftNBA.wins+"W-"+ftNBA.losses+"L":"NBA: analysis only";
   h+='<div class="ft">DIAMOND EDGE · MLB v11d ✅ · NHL B2B ✅ · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
