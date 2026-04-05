@@ -1370,6 +1370,7 @@ async function fetchMLBSchedule(){
       });
       // Key by homeTeam+date to handle doubleheaders and multi-day
       var gameDate=g.gameDate?g.gameDate.slice(0,10):"";
+      var gameStartTime=g.gameDate||""; // full ISO datetime for doubleheader matching
       var key=ht.name+(gameDate?("_"+gameDate):"");
       var gStatus=(g.status&&g.status.detailedState)||"Scheduled";
       // Today's games with named pitchers are effectively confirmed (teams rarely change day-of)
@@ -1377,17 +1378,17 @@ async function fetchMLBSchedule(){
       // API detailedState doesn't move from "Scheduled" to "Pre-Game" until ~30 min before first pitch
       var isToday=gameDate===ds1;
       var pitchersConfirmed=(gStatus!=="Scheduled")||isToday;
-      result[ht.name]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
+      var entry={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
         homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
         homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
         umpire:ump,umpTendency:umpTend,gameDate:gameDate,
+        gameStartTime:gameStartTime,
         gameStatus:gStatus,pitchersConfirmed:pitchersConfirmed};
-      // Also key by team+date for multi-day lookup
-      if(gameDate)result[ht.name+"_"+gameDate]={gamePk:g.gamePk,homeTeam:ht.name,awayTeam:at.name,
-        homePitcher:hp.fullName||"TBD",awayPitcher:ap.fullName||"TBD",
-        homePitcherId:hp.id||null,awayPitcherId:ap.id||null,
-        umpire:ump,umpTendency:umpTend,gameDate:gameDate,
-        gameStatus:gStatus,pitchersConfirmed:pitchersConfirmed};
+      // Key by full start time (precise — handles doubleheaders)
+      if(gameStartTime)result[ht.name+"_"+gameStartTime]=entry;
+      // Fallback keys: only set first game (don't overwrite for doubleheaders)
+      if(!result[ht.name])result[ht.name]=entry;
+      if(gameDate&&!result[ht.name+"_"+gameDate])result[ht.name+"_"+gameDate]=entry;
     });});return result;
   }catch(e){return{}}
 }
@@ -2523,7 +2524,7 @@ function computeFeatures(g){
   var st=S.mlb.standings||{};
   var rc=S.mlb.recentScores||{};
   var fat=S.mlb.fatigue||{};
-  var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+  var info=findMLBLineup(g.home,g.time);
 
   // Live team stats with baseline blending
   var lh=ts[g.home]||{};var la=ts[g.away]||{};
@@ -3278,9 +3279,30 @@ function calcUmpAdj(umpTendency,homePitchAdv){
 // ENRICH MLB GAMES — compute features, run model, set edges
 // ═══════════════════════════════════════════════════════════
 
+function findMLBLineup(teamName,gameTimeISO){
+  var L=S.mlb.lineups||{};
+  if(!gameTimeISO)return L[teamName]||{};
+  // Try exact full-datetime match first (handles doubleheaders)
+  if(L[teamName+"_"+gameTimeISO])return L[teamName+"_"+gameTimeISO];
+  // Scan for closest start time on this date
+  var dateStr=gameTimeISO.slice(0,10);
+  var gt=new Date(gameTimeISO).getTime();
+  var prefix=teamName+"_"+dateStr+"T";
+  var bestKey=null,bestDiff=Infinity;
+  Object.keys(L).forEach(function(k){
+    if(k.indexOf(prefix)===0){
+      var kTime=new Date(k.slice(teamName.length+1)).getTime();
+      var diff=Math.abs(kTime-gt);
+      if(diff<bestDiff){bestDiff=diff;bestKey=k;}
+    }
+  });
+  if(bestKey&&bestDiff<7200000)return L[bestKey];// within 2 hours
+  return L[teamName+"_"+dateStr]||L[teamName]||{};
+}
+
 function enrichMLBGames(games){
   return games.map(function(g){
-    var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+    var info=findMLBLineup(g.home,g.time);
     var wx=S.mlb.weather[g.home];
 
     // ── Run v11b model ──
@@ -4775,7 +4797,7 @@ function render(){
 
       // MLB: pitcher info (styled like NHL goalies)
       if(!isNHL){
-        var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+        var info=findMLBLineup(g.home,g.time);
         var psc=S.mlb.pitcherStatcast||{};
         var hPName=info.homePitcher||"TBD";
         var aPName=info.awayPitcher||"TBD";
@@ -5023,7 +5045,7 @@ function render(){
 
       // MLB Context row — v11d: show model adjustments
       if(!isNHL&&!isNBA&&!isNFL){
-        var info=S.mlb.lineups[g.home+"_"+(g.time?g.time.slice(0,10):"")]||S.mlb.lineups[g.home]||{};
+        var info=findMLBLineup(g.home,g.time);
         var wx=S.mlb.weather[g.home];
         var fat=S.mlb.fatigue[g.home]||{};
         var afat=S.mlb.fatigue[g.away]||{};
