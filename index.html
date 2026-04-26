@@ -2591,12 +2591,11 @@ function computeFeatures(g){
   
   var hsp=blendSC(info.homePitcher);
   var asp=blendSC(info.awayPitcher);
-  // xERA estimate from xBA-against: xERA ≈ 3.2 + (xBA - 0.240) * 40
-  var h_sp_xera=hsp.xbaAgainst?3.2+(hsp.xbaAgainst-0.240)*40:bl_h.ERA;
-  var a_sp_xera=asp.xbaAgainst?3.2+(asp.xbaAgainst-0.240)*40:bl_a.ERA;
-  // xwOBA estimate from xBA: xwOBA ≈ xBA * 1.3 + 0.010
-  var h_sp_xwoba=hsp.xbaAgainst?hsp.xbaAgainst*1.3+0.010:0.320;
-  var a_sp_xwoba=asp.xbaAgainst?asp.xbaAgainst*1.3+0.010:0.320;
+  // blendSC returns {xERA, xwOBA, pa} when sufficient data, {} otherwise
+  var h_sp_xera=hsp.xERA!=null?hsp.xERA:bl_h.ERA;
+  var a_sp_xera=asp.xERA!=null?asp.xERA:bl_a.ERA;
+  var h_sp_xwoba=hsp.xwOBA!=null?hsp.xwOBA:0.320;
+  var a_sp_xwoba=asp.xwOBA!=null?asp.xwOBA:0.320;
   var h_sp_pa=hsp.pa||500;
   var a_sp_pa=asp.pa||500;
 
@@ -3290,10 +3289,13 @@ function findMLBLineup(teamName,gameTimeISO){
   return L[teamName+"_"+dateStr]||L[teamName]||{};
 }
 
+// Weather cache key: home team + game start ISO (per-game, not per-team — DH-safe)
+function weatherKey(homeTeam,gameTimeISO){return homeTeam+"|"+(gameTimeISO||"");}
+
 function enrichMLBGames(games){
   return games.map(function(g){
     var info=findMLBLineup(g.home,g.time);
-    var wx=S.mlb.weather[g.home];
+    var wx=S.mlb.weather[weatherKey(g.home,g.time)];
 
     // ── Run v11b model ──
     var features=computeFeatures(g);
@@ -3527,8 +3529,9 @@ async function loadMLB(){
     if(results[7].status==="fulfilled")S.mlb.fangraphs=results[7].value||{};
     if(results[8].status==="fulfilled")S.mlb.savantTeam=results[8].value||{};
     S.mlb.games.forEach(function(g){
-      if(!S.mlb.weather[g.home]){
-        fetchWeather(g.home, g.time).then(function(w){if(w){S.mlb.weather[g.home]=w;S.mlb.games=enrichMLBGames(S.mlb.games);syncActive();render()}});
+      var wKey=weatherKey(g.home,g.time);
+      if(!S.mlb.weather[wKey]){
+        fetchWeather(g.home, g.time).then(function(w){if(w){S.mlb.weather[wKey]=w;S.mlb.games=enrichMLBGames(S.mlb.games);syncActive();render()}});
       }
     });
     // Apply v11b model enrichment
@@ -4999,7 +5002,7 @@ function render(){
       // MLB Context row — v11d: show model adjustments
       if(!isNHL&&!isNBA&&!isNFL){
         var info=findMLBLineup(g.home,g.time);
-        var wx=S.mlb.weather[g.home];
+        var wx=S.mlb.weather[weatherKey(g.home,g.time)];
         var fat=S.mlb.fatigue[g.home]||{};
         var afat=S.mlb.fatigue[g.away]||{};
         var ctxItems=[];
