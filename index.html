@@ -14,13 +14,13 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 ::-webkit-scrollbar{height:6px;width:6px}::-webkit-scrollbar-thumb{background:var(--bdL);border-radius:3px}
 
 .bar{display:flex;align-items:center;padding:0 16px;overflow-x:auto;background:var(--head);border-bottom:1px solid var(--bd)}
-.logo{display:flex;align-items:center;gap:8px;padding:10px 14px 10px 0;border-right:1px solid var(--bd);margin-right:6px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px;padding:10px 0 10px 14px;border-left:1px solid var(--bd);margin-left:auto;flex-shrink:0}
 .logo-icon{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--acc),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:15px}
 .brand{font-size:15px;font-weight:800;letter-spacing:-.5px}
 .lbtn{padding:11px 14px;background:0;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap;border-bottom:2px solid transparent;color:var(--tm);transition:.15s}
 .lbtn.on{border-bottom-color:var(--acc);color:var(--acc)}.lbtn.off{opacity:.45;color:var(--tf);cursor:default}
 .soon{font-size:7px;background:var(--bd);color:var(--td);padding:1px 5px;border-radius:3px;font-weight:600;margin-left:2px}
-.thbtn{width:32px;height:32px;border-radius:7px;border:1px solid var(--bd);background:var(--card);font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--tm);flex-shrink:0;margin-left:auto}
+.thbtn{width:32px;height:32px;border-radius:7px;border:1px solid var(--bd);background:var(--card);font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--tm);flex-shrink:0;margin-left:6px}
 
 .status{background:var(--head);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sbox{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:5px 12px;display:flex;align-items:center;gap:6px}
@@ -3768,7 +3768,7 @@ function render(){
 
   // ── LEAGUE BAR ──
   var versionLabel=isNHL?"NHL B2B":"MLB v11d";
-  h+='<div class="bar"><div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">'+versionLabel+'</span></div></div>';
+  h+='<div class="bar">';
   // Today's Bets global button (FIRST after leagues)
   var betsOn=S.league==="bets";
   h+='<button class="lbtn'+(betsOn?" on":"")+'" onclick="S.league=\'bets\';S.tab=\'bets\';render()" style="'+(betsOn?"border-bottom-color:var(--acc);color:var(--acc)":"")+'"><span style="font-size:14px">📋</span>Bets</button>';
@@ -3796,6 +3796,7 @@ function render(){
     h+='</div>';
   }
 
+  h+='<div class="logo"><div class="logo-icon" style="color:'+(t==="dark"?"#0c0e17":"#fff")+'">'+leagueIcon+'</div><div><span class="brand sg" style="color:var(--tx)">DIAMOND EDGE</span> <span class="mono" style="font-size:8px;color:var(--td)">'+versionLabel+'</span></div></div>';
   h+='<button class="thbtn" onclick="syncStatus.showModal=!syncStatus.showModal;render()" title="'+(syncPIN?'Synced':'Set up sync')+'" style="'+(syncPIN?'border-color:var(--acc);color:var(--acc)':'')+'">🔄</button>';
   h+='<button class="thbtn" onclick="S.mode=S.mode===\'dark\'?\'light\':\'dark\';try{localStorage.setItem(\'de_mode\',S.mode)}catch(e){};render()">'+(t==="dark"?"☀️":"🌙")+'</button></div>';
 
