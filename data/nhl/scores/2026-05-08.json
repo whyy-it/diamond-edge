@@ -1,0 +1,135 @@
+[
+  {
+    "timestamp": "2026-05-08T09:25:30Z",
+    "label": "",
+    "sport": "nhl",
+    "snapshot_type": "scores",
+    "event_count": 8,
+    "data": [
+      {
+        "id": "fbc314d1e8c60127f6b1a302f544af53",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-06T00:10:08Z",
+        "completed": true,
+        "home_team": "Colorado Avalanche",
+        "away_team": "Minnesota Wild",
+        "scores": [
+          {
+            "name": "Colorado Avalanche",
+            "score": "5"
+          },
+          {
+            "name": "Minnesota Wild",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-05-06T08:09:53Z"
+      },
+      {
+        "id": "8458afd03d1b3e8305f8e6362cd8e3b7",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-06T23:10:36Z",
+        "completed": true,
+        "home_team": "Buffalo Sabres",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": [
+          {
+            "name": "Buffalo Sabres",
+            "score": "4"
+          },
+          {
+            "name": "Montr\u00e9al Canadiens",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-05-07T09:47:12Z"
+      },
+      {
+        "id": "2dbe31206cd9fdac37bb9ccdb2b04244",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-07T01:52:00Z",
+        "completed": true,
+        "home_team": "Vegas Golden Knights",
+        "away_team": "Anaheim Ducks",
+        "scores": [
+          {
+            "name": "Vegas Golden Knights",
+            "score": "1"
+          },
+          {
+            "name": "Anaheim Ducks",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-05-07T09:47:12Z"
+      },
+      {
+        "id": "6a8df0a421267729c2f1fdb7cefa1163",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-08T00:10:00Z",
+        "completed": true,
+        "home_team": "Philadelphia Flyers",
+        "away_team": "Carolina Hurricanes",
+        "scores": [
+          {
+            "name": "Philadelphia Flyers",
+            "score": "1"
+          },
+          {
+            "name": "Carolina Hurricanes",
+            "score": "4"
+          }
+        ],
+        "last_update": "2026-05-08T08:20:42Z"
+      },
+      {
+        "id": "3caf2bb935e6671e34a4e56176d99797",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-08T23:10:00Z",
+        "completed": false,
+        "home_team": "Buffalo Sabres",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "2fa2791476f479767d443794d977469a",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-09T01:40:00Z",
+        "completed": false,
+        "home_team": "Anaheim Ducks",
+        "away_team": "Vegas Golden Knights",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "ff32d091f70d6cbd0449e919d784e5fc",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-09T22:00:00Z",
+        "completed": false,
+        "home_team": "Philadelphia Flyers",
+        "away_team": "Carolina Hurricanes",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "06019ea348b06f7e342d8998911baca1",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-10T01:10:00Z",
+        "completed": false,
+        "home_team": "Minnesota Wild",
+        "away_team": "Colorado Avalanche",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
