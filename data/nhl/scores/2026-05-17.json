@@ -1,0 +1,93 @@
+[
+  {
+    "timestamp": "2026-05-17T09:48:52Z",
+    "label": "",
+    "sport": "nhl",
+    "snapshot_type": "scores",
+    "event_count": 5,
+    "data": [
+      {
+        "id": "d1e8549872562f22fb38a2b2492bde62",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-14T23:10:46Z",
+        "completed": true,
+        "home_team": "Buffalo Sabres",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": [
+          {
+            "name": "Buffalo Sabres",
+            "score": "3"
+          },
+          {
+            "name": "Montr\u00e9al Canadiens",
+            "score": "6"
+          }
+        ],
+        "last_update": "2026-05-15T10:02:06Z"
+      },
+      {
+        "id": "96af8606a75e9016ae2c1419a98ced88",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-15T01:50:00Z",
+        "completed": true,
+        "home_team": "Anaheim Ducks",
+        "away_team": "Vegas Golden Knights",
+        "scores": [
+          {
+            "name": "Anaheim Ducks",
+            "score": "1"
+          },
+          {
+            "name": "Vegas Golden Knights",
+            "score": "5"
+          }
+        ],
+        "last_update": "2026-05-15T10:02:06Z"
+      },
+      {
+        "id": "77953407039c73ff87f5dec9a53472d6",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-17T00:15:00Z",
+        "completed": true,
+        "home_team": "Montr\u00e9al Canadiens",
+        "away_team": "Buffalo Sabres",
+        "scores": [
+          {
+            "name": "Montr\u00e9al Canadiens",
+            "score": "3"
+          },
+          {
+            "name": "Buffalo Sabres",
+            "score": "8"
+          }
+        ],
+        "last_update": "2026-05-17T08:25:38Z"
+      },
+      {
+        "id": "45a3337bdc751e814fd37929a9d94834",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-18T23:30:03Z",
+        "completed": false,
+        "home_team": "Buffalo Sabres",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "15f3905f9616dd694d6ad7ee037c73b6",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-21T00:00:47Z",
+        "completed": false,
+        "home_team": "Colorado Avalanche",
+        "away_team": "Vegas Golden Knights",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
