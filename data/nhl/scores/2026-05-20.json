@@ -1,0 +1,53 @@
+[
+  {
+    "timestamp": "2026-05-20T10:53:06Z",
+    "label": "",
+    "sport": "nhl",
+    "snapshot_type": "scores",
+    "event_count": 3,
+    "data": [
+      {
+        "id": "45a3337bdc751e814fd37929a9d94834",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-18T23:45:03Z",
+        "completed": true,
+        "home_team": "Buffalo Sabres",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": [
+          {
+            "name": "Buffalo Sabres",
+            "score": "2"
+          },
+          {
+            "name": "Montr\u00e9al Canadiens",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-05-19T08:19:32Z"
+      },
+      {
+        "id": "15f3905f9616dd694d6ad7ee037c73b6",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-21T00:00:47Z",
+        "completed": false,
+        "home_team": "Colorado Avalanche",
+        "away_team": "Vegas Golden Knights",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "d9aa6127776677dd67d86ba3b93d0353",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-22T00:00:36Z",
+        "completed": false,
+        "home_team": "Carolina Hurricanes",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
