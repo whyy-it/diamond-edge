@@ -1,0 +1,73 @@
+[
+  {
+    "timestamp": "2026-05-22T10:53:25Z",
+    "label": "",
+    "sport": "nhl",
+    "snapshot_type": "scores",
+    "event_count": 4,
+    "data": [
+      {
+        "id": "15f3905f9616dd694d6ad7ee037c73b6",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-21T00:20:47Z",
+        "completed": true,
+        "home_team": "Colorado Avalanche",
+        "away_team": "Vegas Golden Knights",
+        "scores": [
+          {
+            "name": "Colorado Avalanche",
+            "score": "2"
+          },
+          {
+            "name": "Vegas Golden Knights",
+            "score": "4"
+          }
+        ],
+        "last_update": "2026-05-21T08:15:51Z"
+      },
+      {
+        "id": "d9aa6127776677dd67d86ba3b93d0353",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-22T00:20:36Z",
+        "completed": true,
+        "home_team": "Carolina Hurricanes",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": [
+          {
+            "name": "Carolina Hurricanes",
+            "score": "2"
+          },
+          {
+            "name": "Montr\u00e9al Canadiens",
+            "score": "6"
+          }
+        ],
+        "last_update": "2026-05-22T08:10:07Z"
+      },
+      {
+        "id": "959b72accceca17f9912258671ba38bd",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-23T00:00:00Z",
+        "completed": false,
+        "home_team": "Colorado Avalanche",
+        "away_team": "Vegas Golden Knights",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "1a0c681f6a7b1142cce9a2de55ada661",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-23T23:00:00Z",
+        "completed": false,
+        "home_team": "Carolina Hurricanes",
+        "away_team": "Montr\u00e9al Canadiens",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
