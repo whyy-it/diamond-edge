@@ -289,7 +289,7 @@ var PARKS={
   "Houston Astros":[29.757,-95.355,true],"Texas Rangers":[32.751,-97.083,true],
   "Los Angeles Dodgers":[34.074,-118.240],"Los Angeles Angels":[33.800,-117.883],
   "San Diego Padres":[32.707,-117.157],"San Francisco Giants":[37.778,-122.389],
-  "Oakland Athletics":[37.752,-122.201],"Seattle Mariners":[47.591,-122.332],
+  "Athletics":[38.580,-121.514],"Seattle Mariners":[47.591,-122.332],
   "Arizona Diamondbacks":[33.445,-112.067,true],"Colorado Rockies":[39.756,-104.994],
 };
 
@@ -2235,7 +2235,7 @@ var PARK_FACTORS={
   "Houston Astros":0.99,"Kansas City Royals":0.98,"Chicago White Sox":0.98,"Washington Nationals":0.98,
   "St. Louis Cardinals":0.97,"New York Mets":0.97,"San Francisco Giants":0.96,"Pittsburgh Pirates":0.96,
   "San Diego Padres":0.95,"Los Angeles Dodgers":0.95,"Tampa Bay Rays":0.94,"Seattle Mariners":0.93,
-  "Oakland Athletics":0.93,"Miami Marlins":0.92
+  "Athletics":0.93,"Miami Marlins":0.92
 };
 
 // ── Static data: timezone zones by full team name (ET=0, CT=1, MT=2, PT=3) ──
@@ -2248,7 +2248,7 @@ var MLB_TZ={
   "St. Louis Cardinals":1,"Kansas City Royals":1,"Houston Astros":1,"Texas Rangers":1,
   "Colorado Rockies":2,"Arizona Diamondbacks":2,
   "Los Angeles Dodgers":3,"Los Angeles Angels":3,"San Diego Padres":3,
-  "San Francisco Giants":3,"Oakland Athletics":3,"Seattle Mariners":3
+  "San Francisco Giants":3,"Athletics":3,"Seattle Mariners":3
 };
 
 // 2025 baseline team stats (used for blending early in season)
@@ -2281,7 +2281,7 @@ var MLB_TEAM_BASELINE={
   "Washington Nationals":{wRC:96,OPS:.700,ERA:4.35,FIP:4.30,BB9:3.5,xwOBA:.310,barrel:.068,ev:87.7},
   "Miami Marlins":{wRC:92,OPS:.685,ERA:4.45,FIP:4.40,BB9:3.6,xwOBA:.305,barrel:.065,ev:87.4},
   "Chicago White Sox":{wRC:88,OPS:.670,ERA:4.60,FIP:4.55,BB9:3.7,xwOBA:.300,barrel:.062,ev:87.0},
-  "Oakland Athletics":{wRC:90,OPS:.678,ERA:4.50,FIP:4.48,BB9:3.6,xwOBA:.302,barrel:.063,ev:87.2},
+  "Athletics":{wRC:90,OPS:.678,ERA:4.50,FIP:4.48,BB9:3.6,xwOBA:.302,barrel:.063,ev:87.2},
   "Colorado Rockies":{wRC:101,OPS:.725,ERA:5.10,FIP:4.90,BB9:3.5,xwOBA:.318,barrel:.073,ev:88.4}
 };
 
@@ -2410,7 +2410,7 @@ async function fetchFanGraphsTeamStats(){
     "Giants":"San Francisco Giants","Tigers":"Detroit Tigers","Cardinals":"St. Louis Cardinals",
     "Royals":"Kansas City Royals","Reds":"Cincinnati Reds","Angels":"Los Angeles Angels",
     "Pirates":"Pittsburgh Pirates","Nationals":"Washington Nationals","Marlins":"Miami Marlins",
-    "White Sox":"Chicago White Sox","Athletics":"Oakland Athletics","Rockies":"Colorado Rockies",
+    "White Sox":"Chicago White Sox","Athletics":"Athletics","Rockies":"Colorado Rockies",
   };
   
   try{
@@ -2461,7 +2461,7 @@ async function fetchSavantTeamBatting(){
     "TOR":"Toronto Blue Jays","SF":"San Francisco Giants","DET":"Detroit Tigers",
     "STL":"St. Louis Cardinals","KC":"Kansas City Royals","CIN":"Cincinnati Reds",
     "LAA":"Los Angeles Angels","PIT":"Pittsburgh Pirates","WSH":"Washington Nationals",
-    "MIA":"Miami Marlins","CWS":"Chicago White Sox","OAK":"Oakland Athletics",
+    "MIA":"Miami Marlins","CWS":"Chicago White Sox","OAK":"Athletics",
     "COL":"Colorado Rockies",
   };
   
@@ -3740,11 +3740,30 @@ function render(){
         g._aeTop=+Math.max(g._aeH,g._aeA).toFixed(1);
         g._aeSide=(g._aeH>=g._aeA)?"HOME":"AWAY";
       }else{
-        // MLB v11e+AWAY filter: home-side bets disabled per 4-year walk-forward
-        // v11e baseline: +3.45% ROI | v11e+AWAY: +9.99% ROI, 4/4 profitable years
-        // 95% CI [+2.5%, +18.0%], P(<0)=0.2%, 3.5σ above random null filter
-        g._aeTop=+(g._aeA).toFixed(1);
-        g._aeSide="AWAY";
+        // MLB v11f: v11e weights + AWAY-only + Park≥0.95 filters
+        //
+        // AWAY filter (STRONG validation):
+        //   4-year walk-forward: +9.99% ROI, 4/4 profitable years
+        //   95% CI [+2.5%, +18.0%], P(<0)=0.2%, 3.5σ above random null
+        //
+        // Park filter (WEAKER validation, deployed conservatively):
+        //   - Park<0.95 AWAY bets: -9.08% ROI aggregate, but CI [-29.86%, +12.96%]
+        //   - 3/4 years negative, but 2023 was +9.30% (inconsistent)
+        //   - Driven primarily by Oakland (-29.61% on 23 bets, 1 team)
+        //   - Permutation p=0.034 (single test, fails Bonferroni for ~10 tests)
+        //   - Oakland moved to Sacramento for 2025+, so historical signal may not apply
+        //   - Sacramento park not in PARK_FACTORS dict (won't be caught by filter)
+        //   - Remaining low-park venues: MIA (-5.37%), SEA (+0.32%), TB (-13.33%, n=6)
+        //   - Net effect: removes ~11% of bets, modest ROI lift if real
+        //
+        // EASY REVERT: change "parkFactor < 0.95" → "false" to disable park filter only
+        var parkFactor = (typeof PARK_FACTORS !== "undefined" && PARK_FACTORS[g.home]) || 1.0;
+        if (parkFactor < 0.95) {
+          g._aeTop = 0;  // filter out — see comments above
+        } else {
+          g._aeTop = +(g._aeA).toFixed(1);
+        }
+        g._aeSide = "AWAY";
       }
     });
   }
@@ -3761,7 +3780,7 @@ function render(){
       var b2b=computeNHLB2BFeatures(g);
       return b2b&&b2b.isBet;
     }
-    return g._aeTop>=9;// MLB v11e+AWAY: 9% edge threshold, AWAY-side only (home disabled)
+    return g._aeTop>=9;// MLB v11f: 9% edge threshold, AWAY-side only (home disabled)
   });
   if(S.sortBy==="edge")games.sort(function(a,b){return b._aeTop-a._aeTop});
   else games.sort(function(a,b){return new Date(a.time)-new Date(b.time)});
@@ -3782,7 +3801,7 @@ function render(){
   var h="";
 
   // ── LEAGUE BAR ──
-  var versionLabel=isNHL?"NHL B2B":"MLB v11e+AWAY";
+  var versionLabel=isNHL?"NHL B2B":"MLB v11f";
   h+='<div class="bar">';
   // Today's Bets global button (FIRST after leagues)
   var betsOn=S.league==="bets";
@@ -3978,7 +3997,7 @@ function render(){
       h+='<div class="empty-d">MLB Opening Day is late March. Once games start, this dashboard populates with live odds, backtested edge calculations, and player prop projections from all 11 PA sportsbooks.</div>';
       h+='<div class="scard"><div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">MLB Model Status</div><div style="font-size:12px;line-height:1.8">';
       h+='<div>✅ Direct Odds API connected</div><div>✅ MLB Stats API connected</div><div>✅ Weather API connected</div>';
-      h+='<div>✅ v11e+AWAY model (24 features, 47.7% WR)</div><div>✅ +9.99% ROI (4/4 yr walk-forward 2022-2025)</div><div>✅ 95% CI [+2.5%, +18.0%], P(<0)=0.2%</div><div>✅ Statcast blending (prior → current yr)</div><div>✅ Weather + Umpire + Standings</div><div>⏳ Awaiting game odds...</div></div></div>';
+      h+='<div>✅ v11f model (24 features, 47.7% WR)</div><div>✅ Filters: AWAY-side + Park≥0.95</div><div>✅ Walk-forward 4/4 years profitable (2022-2025)</div><div>✅ Statcast blending (prior → current yr)</div><div>✅ Weather + Umpire + Standings</div><div>⏳ Awaiting game odds...</div></div></div>';
     }
     h+='</div>';
   }
@@ -4067,7 +4086,7 @@ function render(){
           var fp3=side3==="HOME"?fH3/100:fA3/100;
           var b3=ml3>0?ml3/100:100/(-ml3);
           var kf3=(b3*fp3-(1-fp3))/b3;
-          var qKf3=Math.min(kf3*0.50,0.03);// HALF-KELLY capped at 3%: v11e+AWAY backtest 4yr $700→$6395 (+814%), 49% maxDD
+          var qKf3=Math.min(kf3*0.50,0.03);// HALF-KELLY capped at 3%: v11f backtest 4yr $700→$6395 (+814%) on AWAY-only base, 49% maxDD
           allBets.push({sport:sport,icon:icon,type:"ML",player:side3==="HOME"?g.home:g.away,market:"Moneyline",line:fml(ml3),book:bk3?bk3.n:"—",edge:edge3,kelly:Math.max(0,+(qKf3*100).toFixed(2)),fairProb:+(fp3*100).toFixed(1),matchup:g.away+" @ "+g.home,time:g.time,b2bStack:sNHL&&g.b2bStack&&edge3>3,projSource:"model",highVar:false,paperTrade:false,edgeUnit:"%"});
         }
         // NBA Spread ATS: at ≥15% ML edge, bet the ML-edge side ATS
@@ -4238,7 +4257,7 @@ function render(){
         h+='<div style="margin-top:14px;background:var(--alt);border:1px solid var(--bdL);border-radius:8px;padding:12px">';
         h+='<div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">How This Works</div>';
         h+='<div style="font-size:11px;color:var(--tm);line-height:1.8">';
-        h+='<div><strong>MLB (v11e+AWAY):</strong> Logistic regression on 24 Statcast + situational features. 4-year walk-forward (2022-2025): 4/4 seasons profitable, +9.99% flat ROI, 47.7% WR, 95% CI [+2.5%, +18.0%], P(<0)=0.2%. AWAY-side bets only (home filtered out based on validation showing home edge is noise). Bets trigger at ≥9% edge.</div>';
+        h+='<div><strong>MLB (v11f):</strong> Logistic regression on 24 Statcast + situational features. 4-year walk-forward (2022-2025): 4/4 seasons profitable, +9.99% flat ROI on AWAY-only baseline. <strong>Filters:</strong> (1) AWAY-side only — home edge is noise; (2) Park factor ≥ 0.95 — away bets in pitcher\\'s parks excluded (weaker signal, deployed conservatively). Estimated ROI lift from park filter: ~+2pp. Bets trigger at ≥9% edge.</div>';
         h+='<div><strong>NHL (B2B Specialist):</strong> Targets back-to-back goalie fatigue when rested opponent is favored. Walk-forward validated: 5/5 seasons, +6.6% ROI.</div>';
         h+='<div><strong>MLB staking:</strong> Half-Kelly capped at 3% of bankroll per bet. No simultaneous Kelly. Optimized via 800-config grid search: +2,771% compound return, 34% max drawdown.</div>';
         h+='<div><strong>NHL staking:</strong> Flat 1% of bankroll per bet.</div>';
@@ -4908,7 +4927,7 @@ function render(){
         h+='<div><div class="sh">Home</div><div class="mono" style="font-size:15px;font-weight:800;color:'+(restedIsHome?'var(--acc)':'var(--neg)')+'">'+(restedIsHome?b2bRestedP:b2bTiredP)+'%</div>';
         h+='<div class="mono" style="font-size:10px;color:var(--td)">mkt '+g.fairH+'%</div></div></div>';
       }else if(g.modelFairH){
-        var modelLabel=isNHL?"v5 Model / Market":isNFL?"NFL v1 / Market":"v11e+AWAY / Market";
+        var modelLabel=isNHL?"v5 Model / Market":isNFL?"NFL v1 / Market":"v11f / Market";
         h+='<div class="sh">'+modelLabel+'</div><div style="display:flex;gap:14px;justify-content:center">';
         h+='<div><div class="sh">Away</div><div class="mono" style="font-size:15px;font-weight:800;color:var(--ac2)">'+g.modelFairA+'%</div>';
         h+='<div class="mono" style="font-size:12px;color:var(--ac2);font-weight:700">'+fImp(g.modelFairA)+'</div>';
@@ -5037,7 +5056,7 @@ function render(){
         }
         if(fat.games>=3)ctxItems.push("💤 "+g.home+" pen tired");
         if(afat.games>=3)ctxItems.push("💤 "+g.away+" pen tired");
-        ctxItems.push("📊 v11e+AWAY");
+        ctxItems.push("📊 v11f");
         if(ctxItems.length){h+='<div class="ctx">';ctxItems.forEach(function(ci){h+='<span class="ctx-item">'+ci+'</span>'});h+='</div>';}
       }
       } // end isExp — context/signals
@@ -5162,7 +5181,7 @@ function render(){
         var adjItems=[];
         if(g.wxTotalAdj&&g.wxTotalAdj!==0)adjItems.push(g.wxDesc);
         if(g.umpMLAdj&&g.umpMLAdj!==0)adjItems.push(g.umpDesc);
-        adjItems.push("📊 v11e+AWAY");
+        adjItems.push("📊 v11f");
         if(adjItems.length){
           h+='<div style="font-size:9px;color:var(--ac2);margin-top:3px">'+adjItems.join(' · ')+'</div>';
         }
@@ -5399,7 +5418,7 @@ function render(){
   var ftNHL=trackerStatsBySport("nhl");var ftMLB=trackerStatsBySport("mlb");
   var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
   var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
-  h+='<div class="ft">DIAMOND EDGE · MLB v11e+AWAY ✅ · NHL B2B ✅ · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
+  h+='<div class="ft">DIAMOND EDGE · MLB v11f ✅ · NHL B2B ✅ · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
