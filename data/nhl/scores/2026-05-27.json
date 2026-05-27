@@ -1,0 +1,82 @@
+[
+  {
+    "timestamp": "2026-05-27T13:06:30Z",
+    "label": "",
+    "sport": "nhl",
+    "snapshot_type": "scores",
+    "event_count": 4,
+    "data": [
+      {
+        "id": "7d5a004e6a8a9dc71e33f7128915ec8b",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-25T00:20:00Z",
+        "completed": true,
+        "home_team": "Vegas Golden Knights",
+        "away_team": "Colorado Avalanche",
+        "scores": [
+          {
+            "name": "Vegas Golden Knights",
+            "score": "5"
+          },
+          {
+            "name": "Colorado Avalanche",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-05-25T08:15:24Z"
+      },
+      {
+        "id": "522fe470a35764a2541da5b6eac510f5",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-26T00:20:00Z",
+        "completed": true,
+        "home_team": "Montr\u00e9al Canadiens",
+        "away_team": "Carolina Hurricanes",
+        "scores": [
+          {
+            "name": "Montr\u00e9al Canadiens",
+            "score": "2"
+          },
+          {
+            "name": "Carolina Hurricanes",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-05-26T08:57:12Z"
+      },
+      {
+        "id": "cae1325b579e97af2068204012f27673",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-27T01:20:00Z",
+        "completed": true,
+        "home_team": "Vegas Golden Knights",
+        "away_team": "Colorado Avalanche",
+        "scores": [
+          {
+            "name": "Vegas Golden Knights",
+            "score": "2"
+          },
+          {
+            "name": "Colorado Avalanche",
+            "score": "1"
+          }
+        ],
+        "last_update": "2026-05-27T09:06:29Z"
+      },
+      {
+        "id": "45905241c405bd525e45ac5b6879d0e0",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-05-28T00:20:00Z",
+        "completed": false,
+        "home_team": "Montr\u00e9al Canadiens",
+        "away_team": "Carolina Hurricanes",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
