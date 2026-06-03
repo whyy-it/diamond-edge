@@ -1038,7 +1038,7 @@ function ungradeResult(key){
 var showAddBet=false;
 function addManualBet(form){
   var sport=form.sport.value;
-  var icon=sport==="nhl"?"🏒":"⚾";
+  var icon=sport==="nhl"?"🏒":sport==="ncaaf"?"🏈":sport==="ncaab"?"🏀":"⚾";
   var type=form.bettype.value;
   var player=form.player.value.trim();
   var market=form.market.value.trim();
@@ -4449,6 +4449,8 @@ function render(){
         if(!normMap[nk]||teamScore(t)>teamScore(normMap[nk])||(!teamScore(t)&&!teamScore(normMap[nk])&&t.length>normMap[nk].length))normMap[nk]=t;
       });
       var allTeams=Object.values(normMap).sort();
+      // College: OVER/UNDER sides + FBS team names for autocomplete on manual college bets
+      allTeams=["OVER","UNDER"].concat(allTeams).concat((typeof COLLEGE_FBS!=="undefined"?COLLEGE_FBS:[]));
 
       h+='<div style="background:var(--card);border:1px solid var(--ac2);border-radius:10px;padding:14px;margin-bottom:12px">';
       h+='<div style="font-size:12px;font-weight:700;color:var(--ac2);margin-bottom:10px">Add Past / Manual Bet</div>';
@@ -4471,12 +4473,16 @@ function render(){
       h+='  o=new Option(\'Moneyline\',\'ML\');bt.add(o);';
       h+='  o=new Option(\'Puck Line\',\'PL\');bt.add(o);';
       h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
+      h+='}else if(this.value===\'ncaaf\'||this.value===\'ncaab\'){';
+      h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
+      h+='  o=new Option(\'Spread\',\'SP\');bt.add(o);';
+      h+='  o=new Option(\'Moneyline\',\'ML\');bt.add(o);';
       h+='}else{';
       h+='  o=new Option(\'Moneyline\',\'ML\');bt.add(o);';
       h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
       h+='}';
-      h+='bt.value=\'ML\';bt.dispatchEvent(new Event(\'change\'));';
-      h+='" style="width:75px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="mlb">⚾ MLB</option></select></div>';
+      h+='bt.value=(this.value===\'ncaaf\'||this.value===\'ncaab\')?\'OU\':\'ML\';bt.dispatchEvent(new Event(\'change\'));';
+      h+='" style="width:96px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="mlb">⚾ MLB</option><option value="ncaaf">🏈 NCAAF</option><option value="ncaab">🏀 NCAAB</option></select></div>';
 
       // Type — updates market label + shows/hides spread field
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Type</label>';
