@@ -951,7 +951,10 @@ function betKey(b){
   var dt=new Date(b.time||Date.now());
   var d=dt.toISOString().slice(0,10);
   var h=dt.getHours().toString().padStart(2,"0");
-  return(b.sport||"")+"_"+(b.player||"")+"_"+(b.type||"ML")+"_"+d+"_"+h;
+  // OU (totals) bets share player "OVER"/"UNDER" — disambiguate by matchup so
+  // multiple same-kickoff college games don't collide on one key.
+  var extra=(b.type==="OU")?"_"+(b.matchup||""):"";
+  return(b.sport||"")+"_"+(b.player||"")+"_"+(b.type||"ML")+"_"+d+"_"+h+extra;
 }
 function findTracked(key){
   return trackedBets.find(function(tb){return tb.key===key});
@@ -999,8 +1002,8 @@ var trackerSortBy="time"; // "time" or "book"
 var trackerEditKey=null; // key of bet currently being edited
 // Bets tab sort state
 var betsSortBy="time"; // "time" or "book"
-var betsLeagueFilter={nhl:true,mlb:true}; // toggle leagues on/off in bets tab
-var trackerLeagueFilter={nhl:true,mlb:true}; // toggle leagues on/off in tracker tab
+var betsLeagueFilter={nhl:true,mlb:true,ncaaf:true,ncaab:true}; // toggle leagues on/off in bets tab
+var trackerLeagueFilter={nhl:true,mlb:true,ncaaf:true,ncaab:true}; // toggle leagues on/off in tracker tab
 
 function editTrackedBet(key,field,value){
   var tb=findTracked(key);if(!tb)return;
@@ -1222,6 +1225,34 @@ async function autoResolveTracked(){
         }
       });
     }catch(e){resolveStatus.errors.push("NHL "+dateStr2+": "+e.message);}
+  }
+
+  // ── Fetch college totals scores (Odds API /scores) — only if pending college bets ──
+  var cSports=[];
+  if(pending.some(function(b){return b.sport==="ncaaf";}))cSports.push(["americanfootball_ncaaf","NCAAF"]);
+  if(pending.some(function(b){return b.sport==="ncaab";}))cSports.push(["basketball_ncaab","NCAAB"]);
+  for(var csi=0;csi<cSports.length;csi++){
+    var csport=cSports[csi][0],clabel=cSports[csi][1];
+    try{
+      var curl=ODDS_BASE+"/"+csport+"/scores/?apiKey="+API_KEY+"&daysFrom=3";
+      var cac=new AbortController();var cto=setTimeout(function(){cac.abort();},12000);
+      var cr;try{cr=await fetch(curl,{signal:cac.signal});}finally{clearTimeout(cto);}
+      if(!cr.ok)continue;
+      var crem=cr.headers.get("x-requests-remaining");if(crem)S.remaining=crem;
+      var cdata=await cr.json();
+      (cdata||[]).forEach(function(g){
+        if(!g.completed||!g.scores)return;
+        var hs=null,as=null;
+        g.scores.forEach(function(s){
+          if(s.name===g.home_team)hs=parseFloat(s.score);
+          if(s.name===g.away_team)as=parseFloat(s.score);
+        });
+        if(hs==null||isNaN(hs)||as==null||isNaN(as))return;
+        var cKey=g.away_team+" @ "+g.home_team+"_"+localDateStr(g.commence_time);
+        if(!scores[cKey])scores[cKey]=[];
+        scores[cKey].push({home:g.home_team,away:g.away_team,homeScore:hs,awayScore:as,gameTime:g.commence_time});
+      });
+    }catch(e){resolveStatus.errors.push(clabel+": "+(e&&e.message||e));}
   }
 
   // ── Resolve pending bets ──
@@ -3677,11 +3708,9 @@ async function refreshAll(force){
   S.mlb.lastFetch=null;S.nhl.lastFetch=null;
   syncActive();render();
 
-  // Load only active betting sports (MLB + NHL)
-  await Promise.allSettled([loadMLB(),loadNHL()]);
-
-  // Reload the active college totals league on refresh (rule-based, no model deps)
-  if(S.league==="ncaaf"||S.league==="ncaab")await loadCollege(S.league);
+  // Load all betting sports (MLB + NHL + college totals) so the global Bets sheet
+  // and auto-tracker see every league. College fetches are cheap (422 fast off-season).
+  await Promise.allSettled([loadMLB(),loadNHL(),loadCollege("ncaaf"),loadCollege("ncaab")]);
 
   // Auto-resolve any pending tracked bets from completed games
   await autoResolveTracked();
@@ -4119,6 +4148,8 @@ function render(){
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
     h+='<button class="cb'+(betsLeagueFilter.nhl?" on":"")+'" onclick="betsLeagueFilter.nhl=!betsLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL (B2B)</button>';
     h+='<button class="cb'+(betsLeagueFilter.mlb?" on":"")+'" onclick="betsLeagueFilter.mlb=!betsLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
+    h+='<button class="cb'+(betsLeagueFilter.ncaaf?" on":"")+'" onclick="betsLeagueFilter.ncaaf=!betsLeagueFilter.ncaaf;render()"><span class="d"></span>🏈 NCAAF</button>';
+    h+='<button class="cb'+(betsLeagueFilter.ncaab?" on":"")+'" onclick="betsLeagueFilter.ncaab=!betsLeagueFilter.ncaab;render()"><span class="d"></span>🏀 NCAAB</button>';
     h+='</div>';
 
     // Collect bets from ALL leagues
@@ -4222,6 +4253,27 @@ function render(){
       });
     });
 
+    // ── COLLEGE TOTALS (NCAAF FCS-OVER + NCAAB low-total OVER) ──
+    // S[ckey].games are already the qualifying OVER plays from loadCollege; reshape
+    // to bet rows. type:"OU" + player:"OVER" + market:"OVER <pts>" so the existing
+    // auto-tracker (line ~4270) and OU auto-resolver grade them natively.
+    ["ncaaf","ncaab"].forEach(function(ckey){
+      var cst=S[ckey]||{};var cgms=cst.games||[];
+      var cFair=ckey==="ncaaf"?60.7:56.5;          // validated historical over-rate as model prob
+      var cIcon=ckey==="ncaaf"?"🏈":"🏀";
+      cgms.forEach(function(g){
+        var price=(g.price!=null)?g.price:-110;     // best over price; default -110
+        var bdec=price>0?price/100:100/(-price);
+        var p=cFair/100;
+        var edge=+(((bdec*p)-(1-p))*100).toFixed(1);
+        allBets.push({sport:ckey,icon:cIcon,type:"OU",player:"OVER",
+          market:"OVER "+g.line,line:fml(price),book:"consensus",
+          edge:edge,kelly:0,fairProb:cFair,
+          matchup:g.away+" @ "+g.home,time:g.time,
+          b2bStack:false,projSource:"backtest_validated",highVar:false,paperTrade:false,edgeUnit:"%"});
+      });
+    });
+
     // Filter by selected leagues
     allBets=allBets.filter(function(b){
       return betsLeagueFilter[b.sport]!==false;
@@ -4267,6 +4319,15 @@ function render(){
       b.betAmount=Math.max(1,Math.round(S.bankroll*0.01));// 1 unit = 1% of bankroll
     });
 
+    // College totals: FLAT staking (Kelly over-sizes a flat-rate signal where the
+    // probability is the aggregate hit-rate, not per-game). NCAAF 1u (1%) — validated
+    // strong but low limits; NCAAB 0.5u — modest edge, deploy small.
+    allBets.filter(function(b){return b.sport==="ncaaf"||b.sport==="ncaab";}).forEach(function(b){
+      var unit=b.sport==="ncaaf"?0.01:0.005;
+      b.simKelly=+(unit*100).toFixed(2);b.scaledKelly=+(unit*100).toFixed(2);
+      b.betAmount=Math.max(1,Math.round(S.bankroll*unit));
+    });
+
     // ═══ AUTO-TRACK: every EV+ bet gets logged automatically ═══
     allBets.forEach(function(b){
       var key=betKey(b);
@@ -4295,6 +4356,9 @@ function render(){
       h+='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"):"not loaded")+'</div>';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(mlbLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(mlbLoaded?"var(--acc)":"var(--neg)")+'">⚾ MLB '+(mlbLoaded?(S.mlb.games.length+" games"):"not loaded")+'</div>';
+      var ncaafL=S.ncaaf.lastFetch,ncaabL=S.ncaab.lastFetch;
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaafL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaafL?"var(--acc)":"var(--neg)")+'">🏈 NCAAF '+(ncaafL?(S.ncaaf.games.length+" plays"):"not loaded")+'</div>';
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaabL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaabL?"var(--acc)":"var(--neg)")+'">🏀 NCAAB '+(ncaabL?(S.ncaab.games.length+" plays"):"not loaded")+'</div>';
       h+='</div>';
 
       if(!allBets.length){
@@ -4472,6 +4536,8 @@ function render(){
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
     h+='<button class="cb'+(trackerLeagueFilter.nhl?" on":"")+'" onclick="trackerLeagueFilter.nhl=!trackerLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL</button>';
     h+='<button class="cb'+(trackerLeagueFilter.mlb?" on":"")+'" onclick="trackerLeagueFilter.mlb=!trackerLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
+    h+='<button class="cb'+(trackerLeagueFilter.ncaaf?" on":"")+'" onclick="trackerLeagueFilter.ncaaf=!trackerLeagueFilter.ncaaf;render()"><span class="d"></span>🏈 NCAAF</button>';
+    h+='<button class="cb'+(trackerLeagueFilter.ncaab?" on":"")+'" onclick="trackerLeagueFilter.ncaab=!trackerLeagueFilter.ncaab;render()"><span class="d"></span>🏀 NCAAB</button>';
     h+='</div>';
 
     // Apply league filter
