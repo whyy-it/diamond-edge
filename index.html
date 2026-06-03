@@ -13,7 +13,7 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .mono{font-family:'JetBrains Mono',monospace}.sg{font-family:'Space Grotesk',sans-serif}
 ::-webkit-scrollbar{height:6px;width:6px}::-webkit-scrollbar-thumb{background:var(--bdL);border-radius:3px}
 
-.bar{display:flex;align-items:center;padding:0 16px;overflow-x:auto;background:var(--head);border-bottom:1px solid var(--bd)}
+.bar{display:flex;align-items:center;padding:0 16px;overflow-x:auto;background:var(--head);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50}
 .logo{display:flex;align-items:center;gap:8px;padding:10px 0 10px 14px;border-left:1px solid var(--bd);margin-left:auto;flex-shrink:0}
 .logo-icon{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--acc),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:15px}
 .brand{font-size:15px;font-weight:800;letter-spacing:-.5px}
@@ -107,6 +107,29 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .trk-stat .val{font-size:16px;font-weight:800;font-family:'JetBrains Mono',monospace}
 .trk-stat .lbl{font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase}
 
+/* ── MOBILE (<=640px) ── tighter chrome, readable tables, bigger touch targets ── */
+@media (max-width:640px){
+  .bar{padding:0 6px}
+  .lbtn{padding:11px 10px;font-size:11px;gap:3px}
+  .cnt{padding:10px 8px}
+  .status{padding:8px;gap:6px}
+  .sbox{padding:4px 9px}
+  .sval{font-size:14px}
+  .ctrls,.brow{padding:6px 8px}
+  .cb{padding:6px 10px;font-size:11px}
+  .empty{padding:34px 12px}.empty-i{font-size:34px}.empty-t{font-size:15px}.empty-d{font-size:12px}
+  /* Bet/tracker tables stay scrollable but shrink to show more without scrolling */
+  .cnt table{font-size:10px}
+  .cnt table td,.cnt table th{padding:6px 4px!important}
+  /* Bigger tap targets for grading + tracking on touch screens */
+  .trk-res button{padding:7px 12px;font-size:11px}
+  .trk-btn{padding:7px 13px;font-size:11px}
+  .trk-sum{gap:6px}
+  .trk-stat{padding:7px 8px;flex:1 1 64px;min-width:64px}
+  .trk-stat .val{font-size:15px}
+  /* 16px on typed inputs prevents iOS zoom-on-focus (widths fit the short values) */
+  form input{font-size:16px!important}
+}
 </style>
 </head>
 <body>
@@ -3923,17 +3946,17 @@ function render(){
   // ── LEAGUE BAR ──
   var versionLabel=isNHL?"NHL B2B":S.league==="ncaaf"?"NCAAF FCS-OVER":S.league==="ncaab"?"NCAAB OVER<130":"MLB v11e+AWAY";
   h+='<div class="bar">';
-  // Today's Bets global button (FIRST after leagues)
+  // Today's Bets global button (FIRST)
   var betsOn=S.league==="bets";
   h+='<button class="lbtn'+(betsOn?" on":"")+'" onclick="S.league=\'bets\';S.tab=\'bets\';render()" style="'+(betsOn?"border-bottom-color:var(--acc);color:var(--acc)":"")+'"><span style="font-size:14px">📋</span>Bets</button>';
+  // Tracker button (2nd — quick reach on mobile)
+  var trackerOn=S.league==="tracker";
+  h+='<button class="lbtn'+(trackerOn?" on":"")+'" onclick="S.league=\'tracker\';S.tab=\'tracker\';render()" style="'+(trackerOn?"border-bottom-color:var(--warn);color:var(--warn)":"")+'"><span style="font-size:14px">📈</span>Tracker</button>';
 
   LEAGUES.forEach(function(lg){
     var cls="lbtn"+(S.league===lg.key?" on":"")+(lg.on?"":" off");
     h+='<button class="'+cls+'" onclick="'+(lg.on?"switchLeague('"+lg.key+"')":"")+'"><span style="font-size:14px">'+lg.icon+'</span>'+lg.label+(lg.on?"":'<span class="soon">SOON</span>')+'</button>';
   });
-  // Tracker button
-  var trackerOn=S.league==="tracker";
-  h+='<button class="lbtn'+(trackerOn?" on":"")+'" onclick="S.league=\'tracker\';S.tab=\'tracker\';render()" style="'+(trackerOn?"border-bottom-color:var(--warn);color:var(--warn)":"")+'"><span style="font-size:14px">📈</span>Tracker</button>';
   // Books button
   var booksOn2=S.league==="books";
   h+='<button class="lbtn'+(booksOn2?" on":"")+'" onclick="switchLeague(\'books\')" style="'+(booksOn2?"border-bottom-color:var(--ac2);color:var(--ac2)":"")+'"><span style="font-size:14px">📚</span>Books</button>';
