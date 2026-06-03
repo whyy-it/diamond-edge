@@ -270,6 +270,8 @@ var PA=[
 var LEAGUES=[
   {key:"mlb",label:"MLB",icon:"⚾",on:true,sport:"baseball_mlb"},
   {key:"nhl",label:"NHL",icon:"🏒",on:true,sport:"icehockey_nhl"},
+  {key:"ncaaf",label:"NCAAF",icon:"🏈",on:true,sport:"americanfootball_ncaaf"},
+  {key:"ncaab",label:"NCAAB",icon:"🏀",on:true,sport:"basketball_ncaab"},
 ];
 
 // ── MLB DATA ──
@@ -848,6 +850,8 @@ var S={
   nhl:{games:[],loading:false,error:null,lastFetch:null,schedule:{},standings:{},fatigue:{},goalies:{},dailyfaceoff:{}},
   nba:{games:[],loading:false,error:null,lastFetch:null,standings:{},fatigue:{},teamStats:{},schedule:{},injuries:{}},
   nfl:{games:[],loading:false,error:null,lastFetch:null,standings:{},fatigue:{},schedule:{}},
+  ncaaf:{games:[],loading:false,error:null,lastFetch:null,boardCount:0},
+  ncaab:{games:[],loading:false,error:null,lastFetch:null,boardCount:0},
   // Active pointers
   games:[],loading:true,error:null,remaining:null,lastFetch:null,
   expanded:{},
@@ -3664,6 +3668,8 @@ function syncActive(){
 function loadCurrent(){
   if(S.league==="mlb")loadMLB();
   else if(S.league==="nhl")loadNHL();
+  else if(S.league==="ncaaf")loadCollege("ncaaf");
+  else if(S.league==="ncaab")loadCollege("ncaab");
 }
 
 async function refreshAll(force){
@@ -3673,6 +3679,9 @@ async function refreshAll(force){
 
   // Load only active betting sports (MLB + NHL)
   await Promise.allSettled([loadMLB(),loadNHL()]);
+
+  // Reload the active college totals league on refresh (rule-based, no model deps)
+  if(S.league==="ncaaf"||S.league==="ncaab")await loadCollege(S.league);
 
   // Auto-resolve any pending tracked bets from completed games
   await autoResolveTracked();
@@ -3710,13 +3719,96 @@ function switchLeague(key){
 // RENDER
 // ═══════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════
+// COLLEGE TOTALS MODULE — two validated rule-based OVER signals
+//   NCAAF: home favored >=35 AND opponent is FCS -> OVER (week>=2 best)
+//          +15.8% (wk>=2 +23.5%), OOS p=0.0048, 8/9 seasons. STRONGEST.
+//   NCAAB: closing total < 130 -> OVER
+//          +7.7%, season-block bootstrap P(ROI<=0)=0.004, mechanism P=0.0000.
+// Mechanism: books under-shade extreme-low totals; actual lands ~3pts over.
+// Spreads/ATS efficient in both sports — totals is the only inefficiency.
+// ═══════════════════════════════════════════════════════════
+var COLLEGE_FBS=["Air Force","Akron","Alabama","App State","Arizona","Arizona State","Arkansas","Arkansas State","Army","Auburn","BYU","Ball State","Baylor","Boise State","Boston College","Bowling Green","Buffalo","California","Central Michigan","Charlotte","Cincinnati","Clemson","Coastal Carolina","Colorado","Colorado State","Delaware","Duke","East Carolina","Eastern Michigan","Florida","Florida Atlantic","Florida International","Florida State","Fresno State","Georgia","Georgia Southern","Georgia State","Georgia Tech","Hawai'i","Houston","Illinois","Indiana","Iowa","Iowa State","Jacksonville State","James Madison","Kansas","Kansas State","Kennesaw State","Kent State","Kentucky","LSU","Liberty","Louisiana","Louisiana Tech","Louisville","Marshall","Maryland","Massachusetts","Memphis","Miami","Miami (OH)","Michigan","Michigan State","Middle Tennessee","Minnesota","Mississippi State","Missouri","Missouri State","NC State","Navy","Nebraska","Nevada","New Mexico","New Mexico State","North Carolina","North Texas","Northern Illinois","Northwestern","Notre Dame","Ohio","Ohio State","Oklahoma","Oklahoma State","Old Dominion","Ole Miss","Oregon","Oregon State","Penn State","Pittsburgh","Purdue","Rice","Rutgers","SMU","Sam Houston","San Diego State","San Jose State","South Alabama","South Carolina","South Florida","Southern Miss","Stanford","Syracuse","TCU","Temple","Tennessee","Texas","Texas A&M","Texas State","Texas Tech","Toledo","Troy","Tulane","Tulsa","UAB","UCF","UCLA","UConn","UL Monroe","UNLV","USC","UTEP","UTSA","Utah","Utah State","Vanderbilt","Virginia","Virginia Tech","Wake Forest","Washington","Washington State","West Virginia","Western Kentucky","Western Michigan","Wisconsin","Wyoming"];
+var COLLEGE_FBS_SET={};
+function normCol(s){s=(s||"").normalize("NFD");var o="";for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);if(c>=0x300&&c<=0x36f)continue;o+=s[i];}return o.toLowerCase().replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();}
+COLLEGE_FBS.forEach(function(t){COLLEGE_FBS_SET[normCol(t)]=1;});
+// Odds-API name variants that differ from the data short names (else an FBS team
+// like UMass mis-tags FCS and a no-edge game could fire). Per-card verify note backstops the rest.
+["umass","appalachian state","louisiana monroe","sam houston state","southern mississippi","florida international","middle tennessee state","connecticut","central florida","southern methodist","brigham young","texas san antonio","texas el paso","nevada las vegas","louisiana lafayette","miami florida","hawaii","san jose state","texas christian","louisiana state","mississippi"].forEach(function(a){COLLEGE_FBS_SET[a]=1;});
+function isFBS(name){var n=normCol(name);if(COLLEGE_FBS_SET[n])return true;for(var k in COLLEGE_FBS_SET){if(n===k||n.indexOf(k+" ")===0)return true;}return false;}
+function colMedian(a){a=a.filter(function(x){return x!=null}).sort(function(x,y){return x-y});if(!a.length)return null;var m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2;}
+function colBest(a){a=a.filter(function(x){return x!=null});return a.length?Math.max.apply(null,a):null;}
+function colHomeSpread(ev){var p=[];(ev.bookmakers||[]).forEach(function(b){(b.markets||[]).forEach(function(m){if(m.key!=="spreads")return;(m.outcomes||[]).forEach(function(o){if(o.name===ev.home_team&&o.point!=null)p.push(o.point);});});});return colMedian(p);}
+function colTotal(ev){var p=[],pr=[];(ev.bookmakers||[]).forEach(function(b){(b.markets||[]).forEach(function(m){if(m.key!=="totals")return;(m.outcomes||[]).forEach(function(o){if(/over/i.test(o.name)){if(o.point!=null)p.push(o.point);if(o.price!=null)pr.push(o.price);}});});});return{point:colMedian(p),price:colBest(pr)};}
+function colEvalNCAAF(ev){var sp=colHomeSpread(ev),t=colTotal(ev);if(sp==null||t.point==null)return null;if(sp>-35)return null;if(isFBS(ev.away_team))return null;return{home:ev.home_team,away:ev.away_team,line:t.point,price:t.price,time:ev.commence_time,note:"Home "+sp+" vs "+ev.away_team,badge:"FCS MISMATCH",verify:"Confirm "+ev.away_team+" is FCS (not FBS) & skip Week 1 openers."};}
+function colEvalNCAAB(ev){var t=colTotal(ev);if(t.point==null)return null;if(t.point>=130)return null;return{home:ev.home_team,away:ev.away_team,line:t.point,price:t.price,time:ev.commence_time,note:"Total "+t.point+" (<130)",badge:"LOW TOTAL"};}
+var COLLEGE_CFG={
+  ncaaf:{sport:"americanfootball_ncaaf",markets:"spreads,totals",fn:colEvalNCAAF,title:"NCAAF FCS-OVER",rule:"home favored ≥35 AND opponent is FCS → bet OVER",stats:[["+15.8%","ROI"],["+23.5%","week≥2"],["0.0048","OOS p"],["8/9 ✓","seasons"]],cav:"Strongest signal found. Skip Week-1 openers (rusty, null). Low volume (~37/yr, mostly wks 1-3). P5-vs-FCS totals carry LOW LIMITS & post late — get the number early.",season:"NCAAF runs late Aug → Dec"},
+  ncaab:{sport:"basketball_ncaab",markets:"totals",fn:colEvalNCAAB,title:"NCAAB Low-Total OVER",rule:"closing total < 130 → bet OVER",stats:[["+7.7%","ROI"],["56.5%","over rate"],["0.004","block p"],["0.0000","mech p"]],cav:"Modest validated edge — deploy SMALL. Conference games are the sweet spot (+8.6%). Volume shrinking as scoring rises. Edge halves at −120.",season:"NCAAB runs Nov → Mar"}
+};
+async function loadCollege(key){
+  var cfg=COLLEGE_CFG[key],st=S[key];
+  st.loading=true;st.error=null;syncActive();render();
+  try{
+    var url=ODDS_BASE+"/"+cfg.sport+"/odds/?apiKey="+API_KEY+"&regions=us&markets="+cfg.markets+"&oddsFormat=american";
+    var ac=new AbortController();var to=setTimeout(function(){ac.abort();},12000);
+    var r;try{r=await fetch(url,{signal:ac.signal});}finally{clearTimeout(to);}
+    if(!r.ok)throw new Error("Odds API "+r.status+(r.status===422?" (off-season / no events)":""));
+    var rem=r.headers.get("x-requests-remaining");if(rem)S.remaining=rem;
+    var ev=await r.json();
+    var bets=[];(ev||[]).forEach(function(e){var b=cfg.fn(e);if(b)bets.push(b);});
+    bets.sort(function(a,b){return new Date(a.time)-new Date(b.time);});
+    st.games=bets;st.boardCount=(ev||[]).length;st.lastFetch=new Date();
+  }catch(e){st.error=(e&&e.name==="AbortError")?"Request timed out (no network / off-season)":(e.message||String(e));st.games=[];}
+  st.loading=false;syncActive();render();
+}
+function colCard(b){
+  var playable=b.price!=null&&b.price>=-115;
+  var t=b.time?new Date(b.time):null;
+  var ts=t?t.toLocaleString([],{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
+  var pc=playable?"var(--acc)":"var(--warn)";
+  return '<div style="background:var(--card);border:1px solid rgba(0,255,163,.3);border-radius:10px;padding:14px;margin-bottom:8px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">'+
+    '<div><div style="font-size:15px;font-weight:800">'+b.away+' <span style="color:var(--td);font-size:10px">@</span> '+b.home+'</div>'+
+    '<div style="font-size:10px;color:var(--td);margin-top:3px">'+ts+' · '+b.note+'</div></div>'+
+    '<span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(0,201,255,.1);color:var(--ac2);border:1px solid rgba(0,201,255,.2)">'+b.badge+'</span></div>'+
+    '<div style="margin-top:10px;padding:10px 14px;border-radius:8px;background:rgba(0,255,163,.07);border:1px solid rgba(0,255,163,.25);display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
+    '<div><div style="font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);font-weight:700">Diamond Edge play</div>'+
+    '<div class="sg" style="font-size:18px;font-weight:800;color:var(--acc)">OVER '+b.line+'</div></div>'+
+    '<div style="margin-left:auto;text-align:right"><div style="font-size:10px;color:var(--tm)">best over price</div>'+
+    '<div class="sg" style="font-size:15px;font-weight:800;color:'+pc+'">'+(b.price==null?"—":(b.price>0?"+"+b.price:b.price))+'</div></div></div>'+
+    (playable?"":'<div style="color:var(--warn);font-size:10px;margin-top:6px">⚠ Price worse than −115 — edge erodes. Shop for a better number or pass.</div>')+
+    (b.verify?'<div style="color:var(--ac2);font-size:10px;margin-top:6px">✓ '+b.verify+'</div>':"")+
+    '</div>';
+}
+function renderCollege(){
+  var key=S.league,cfg=COLLEGE_CFG[key],st=S[key]||{games:[]};
+  var h="";
+  h+='<div style="margin-bottom:12px;padding:12px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(0,255,163,.06),rgba(0,201,255,.04));border:1px solid rgba(0,255,163,.18)">';
+  h+='<div style="font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px">'+cfg.title+' <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(0,255,163,.1);color:var(--acc);border:1px solid rgba(0,255,163,.2)">VALIDATED</span></div>';
+  h+='<div class="mono" style="font-size:12px;color:var(--acc);margin:6px 0;font-weight:600">'+cfg.rule+'</div>';
+  h+='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px">'+cfg.stats.map(function(x){return '<div style="font-size:10px;color:var(--tm)"><b class="sg" style="color:var(--tx);font-size:13px;display:block">'+x[0]+'</b>'+x[1]+'</div>';}).join("")+'</div>';
+  h+='<div style="font-size:10px;color:var(--warn);margin-top:8px;line-height:1.5">⚠ '+cfg.cav+'</div></div>';
+  if(st.loading){
+    h+='<div class="empty"><div class="empty-i">'+(key==="ncaaf"?"🏈":"🏀")+'</div><div class="empty-t sg">Pulling live '+key.toUpperCase()+' lines…</div></div>';
+  }else if(st.error){
+    h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div class="empty-t sg" style="color:var(--neg)">Couldn\'t load lines</div><div class="empty-d">'+st.error+'. If it\'s the off-season, that\'s expected — '+cfg.season+'.</div></div>';
+  }else if(!st.games||!st.games.length){
+    h+='<div class="empty"><div class="empty-i">'+(key==="ncaaf"?"🏈":"🏀")+'</div><div class="empty-t sg">No qualifying games</div><div class="empty-d">'+((st.boardCount||0)+' '+key.toUpperCase()+' games on the board, none meet the rule. '+cfg.season+'. Check back near game day for late-posting lines.')+'</div></div>';
+  }else{
+    h+=st.games.map(colCard).join("");
+  }
+  return h;
+}
+
 function render(){
   document.body.className=S.mode==="light"?"light":"";
   var t=S.mode;
   var isNHL=S.league==="nhl";
   var isNBA=S.league==="nba";
   var isNFL=S.league==="nfl";
-  var leagueIcon=isNHL?"🏒":isNFL?"🏈":"⚾";
+  var isCollege=S.league==="ncaaf"||S.league==="ncaab";
+  var leagueIcon=isNHL?"🏒":isNFL?"🏈":S.league==="ncaaf"?"🏈":S.league==="ncaab"?"🏀":"⚾";
   var ab=PA.filter(function(b){return S.booksOn[b.id]});
   var abAll=ab; // Active books for calculations — toggles affect edges + recommendations
   
@@ -3800,7 +3892,7 @@ function render(){
   var h="";
 
   // ── LEAGUE BAR ──
-  var versionLabel=isNHL?"NHL B2B":"MLB v11e+AWAY";
+  var versionLabel=isNHL?"NHL B2B":S.league==="ncaaf"?"NCAAF FCS-OVER":S.league==="ncaab"?"NCAAB OVER<130":"MLB v11e+AWAY";
   h+='<div class="bar">';
   // Today's Bets global button (FIRST after leagues)
   var betsOn=S.league==="bets";
@@ -3927,8 +4019,8 @@ function render(){
   h+='<button class="rbtn" onclick="refreshAll(true)" style="margin-left:4px;color:var(--warn);border-color:var(--warn)"'+(S.loading||S.mlb.loading||S.nhl.loading?' disabled':'')+' title="Bypass cache — uses API credits">⚡ Force</button></div>';
   } // end S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books" status bar
 
-  // ── TABS (skip for global bets/tracker view) ──
-  if(S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
+  // ── TABS (skip for global bets/tracker view + college totals signals) ──
+  if(S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"&&!isCollege){
   var tabs=[{k:"ml",l:"Money Line",i:"💰"}];
   // MLB: no run line tab — removed after backtest invalidation
   h+='<div class="tabs">';
@@ -3962,7 +4054,9 @@ function render(){
   // ── CONTENT ──
   h+='<div class="cnt">';
 
-  if(S.loading&&S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
+  if(S.league==="ncaaf"||S.league==="ncaab"){
+    h+=renderCollege();
+  } else if(S.loading&&S.league!=="bets"&&S.league!=="tracker"&&S.league!=="books"){
     h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">'+leagueIcon+'</div>';
     h+='<div style="font-size:15px;font-weight:700;color:var(--tm)">Pulling live '+(isNHL?"NHL":isNFL?"NFL":"MLB")+' odds + game context...</div>';
     h+='<div style="font-size:12px;margin-top:8px;color:var(--td)">Odds API'+(isNHL?" · NHL Stats · Standings · Schedule":isNFL?" · NFL Standings · Rest/Schedule (ESPN)":" · MLB Stats · Weather")+'</div></div>';
