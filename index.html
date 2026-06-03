@@ -5415,7 +5415,7 @@ function render(){
   var ftNHL=trackerStatsBySport("nhl");var ftMLB=trackerStatsBySport("mlb");
   var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
   var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
-  h+='<div class="ft">DIAMOND EDGE · MLB v11e+AWAY ✅ · NHL B2B ✅ · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
+  h+='<div class="ft">DIAMOND EDGE · build 2026.06.02 · MLB v11e+AWAY ✅ · NHL B2B simple-fade ✅ · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
