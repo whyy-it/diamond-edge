@@ -1,0 +1,956 @@
+[
+  {
+    "timestamp": "2026-06-03T12:43:28Z",
+    "label": "",
+    "sport": "mlb",
+    "snapshot_type": "scores",
+    "event_count": 54,
+    "data": [
+      {
+        "id": "7ce8052d582c63369d747ada9789999a",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T16:16:00Z",
+        "completed": true,
+        "home_team": "Baltimore Orioles",
+        "away_team": "Toronto Blue Jays",
+        "scores": [
+          {
+            "name": "Baltimore Orioles",
+            "score": "9"
+          },
+          {
+            "name": "Toronto Blue Jays",
+            "score": "5"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "c9a00e16ad4a9457d7ddfb97d41e2ac1",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T17:36:00Z",
+        "completed": true,
+        "home_team": "Pittsburgh Pirates",
+        "away_team": "Minnesota Twins",
+        "scores": [
+          {
+            "name": "Pittsburgh Pirates",
+            "score": "9"
+          },
+          {
+            "name": "Minnesota Twins",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "a8456ab9e0bb66a215e97973838e0a7e",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T17:36:00Z",
+        "completed": true,
+        "home_team": "Washington Nationals",
+        "away_team": "San Diego Padres",
+        "scores": [
+          {
+            "name": "Washington Nationals",
+            "score": "4"
+          },
+          {
+            "name": "San Diego Padres",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "f37f3b31cc1e8798404f149f5cca8494",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T17:41:00Z",
+        "completed": true,
+        "home_team": "Cincinnati Reds",
+        "away_team": "Atlanta Braves",
+        "scores": [
+          {
+            "name": "Cincinnati Reds",
+            "score": "6"
+          },
+          {
+            "name": "Atlanta Braves",
+            "score": "4"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "2777b2345a6c8d7177d741ef3e01b6c6",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T17:41:00Z",
+        "completed": true,
+        "home_team": "New York Mets",
+        "away_team": "Miami Marlins",
+        "scores": [
+          {
+            "name": "New York Mets",
+            "score": "10"
+          },
+          {
+            "name": "Miami Marlins",
+            "score": "1"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "d4be852be249fd2a6f5d1de94a10880c",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T17:42:00Z",
+        "completed": true,
+        "home_team": "Tampa Bay Rays",
+        "away_team": "Los Angeles Angels",
+        "scores": [
+          {
+            "name": "Tampa Bay Rays",
+            "score": "5"
+          },
+          {
+            "name": "Los Angeles Angels",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "b3fe86e4b6f4605995c54e4c12a958e5",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T17:43:00Z",
+        "completed": true,
+        "home_team": "Cleveland Guardians",
+        "away_team": "Boston Red Sox",
+        "scores": [
+          {
+            "name": "Cleveland Guardians",
+            "score": "4"
+          },
+          {
+            "name": "Boston Red Sox",
+            "score": "9"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "4672651bc699e5e7d171bfaacb7324e8",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T18:11:00Z",
+        "completed": true,
+        "home_team": "Chicago White Sox",
+        "away_team": "Detroit Tigers",
+        "scores": [
+          {
+            "name": "Chicago White Sox",
+            "score": "2"
+          },
+          {
+            "name": "Detroit Tigers",
+            "score": "1"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "5c3f6ef1c09e80c734a171c46737c476",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T18:11:00Z",
+        "completed": true,
+        "home_team": "Houston Astros",
+        "away_team": "Milwaukee Brewers",
+        "scores": [
+          {
+            "name": "Houston Astros",
+            "score": "0"
+          },
+          {
+            "name": "Milwaukee Brewers",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "43d9adc1df4b9b52dda09d965481edc2",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T18:36:00Z",
+        "completed": true,
+        "home_team": "Texas Rangers",
+        "away_team": "Kansas City Royals",
+        "scores": [
+          {
+            "name": "Texas Rangers",
+            "score": "6"
+          },
+          {
+            "name": "Kansas City Royals",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "ef470d863beab92055c4bbad98ea07f8",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T19:11:00Z",
+        "completed": true,
+        "home_team": "Colorado Rockies",
+        "away_team": "San Francisco Giants",
+        "scores": [
+          {
+            "name": "Colorado Rockies",
+            "score": "6"
+          },
+          {
+            "name": "San Francisco Giants",
+            "score": "19"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "93bdd51f4e57b795632604aa754b99ab",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T20:05:30Z",
+        "completed": true,
+        "home_team": "Athletics",
+        "away_team": "New York Yankees",
+        "scores": [
+          {
+            "name": "Athletics",
+            "score": "8"
+          },
+          {
+            "name": "New York Yankees",
+            "score": "13"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "69bd19e894cc705c6657f68926527301",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T20:11:00Z",
+        "completed": true,
+        "home_team": "Seattle Mariners",
+        "away_team": "Arizona Diamondbacks",
+        "scores": [
+          {
+            "name": "Seattle Mariners",
+            "score": "3"
+          },
+          {
+            "name": "Arizona Diamondbacks",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "e1bd8f83dee29f4b09de44161ad6a9da",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T20:11:00Z",
+        "completed": true,
+        "home_team": "Los Angeles Dodgers",
+        "away_team": "Philadelphia Phillies",
+        "scores": [
+          {
+            "name": "Los Angeles Dodgers",
+            "score": "9"
+          },
+          {
+            "name": "Philadelphia Phillies",
+            "score": "1"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "cda7a740583616fc1219815601f132ab",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-05-31T23:21:00Z",
+        "completed": true,
+        "home_team": "St. Louis Cardinals",
+        "away_team": "Chicago Cubs",
+        "scores": [
+          {
+            "name": "St. Louis Cardinals",
+            "score": "5"
+          },
+          {
+            "name": "Chicago Cubs",
+            "score": "1"
+          }
+        ],
+        "last_update": "2026-06-01T07:32:00Z"
+      },
+      {
+        "id": "2787e023f11e64827987a41be824a63b",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-01T22:41:00Z",
+        "completed": true,
+        "home_team": "Tampa Bay Rays",
+        "away_team": "Detroit Tigers",
+        "scores": [
+          {
+            "name": "Tampa Bay Rays",
+            "score": "9"
+          },
+          {
+            "name": "Detroit Tigers",
+            "score": "10"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "ff01c7f99eb2c7a83211f3386020fbe8",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-01T22:46:00Z",
+        "completed": true,
+        "home_team": "Washington Nationals",
+        "away_team": "Miami Marlins",
+        "scores": [
+          {
+            "name": "Washington Nationals",
+            "score": "3"
+          },
+          {
+            "name": "Miami Marlins",
+            "score": "7"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "c49d57a0f27c1800a2c7bbdabba612fe",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-01T23:11:00Z",
+        "completed": true,
+        "home_team": "Cincinnati Reds",
+        "away_team": "Kansas City Royals",
+        "scores": [
+          {
+            "name": "Cincinnati Reds",
+            "score": "2"
+          },
+          {
+            "name": "Kansas City Royals",
+            "score": "9"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "b5208270f224abe601bbcd84e50b538a",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-01T23:41:00Z",
+        "completed": true,
+        "home_team": "Minnesota Twins",
+        "away_team": "Chicago White Sox",
+        "scores": [
+          {
+            "name": "Minnesota Twins",
+            "score": "9"
+          },
+          {
+            "name": "Chicago White Sox",
+            "score": "6"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "05d72d7bf55653292200aa8a6848aec3",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-01T23:41:00Z",
+        "completed": true,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "San Francisco Giants",
+        "scores": [
+          {
+            "name": "Milwaukee Brewers",
+            "score": "16"
+          },
+          {
+            "name": "San Francisco Giants",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "6e4eb3c6a07da4b8a22a67806cd6a7f0",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-01T23:46:00Z",
+        "completed": true,
+        "home_team": "St. Louis Cardinals",
+        "away_team": "Texas Rangers",
+        "scores": [
+          {
+            "name": "St. Louis Cardinals",
+            "score": "1"
+          },
+          {
+            "name": "Texas Rangers",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "c81dc56167111218eb7d369db230ad62",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T01:39:00Z",
+        "completed": true,
+        "home_team": "Los Angeles Angels",
+        "away_team": "Colorado Rockies",
+        "scores": [
+          {
+            "name": "Los Angeles Angels",
+            "score": "8"
+          },
+          {
+            "name": "Colorado Rockies",
+            "score": "9"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "f2e11191da4c1bb89d2c6b19a7536d9d",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T01:41:00Z",
+        "completed": true,
+        "home_team": "Arizona Diamondbacks",
+        "away_team": "Los Angeles Dodgers",
+        "scores": [
+          {
+            "name": "Arizona Diamondbacks",
+            "score": "4"
+          },
+          {
+            "name": "Los Angeles Dodgers",
+            "score": "1"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "daef1f1e03324e709f683a56a6ad0487",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T01:41:00Z",
+        "completed": true,
+        "home_team": "Seattle Mariners",
+        "away_team": "New York Mets",
+        "scores": [
+          {
+            "name": "Seattle Mariners",
+            "score": "3"
+          },
+          {
+            "name": "New York Mets",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-02T10:18:54Z"
+      },
+      {
+        "id": "507ec1a59ca1a2aa1386a2dbe2fbfa7b",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T22:40:21Z",
+        "completed": true,
+        "home_team": "Tampa Bay Rays",
+        "away_team": "Detroit Tigers",
+        "scores": [
+          {
+            "name": "Tampa Bay Rays",
+            "score": "0"
+          },
+          {
+            "name": "Detroit Tigers",
+            "score": "8"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "74f3bd29e00a7932dfcd53369f030251",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T22:41:55Z",
+        "completed": true,
+        "home_team": "Philadelphia Phillies",
+        "away_team": "San Diego Padres",
+        "scores": [
+          {
+            "name": "Philadelphia Phillies",
+            "score": "3"
+          },
+          {
+            "name": "San Diego Padres",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "7b042ea490ee94f3a5fae88a241e0c70",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T22:45:08Z",
+        "completed": true,
+        "home_team": "Washington Nationals",
+        "away_team": "Miami Marlins",
+        "scores": [
+          {
+            "name": "Washington Nationals",
+            "score": "3"
+          },
+          {
+            "name": "Miami Marlins",
+            "score": "7"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "0aecf375a07f34755e00a1ba7fb63c16",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T22:47:13Z",
+        "completed": true,
+        "home_team": "Boston Red Sox",
+        "away_team": "Baltimore Orioles",
+        "scores": [
+          {
+            "name": "Boston Red Sox",
+            "score": "2"
+          },
+          {
+            "name": "Baltimore Orioles",
+            "score": "4"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "286c7b1ca015708320800e8f2a9bf4de",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T23:09:31Z",
+        "completed": true,
+        "home_team": "New York Yankees",
+        "away_team": "Cleveland Guardians",
+        "scores": [
+          {
+            "name": "New York Yankees",
+            "score": "4"
+          },
+          {
+            "name": "Cleveland Guardians",
+            "score": "9"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "996682744f55836e619953bc8cfd16ef",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T23:11:15Z",
+        "completed": true,
+        "home_team": "Cincinnati Reds",
+        "away_team": "Kansas City Royals",
+        "scores": [
+          {
+            "name": "Cincinnati Reds",
+            "score": "4"
+          },
+          {
+            "name": "Kansas City Royals",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "d151ae8d551dafc26e657e34d0b4cff3",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T23:16:24Z",
+        "completed": true,
+        "home_team": "Atlanta Braves",
+        "away_team": "Toronto Blue Jays",
+        "scores": [
+          {
+            "name": "Atlanta Braves",
+            "score": "4"
+          },
+          {
+            "name": "Toronto Blue Jays",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "28a4a80f7b04c4d03f249c8cb82ad092",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T23:40:16Z",
+        "completed": true,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "San Francisco Giants",
+        "scores": [
+          {
+            "name": "Milwaukee Brewers",
+            "score": "8"
+          },
+          {
+            "name": "San Francisco Giants",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "6c525054ef6bbee384a6400f05a7ef19",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T23:41:17Z",
+        "completed": true,
+        "home_team": "Minnesota Twins",
+        "away_team": "Chicago White Sox",
+        "scores": [
+          {
+            "name": "Minnesota Twins",
+            "score": "6"
+          },
+          {
+            "name": "Chicago White Sox",
+            "score": "4"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "748fa098c21c17715ebec1653befb6c2",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-02T23:45:42Z",
+        "completed": true,
+        "home_team": "St. Louis Cardinals",
+        "away_team": "Texas Rangers",
+        "scores": [
+          {
+            "name": "St. Louis Cardinals",
+            "score": "4"
+          },
+          {
+            "name": "Texas Rangers",
+            "score": "7"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "7303b906ec24908bb3cff071bf340eec",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T00:04:44Z",
+        "completed": true,
+        "home_team": "Chicago Cubs",
+        "away_team": "Athletics",
+        "scores": [
+          {
+            "name": "Chicago Cubs",
+            "score": "1"
+          },
+          {
+            "name": "Athletics",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "e73fadc7fb7502608603de6dfce34fac",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T00:10:14Z",
+        "completed": true,
+        "home_team": "Houston Astros",
+        "away_team": "Pittsburgh Pirates",
+        "scores": [
+          {
+            "name": "Houston Astros",
+            "score": "6"
+          },
+          {
+            "name": "Pittsburgh Pirates",
+            "score": "10"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "8e66855f2231ccc68e5ba0ad7f2091a5",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T01:38:25Z",
+        "completed": true,
+        "home_team": "Los Angeles Angels",
+        "away_team": "Colorado Rockies",
+        "scores": [
+          {
+            "name": "Los Angeles Angels",
+            "score": "2"
+          },
+          {
+            "name": "Colorado Rockies",
+            "score": "8"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "4ff70f42672aed275f8d6a3a5c9f5321",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T01:40:29Z",
+        "completed": true,
+        "home_team": "Arizona Diamondbacks",
+        "away_team": "Los Angeles Dodgers",
+        "scores": [
+          {
+            "name": "Arizona Diamondbacks",
+            "score": "5"
+          },
+          {
+            "name": "Los Angeles Dodgers",
+            "score": "6"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "2fa44becfc394386d661eff0256111d3",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T01:40:59Z",
+        "completed": true,
+        "home_team": "Seattle Mariners",
+        "away_team": "New York Mets",
+        "scores": [
+          {
+            "name": "Seattle Mariners",
+            "score": "8"
+          },
+          {
+            "name": "New York Mets",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-06-03T10:00:51Z"
+      },
+      {
+        "id": "73486391be3ca754c34d1a20ca7fbf6c",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T17:06:00Z",
+        "completed": false,
+        "home_team": "Washington Nationals",
+        "away_team": "Miami Marlins",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "d1a33cbd30c6a1734e919a36c80b83b5",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T17:11:00Z",
+        "completed": false,
+        "home_team": "Tampa Bay Rays",
+        "away_team": "Detroit Tigers",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "bee59a7dbd5441cad240f0571973b255",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T17:41:00Z",
+        "completed": false,
+        "home_team": "Minnesota Twins",
+        "away_team": "Chicago White Sox",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "9e7ec8d783bb18b8a2775b32d91e9824",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T19:41:00Z",
+        "completed": false,
+        "home_team": "Seattle Mariners",
+        "away_team": "New York Mets",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "31eba8fe40243a3e0e029a8b9949d756",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T22:41:00Z",
+        "completed": false,
+        "home_team": "Philadelphia Phillies",
+        "away_team": "San Diego Padres",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "3ca053166f16be8d40c5adfe1a2bd8aa",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T22:46:00Z",
+        "completed": false,
+        "home_team": "Boston Red Sox",
+        "away_team": "Baltimore Orioles",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "859f56a081b813c2f16240bc2687f241",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T23:06:00Z",
+        "completed": false,
+        "home_team": "New York Yankees",
+        "away_team": "Cleveland Guardians",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "682766eb5df9e22bd3689cd7ae59899b",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T23:10:00Z",
+        "completed": false,
+        "home_team": "Cincinnati Reds",
+        "away_team": "Kansas City Royals",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "7440e18762df663a2c7e8fe443772540",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T23:16:00Z",
+        "completed": false,
+        "home_team": "Atlanta Braves",
+        "away_team": "Toronto Blue Jays",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "2b93a316b12e1dddfcb752bed7aa43d6",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T23:40:00Z",
+        "completed": false,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "San Francisco Giants",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "9fc40cd3ea77063176a73e678395da73",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-03T23:46:00Z",
+        "completed": false,
+        "home_team": "St. Louis Cardinals",
+        "away_team": "Texas Rangers",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "54b22c486dccf3bc503a2b33ec17f157",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-04T00:06:00Z",
+        "completed": false,
+        "home_team": "Chicago Cubs",
+        "away_team": "Athletics",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "0823b4e80b16060db3aba85b41348d18",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-04T00:11:00Z",
+        "completed": false,
+        "home_team": "Houston Astros",
+        "away_team": "Pittsburgh Pirates",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "fef20c017b9718b5324615b7ba93f173",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-04T01:39:00Z",
+        "completed": false,
+        "home_team": "Los Angeles Angels",
+        "away_team": "Colorado Rockies",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "f8b638ebe3a01e645658b4699fd18198",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-06-04T01:41:00Z",
+        "completed": false,
+        "home_team": "Arizona Diamondbacks",
+        "away_team": "Los Angeles Dodgers",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
