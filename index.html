@@ -2688,9 +2688,16 @@ function predictNHLv5(features){
 }
 
 // ═══ NHL B2B SPECIALIST MODEL ═══════════════════════════
-// Walk-forward verified: 5/5 seasons profitable, +6.6% ROI, 13/13 thresholds
-// Only bets asymmetric B2B games (one team on B2B, other rested)
-// Strategy: fade B2B team when model confidence ≥55%
+// STRATEGY: SIMPLE FADE — bet the rested team in EVERY asymmetric B2B game.
+// Walk-forward verified (2020-21..2024-25, n=1101, dedup'd):
+//   OPEN ML  +9.1% ROI, 5/5 seasons, 95% CI [+3.4,+14.9], P(<0)=0.1%
+//   CLOSE ML +6.0% ROI, 4/5 seasons, 95% CI [+0.5,+11.7], P(<0)=1.7%
+// Head-to-head (2026-06): the prior model@0.55 filter added NO real value —
+//   permutation p=0.34 (indistinguishable from random same-size B2B subset),
+//   and the games it SKIPPED were still +7.7%. Simple fade bets ~70% more
+//   games at ~half the juice for the same per-unit edge. Switched to simple fade.
+// The logistic model below is RETAINED for an informational "model read" only;
+// it no longer gates any bet (see isBet:true).
 var NHL_B2B_MODEL = {
   bias: 0.0,
   threshold: 0.55,
@@ -2801,7 +2808,7 @@ function computeNHLB2BFeatures(g){
     restedSide:restedSide,tiredSide:tiredSide,
     restedTeam:hB2B?g.away:g.home,
     tiredTeam:hB2B?g.home:g.away,
-    isBet:prob>=NHL_B2B_MODEL.threshold
+    isBet:true  // SIMPLE FADE: bet every asymmetric B2B (prob no longer gates; see header)
   };
 }
 // Fetches current-season team + goalie CSVs from MoneyPuck
@@ -4047,17 +4054,14 @@ function render(){
             if(ml!=null&&ml>restedML){restedML=ml;restedBook=bk;}
           });
           if(restedML<=-9999||!restedBook)return;
-          var edge=+((b2b.prob-0.5)*100).toFixed(1);
-          var fairP=b2b.prob;
-          var b3=restedML>0?restedML/100:100/(-restedML);
-          var kf3=(b3*fairP-(1-fairP))/b3;
+          var edge=6.0;// SIMPLE FADE: uniform structural edge (validated +6.0% close / +9.1% open, 2020-25). Model prob no longer gates the bet.
           allBets.push({sport:"nhl",icon:"🏒",type:"ML",player:b2b.restedTeam,
             market:"B2B Fade ML",line:fml(restedML),book:restedBook.n,
             edge:edge,kelly:1.0,// FLAT 1-UNIT: Kelly hurts NHL B2B (backtest: -64% half-Kelly vs +17% flat)
-            fairProb:+(fairP*100).toFixed(1),
+            fairProb:+(b2b.prob*100).toFixed(1),// informational model read (does NOT gate/size; staking is flat 1u)
             matchup:g.away+" @ "+g.home,time:g.time,
-            b2bStack:false,projSource:"b2b_model",highVar:false,paperTrade:false,edgeUnit:"%",
-            b2bInfo:"Fade "+b2b.tiredTeam+" (B2B) — conf "+((b2b.prob*100).toFixed(0))+"%"});
+            b2bStack:false,projSource:"b2b_simple_fade",highVar:false,paperTrade:false,edgeUnit:"%",
+            b2bInfo:"Fade "+b2b.tiredTeam+" (B2B) — model read "+((b2b.prob*100).toFixed(0))+"%"});
         });
         return;// skip normal NHL ML/spread logic
       }
@@ -4250,7 +4254,7 @@ function render(){
         h+='<div style="font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">How This Works</div>';
         h+='<div style="font-size:11px;color:var(--tm);line-height:1.8">';
         h+='<div><strong>MLB (v11e+AWAY):</strong> Logistic regression on 24 Statcast + situational features. 4-year walk-forward (2022-2025): 4/4 seasons profitable, +9.99% flat ROI, 47.7% WR, 95% CI [+2.5%, +18.0%], P(<0)=0.2%. AWAY-side bets only (home filtered out based on validation showing home edge is noise). Park factor filter was tested and rejected (theory failed at Seattle, the clean test case). Bets trigger at ≥9% edge.</div>';
-        h+='<div><strong>NHL (B2B Specialist):</strong> Targets back-to-back goalie fatigue when rested opponent is favored. Walk-forward validated: 5/5 seasons, +6.6% ROI.</div>';
+        h+='<div><strong>NHL (B2B Specialist):</strong> Simple fade — bets the rested team in every asymmetric back-to-back game. Walk-forward validated (2020-25, n=1101): +9.1% ROI at open / +6.0% at close, 5/5 seasons profitable (open), P(&lt;0)=0.1%. Flat 1-unit staking.</div>';
         h+='<div><strong>MLB staking:</strong> Half-Kelly capped at 3% of bankroll per bet. No simultaneous Kelly. Optimized via 800-config grid search: +2,771% compound return, 34% max drawdown.</div>';
         h+='<div><strong>NHL staking:</strong> Flat 1% of bankroll per bet.</div>';
         h+='</div></div>';
@@ -4670,7 +4674,7 @@ function render(){
   else if(S.tab==="ml"){
     if(isNHL){
       // NHL info bar
-      h+='<div class="ib ice"><span style="font-size:14px">🏒</span><strong>NHL B2B Specialist (walk-forward verified: 5/5 seasons, +6.6% ROI, 13/13 thresholds):</strong> Fades B2B team when rested opponent is favored by model at ≥55% confidence. v5 general model shown for analysis — only B2B asymmetric games generate bet recommendations.</div>';
+      h+='<div class="ib ice"><span style="font-size:14px">🏒</span><strong>NHL B2B Specialist (walk-forward verified 2020-25: +9.1% open / +6.0% close ROI, 5/5 seasons open):</strong> Simple fade — bets the rested team in EVERY asymmetric back-to-back game (one team on a B2B, the other rested). Flat 1-unit. A retired logistic filter is shown as an informational "model read" only; it no longer gates bets (head-to-head showed it added no value, permutation p=0.34). Only asymmetric B2B games generate recommendations.</div>';
     }
     if(isNFL){
       h+='<div class="ib" style="background:rgba(255,159,67,.06);border-color:rgba(255,159,67,.2);color:var(--warn)"><span style="font-size:14px">🏈</span><strong>NFL — Analysis Only (not profitable against closing lines).</strong> v1 model tested at -27% ML ROI and -68% ATS ROI across 2023-2025. NFL lines are too efficient for the feature set available. Showing model probabilities, spreads, and rest/fatigue as context only.</div>';
@@ -4678,9 +4682,10 @@ function render(){
 
     games.forEach(function(g){
       var displayEdge=g._aeTop;
-      // NHL B2B specialist: override v5 model with B2B model output
+      // NHL B2B simple fade: uniform structural edge (validated ~+6% close / +9% open).
+      // Per-game model prob is shown separately as an informational "model read".
       if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
-        displayEdge=+((nhlB2BBet.prob-0.5)*100).toFixed(1);
+        displayEdge=6.0;
       }
       
       // Find best line from ACTIVE books for the recommendation
@@ -5066,7 +5071,7 @@ function render(){
         h+='<div class="bet-rec">';
         if(isNHL&&nhlB2BBet&&nhlB2BBet.isBet){
           h+='<div><div class="bet-label">🏒 B2B Specialist Bet</div><div class="bet-team">Fade '+nhlB2BBet.tiredTeam+' (B2B) → Bet '+nhlB2BBet.restedTeam+'</div></div>';
-          h+='<div><div class="bet-label">Confidence</div><div class="bet-edge">'+(nhlB2BBet.prob*100).toFixed(0)+'%</div></div>';
+          h+='<div><div class="bet-label">Model read</div><div class="bet-edge">'+(nhlB2BBet.prob*100).toFixed(0)+'%</div></div>';
         }else{
           h+='<div><div class="bet-label">Recommended Bet</div><div class="bet-team">'+betTeam+'</div></div>';
         }
