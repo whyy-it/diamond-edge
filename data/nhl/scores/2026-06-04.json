@@ -1,0 +1,42 @@
+[
+  {
+    "timestamp": "2026-06-04T11:16:57Z",
+    "label": "",
+    "sport": "nhl",
+    "snapshot_type": "scores",
+    "event_count": 2,
+    "data": [
+      {
+        "id": "64f4fd5f7454c1585d209d91e36902eb",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-06-03T00:24:12Z",
+        "completed": true,
+        "home_team": "Carolina Hurricanes",
+        "away_team": "Vegas Golden Knights",
+        "scores": [
+          {
+            "name": "Carolina Hurricanes",
+            "score": "4"
+          },
+          {
+            "name": "Vegas Golden Knights",
+            "score": "5"
+          }
+        ],
+        "last_update": "2026-06-03T08:27:57Z"
+      },
+      {
+        "id": "b13d493fbfa40c8c29b896dbc6da1dff",
+        "sport_key": "icehockey_nhl",
+        "sport_title": "NHL",
+        "commence_time": "2026-06-05T00:15:00Z",
+        "completed": false,
+        "home_team": "Carolina Hurricanes",
+        "away_team": "Vegas Golden Knights",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
