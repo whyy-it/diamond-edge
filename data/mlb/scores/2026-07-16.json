@@ -1,0 +1,86 @@
+[
+  {
+    "timestamp": "2026-07-16T10:10:40Z",
+    "label": "",
+    "sport": "mlb",
+    "snapshot_type": "scores",
+    "event_count": 6,
+    "data": [
+      {
+        "id": "7fecfdecc539334a88781da1943c5e9a",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-07-15T00:29:00Z",
+        "completed": true,
+        "home_team": "National League",
+        "away_team": "American League",
+        "scores": [
+          {
+            "name": "National League",
+            "score": "0"
+          },
+          {
+            "name": "American League",
+            "score": "4"
+          }
+        ],
+        "last_update": "2026-07-15T08:43:51Z"
+      },
+      {
+        "id": "7ad2e88701ead09625333188a5b653b2",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-07-16T23:11:00Z",
+        "completed": false,
+        "home_team": "Philadelphia Phillies",
+        "away_team": "New York Mets",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "f20d3f5cf3efbb324f11686e68db809c",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-07-17T23:06:00Z",
+        "completed": false,
+        "home_team": "New York Yankees",
+        "away_team": "Los Angeles Dodgers",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "c137da348b9193a96f85af78c01a1aca",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-07-17T23:11:00Z",
+        "completed": false,
+        "home_team": "Cleveland Guardians",
+        "away_team": "Pittsburgh Pirates",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "cfb2e85cbd19eb03e617782d90d2c60e",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-07-17T23:16:00Z",
+        "completed": false,
+        "home_team": "Toronto Blue Jays",
+        "away_team": "Chicago White Sox",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "704ba175e571a9f003f1c83cd86e48e6",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-07-18T00:11:00Z",
+        "completed": false,
+        "home_team": "Kansas City Royals",
+        "away_team": "San Diego Padres",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
