@@ -189,8 +189,23 @@ async function corsProxyFetch(url,opts){
           console.log("[DE] CF Worker succeeded for "+url.substring(0,80));
           return new Response(check.text,{status:200,headers:{"Content-Type":expectCSV?"text/csv":"application/json"}});
         }
+        if(expectCSV||expectJSON){
+          // Origin answered 2xx but with an HTML page where data was expected
+          // (e.g. MoneyPuck redirects unpublished season files to its license page).
+          // Free proxies would see the same page — fail fast, no CORS banner.
+          throw new Error("NOT_FOUND:"+url.substring(0,80));
+        }
+      }else if(wr.status===404||wr.status===410){
+        // Origin definitively says the file doesn't exist; proxies can't change that.
+        throw new Error("NOT_FOUND:"+url.substring(0,80));
       }
-    }catch(e){console.log("[DE] CF Worker failed:",e.message);lastProxyError={type:"cf_worker",url:url.substring(0,80),time:new Date(),msg:e.message};}
+    }catch(e){
+      if(e.message&&e.message.indexOf("NOT_FOUND:")===0){
+        console.log("[DE] Not found at origin, skipping proxy fallbacks: "+url.substring(0,80));
+        throw e;
+      }
+      console.log("[DE] CF Worker failed:",e.message);lastProxyError={type:"cf_worker",url:url.substring(0,80),time:new Date(),msg:e.message};
+    }
   }
 
   // 2. Free proxy fallbacks with retry
@@ -291,7 +306,7 @@ var PA=[
 ];
 
 var LEAGUES=[
-  {key:"mlb",label:"MLB",icon:"⚾",on:true,sport:"baseball_mlb"},
+  // MLB retired 2026-09 — tab removed; loadMLB() stubbed out below (NBA-style shelve)
   {key:"nhl",label:"NHL",icon:"🏒",on:true,sport:"icehockey_nhl"},
   {key:"ncaaf",label:"NCAAF",icon:"🏈",on:true,sport:"americanfootball_ncaaf"},
   {key:"ncaab",label:"NCAAB",icon:"🏀",on:true,sport:"basketball_ncaab"},
@@ -2985,7 +3000,11 @@ async function fetchMoneyPuck(){
       console.log("[DE] Sample team key: '"+sample+"', cols: "+Object.keys(mpTeams[sample]).slice(0,8).join(", "));
     }
   }catch(e){
-    console.log("[DE] MoneyPuck teams fetch failed:",e.message);
+    if(e.message&&e.message.indexOf("NOT_FOUND:")===0){
+      console.log("[DE] MoneyPuck "+season+" teams.csv not published yet — model will lean on prior season (normal before the season starts)");
+    }else{
+      console.log("[DE] MoneyPuck teams fetch failed:",e.message);
+    }
   }
 
   // Fetch goalie stats
@@ -3019,7 +3038,11 @@ async function fetchMoneyPuck(){
     });
     console.log("[DE] MoneyPuck goalies loaded: "+Object.keys(mpGoalies).length+" teams");
   }catch(e){
-    console.log("[DE] MoneyPuck goalies fetch failed:",e.message);
+    if(e.message&&e.message.indexOf("NOT_FOUND:")===0){
+      console.log("[DE] MoneyPuck "+season+" goalies.csv not published yet — model will lean on prior season (normal before the season starts)");
+    }else{
+      console.log("[DE] MoneyPuck goalies fetch failed:",e.message);
+    }
   }
 
   // Also try prior season for blending
@@ -3580,6 +3603,9 @@ function enrichNHLGames(games){
 
 
 async function loadMLB(){
+  // MLB RETIRED 2026-09 — model removed from the site; all MLB fetches disabled.
+  console.log("[DE] MLB retired — skipping all fetches");
+  S.mlb.loading=false;return;
   S.mlb.loading=true;S.mlb.error=null;syncActive();render();
   try{
     var results=await Promise.allSettled([
@@ -3731,9 +3757,9 @@ async function refreshAll(force){
   S.mlb.lastFetch=null;S.nhl.lastFetch=null;
   syncActive();render();
 
-  // Load all betting sports (MLB + NHL + college totals) so the global Bets sheet
+  // Load all betting sports (NHL + college totals) so the global Bets sheet
   // and auto-tracker see every league. College fetches are cheap (422 fast off-season).
-  await Promise.allSettled([loadMLB(),loadNHL(),loadCollege("ncaaf"),loadCollege("ncaab")]);
+  await Promise.allSettled([loadNHL(),loadCollege("ncaaf"),loadCollege("ncaab")]);
 
   // Auto-resolve any pending tracked bets from completed games
   await autoResolveTracked();
@@ -3762,7 +3788,6 @@ function switchLeague(key){
   }else{
     // Load betting leagues if not loaded
     if(!S.nhl.lastFetch&&!S.nhl.loading)loadNHL();
-    if(!S.mlb.lastFetch&&!S.mlb.loading)loadMLB();
     render();
   }
 }
@@ -3860,7 +3885,7 @@ function render(){
   var isNBA=S.league==="nba";
   var isNFL=S.league==="nfl";
   var isCollege=S.league==="ncaaf"||S.league==="ncaab";
-  var leagueIcon=isNHL?"🏒":isNFL?"🏈":S.league==="ncaaf"?"🏈":S.league==="ncaab"?"🏀":"⚾";
+  var leagueIcon=isNHL?"🏒":isNFL?"🏈":S.league==="ncaaf"?"🏈":S.league==="ncaab"?"🏀":"💎";
   var ab=PA.filter(function(b){return S.booksOn[b.id]});
   var abAll=ab; // Active books for calculations — toggles affect edges + recommendations
   
@@ -3944,7 +3969,7 @@ function render(){
   var h="";
 
   // ── LEAGUE BAR ──
-  var versionLabel=isNHL?"NHL B2B":S.league==="ncaaf"?"NCAAF FCS-OVER":S.league==="ncaab"?"NCAAB OVER<130":"MLB v11e+AWAY";
+  var versionLabel=isNHL?"NHL B2B":S.league==="ncaaf"?"NCAAF FCS-OVER":S.league==="ncaab"?"NCAAB OVER<130":"";
   h+='<div class="bar">';
   // Today's Bets global button (FIRST)
   var betsOn=S.league==="bets";
@@ -4159,7 +4184,7 @@ function render(){
     h+='<span style="font-size:11px;color:var(--td)">Bankroll $</span>';
     h+='<input type="number" value="'+S.bankroll+'" onchange="S.bankroll=parseFloat(this.value)||1000;try{localStorage.setItem(\'de_bankroll\',S.bankroll)}catch(e){};triggerSync();render()" style="width:80px;background:var(--alt);border:1px solid var(--bdL);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:14px;font-weight:700;font-family:\'JetBrains Mono\',monospace;outline:none">';
     h+='</div>';
-    h+='<div style="font-size:9px;color:var(--td)">MLB: ½ Kelly · 3% cap · NHL: flat 1% per bet · backtested staking</div>';
+    h+='<div style="font-size:9px;color:var(--td)">NHL: flat 1% per bet · backtested staking</div>';
     h+='</div>';
 
     // Sort controls + league filter
@@ -4170,7 +4195,6 @@ function render(){
     h+='<div class="sep"></div>';
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
     h+='<button class="cb'+(betsLeagueFilter.nhl?" on":"")+'" onclick="betsLeagueFilter.nhl=!betsLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL (B2B)</button>';
-    h+='<button class="cb'+(betsLeagueFilter.mlb?" on":"")+'" onclick="betsLeagueFilter.mlb=!betsLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
     h+='<button class="cb'+(betsLeagueFilter.ncaaf?" on":"")+'" onclick="betsLeagueFilter.ncaaf=!betsLeagueFilter.ncaaf;render()"><span class="d"></span>🏈 NCAAF</button>';
     h+='<button class="cb'+(betsLeagueFilter.ncaab?" on":"")+'" onclick="betsLeagueFilter.ncaab=!betsLeagueFilter.ncaab;render()"><span class="d"></span>🏀 NCAAB</button>';
     h+='</div>';
@@ -4181,7 +4205,7 @@ function render(){
     var abAll2=ab; // Active books for calculations
     var activeIds={};abAll2.forEach(function(bk){activeIds[bk.id]=true;});
 
-    ["nhl","mlb"].forEach(function(sport){
+    ["nhl"].forEach(function(sport){
       var ld=S[sport]||{};
       var gms=ld.games||[];
       var sNHL=sport==="nhl";
@@ -4369,16 +4393,15 @@ function render(){
     saveTracker(trackedBets);
 
     var totalBetAmount=allBets.reduce(function(s,b){return s+b.betAmount},0);
-    var nhlLoaded=S.nhl.lastFetch;var mlbLoaded=S.mlb.lastFetch;
+    var nhlLoaded=S.nhl.lastFetch;
 
     // Loading status
-    if(!nhlLoaded&&!mlbLoaded){
+    if(!nhlLoaded){
       h+='<div class="ld"><div style="font-size:36px;margin-bottom:14px">📋</div><div style="font-size:15px;font-weight:700;color:var(--tm)">Loading odds for all leagues...</div></div>';
     }else{
       // Status badges
       h+='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"):"not loaded")+'</div>';
-      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(mlbLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(mlbLoaded?"var(--acc)":"var(--neg)")+'">⚾ MLB '+(mlbLoaded?(S.mlb.games.length+" games"):"not loaded")+'</div>';
       var ncaafL=S.ncaaf.lastFetch,ncaabL=S.ncaab.lastFetch;
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaafL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaafL?"var(--acc)":"var(--neg)")+'">🏈 NCAAF '+(ncaafL?(S.ncaaf.games.length+" plays"):"not loaded")+'</div>';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaabL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaabL?"var(--acc)":"var(--neg)")+'">🏀 NCAAB '+(ncaabL?(S.ncaab.games.length+" plays"):"not loaded")+'</div>';
@@ -5601,10 +5624,9 @@ function render(){
   h+='</div>';
 
   // ── FOOTER ──
-  var ftNHL=trackerStatsBySport("nhl");var ftMLB=trackerStatsBySport("mlb");
+  var ftNHL=trackerStatsBySport("nhl");
   var ftNHLStr=ftNHL.total>0?"NHL: "+ftNHL.wins+"W-"+ftNHL.losses+"L · "+(ftNHL.profit>0?"+$":"$")+Math.abs(ftNHL.profit).toFixed(0)+" ("+ftNHL.roi+"% ROI)":"NHL: awaiting results";
-  var ftMLBStr=ftMLB.total>0?"MLB: "+ftMLB.wins+"W-"+ftMLB.losses+"L · "+(ftMLB.profit>0?"+$":"$")+Math.abs(ftMLB.profit).toFixed(0)+" ("+ftMLB.roi+"% ROI)":"MLB: awaiting results";
-  h+='<div class="ft">DIAMOND EDGE · build 2026.06.02 · MLB v11e+AWAY ✅ · NHL B2B simple-fade ✅ · '+ftNHLStr+' · '+ftMLBStr+' · 21+ · 1-800-GAMBLER</div>';
+  h+='<div class="ft">DIAMOND EDGE · build 2026.09.17 · NHL B2B simple-fade ✅ · '+ftNHLStr+' · 21+ · 1-800-GAMBLER</div>';
 
   document.getElementById("app").innerHTML=h;
 }
