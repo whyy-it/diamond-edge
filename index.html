@@ -3859,8 +3859,15 @@ function colCard(b){
     (b.verify?'<div style="color:var(--ac2);font-size:10px;margin-top:6px">✓ '+b.verify+'</div>':"")+
     '</div>';
 }
+// Upcoming (not yet started) college plays — filtered at render time, not fetch
+// time, so plays drop off at kickoff even while the fetched list sits stale.
+function collegeUpcoming(key){
+  var nw=new Date();
+  return((S[key]||{}).games||[]).filter(function(b){return !b.time||new Date(b.time)>nw;});
+}
 function renderCollege(){
   var key=S.league,cfg=COLLEGE_CFG[key],st=S[key]||{games:[]};
+  var upcoming=collegeUpcoming(key);
   var h="";
   h+='<div style="margin-bottom:12px;padding:12px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(0,255,163,.06),rgba(0,201,255,.04));border:1px solid rgba(0,255,163,.18)">';
   h+='<div style="font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px">'+cfg.title+' <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(0,255,163,.1);color:var(--acc);border:1px solid rgba(0,255,163,.2)">VALIDATED</span></div>';
@@ -3871,10 +3878,14 @@ function renderCollege(){
     h+='<div class="empty"><div class="empty-i">'+(key==="ncaaf"?"🏈":"🏀")+'</div><div class="empty-t sg">Pulling live '+key.toUpperCase()+' lines…</div></div>';
   }else if(st.error){
     h+='<div class="empty"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div class="empty-t sg" style="color:var(--neg)">Couldn\'t load lines</div><div class="empty-d">'+st.error+'. If it\'s the off-season, that\'s expected — '+cfg.season+'.</div></div>';
-  }else if(!st.games||!st.games.length){
-    h+='<div class="empty"><div class="empty-i">'+(key==="ncaaf"?"🏈":"🏀")+'</div><div class="empty-t sg">No qualifying games</div><div class="empty-d">'+((st.boardCount||0)+' '+key.toUpperCase()+' games on the board, none meet the rule. '+cfg.season+'. Check back near game day for late-posting lines.')+'</div></div>';
+  }else if(!upcoming.length){
+    if(st.games&&st.games.length){
+      h+='<div class="empty"><div class="empty-i">'+(key==="ncaaf"?"🏈":"🏀")+'</div><div class="empty-t sg">All qualifying games have started</div><div class="empty-d">'+(st.games.length+' play'+(st.games.length===1?"":"s")+' kicked off already — no bet after start. Check back for the next slate.')+'</div></div>';
+    }else{
+      h+='<div class="empty"><div class="empty-i">'+(key==="ncaaf"?"🏈":"🏀")+'</div><div class="empty-t sg">No qualifying games</div><div class="empty-d">'+((st.boardCount||0)+' '+key.toUpperCase()+' games on the board, none meet the rule. '+cfg.season+'. Check back near game day for late-posting lines.')+'</div></div>';
+    }
   }else{
-    h+=st.games.map(colCard).join("");
+    h+=upcoming.map(colCard).join("");
   }
   return h;
 }
@@ -4404,8 +4415,8 @@ function render(){
       h+='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
       h+='<div style="padding:3px 10px;border-radius:5px;background:'+(nhlLoaded?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(nhlLoaded?"var(--acc)":"var(--neg)")+'">🏒 NHL '+(nhlLoaded?(S.nhl.games.length+" games"):"not loaded")+'</div>';
       var ncaafL=S.ncaaf.lastFetch,ncaabL=S.ncaab.lastFetch;
-      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaafL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaafL?"var(--acc)":"var(--neg)")+'">🏈 NCAAF '+(ncaafL?(S.ncaaf.games.length+" plays"):"not loaded")+'</div>';
-      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaabL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaabL?"var(--acc)":"var(--neg)")+'">🏀 NCAAB '+(ncaabL?(S.ncaab.games.length+" plays"):"not loaded")+'</div>';
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaafL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaafL?"var(--acc)":"var(--neg)")+'">🏈 NCAAF '+(ncaafL?(collegeUpcoming("ncaaf").length+" plays"):"not loaded")+'</div>';
+      h+='<div style="padding:3px 10px;border-radius:5px;background:'+(ncaabL?"var(--ovBg)":"var(--unBg)")+';font-size:10px;font-weight:600;color:'+(ncaabL?"var(--acc)":"var(--neg)")+'">🏀 NCAAB '+(ncaabL?(collegeUpcoming("ncaab").length+" plays"):"not loaded")+'</div>';
       h+='</div>';
 
       if(!allBets.length){
