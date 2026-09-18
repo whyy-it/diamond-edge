@@ -1115,13 +1115,14 @@ function addManualBet(form){
   render();
 }
 function trackerStats(){
-  var total=trackedBets.filter(function(b){return b.result!=null}).length;
-  var wins=trackedBets.filter(function(b){return b.result==="W"}).length;
-  var losses=trackedBets.filter(function(b){return b.result==="L"}).length;
-  var pushes=trackedBets.filter(function(b){return b.result==="P"}).length;
-  var pending=trackedBets.filter(function(b){return b.result==null}).length;
-  var totalWagered=trackedBets.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.amount},0);
-  var totalPayout=trackedBets.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.payout},0);
+  var tb=trackedBets.filter(function(b){return b.sport!=="mlb"});// MLB retired 2026-09 — excluded from displayed totals
+  var total=tb.filter(function(b){return b.result!=null}).length;
+  var wins=tb.filter(function(b){return b.result==="W"}).length;
+  var losses=tb.filter(function(b){return b.result==="L"}).length;
+  var pushes=tb.filter(function(b){return b.result==="P"}).length;
+  var pending=tb.filter(function(b){return b.result==null}).length;
+  var totalWagered=tb.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.amount},0);
+  var totalPayout=tb.filter(function(b){return b.result!=null}).reduce(function(s,b){return s+b.payout},0);
   var roi=totalWagered>0?((totalPayout/totalWagered)*100).toFixed(1):0;
   var units=totalWagered>0?(totalPayout/(totalWagered/total||1)).toFixed(2):0;
   return{total:total,wins:wins,losses:losses,pushes:pushes,pending:pending,
@@ -4528,7 +4529,7 @@ function render(){
       h+='  o=new Option(\'Over/Under\',\'OU\');bt.add(o);';
       h+='}';
       h+='bt.value=(this.value===\'ncaaf\'||this.value===\'ncaab\')?\'OU\':\'ML\';bt.dispatchEvent(new Event(\'change\'));';
-      h+='" style="width:96px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="mlb">⚾ MLB</option><option value="ncaaf">🏈 NCAAF</option><option value="ncaab">🏀 NCAAB</option></select></div>';
+      h+='" style="width:96px;background:var(--alt);border:1px solid var(--bd);border-radius:4px;padding:5px 4px;color:var(--tx);font-size:11px;outline:none"><option value="nhl">🏒 NHL</option><option value="ncaaf">🏈 NCAAF</option><option value="ncaab">🏀 NCAAB</option></select></div>';
 
       // Type — updates market label + shows/hides spread field
       h+='<div style="display:flex;flex-direction:column;gap:2px"><label style="font-size:8px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Type</label>';
@@ -4587,13 +4588,14 @@ function render(){
     h+='<div class="sep"></div>';
     h+='<span style="font-size:9px;color:var(--td);letter-spacing:1px;text-transform:uppercase">Leagues:</span>';
     h+='<button class="cb'+(trackerLeagueFilter.nhl?" on":"")+'" onclick="trackerLeagueFilter.nhl=!trackerLeagueFilter.nhl;render()"><span class="d"></span>🏒 NHL</button>';
-    h+='<button class="cb'+(trackerLeagueFilter.mlb?" on":"")+'" onclick="trackerLeagueFilter.mlb=!trackerLeagueFilter.mlb;render()"><span class="d"></span>⚾ MLB</button>';
     h+='<button class="cb'+(trackerLeagueFilter.ncaaf?" on":"")+'" onclick="trackerLeagueFilter.ncaaf=!trackerLeagueFilter.ncaaf;render()"><span class="d"></span>🏈 NCAAF</button>';
     h+='<button class="cb'+(trackerLeagueFilter.ncaab?" on":"")+'" onclick="trackerLeagueFilter.ncaab=!trackerLeagueFilter.ncaab;render()"><span class="d"></span>🏀 NCAAB</button>';
     h+='</div>';
 
-    // Apply league filter
-    var trkFiltered=trackedBets.filter(function(b){return trackerLeagueFilter[b.sport]!==false;});
+    // Apply league filter. MLB retired 2026-09: hidden from all tracker display,
+    // but raw entries stay in localStorage/KV sync (hard filter here so a sync
+    // pull restoring old trackerLeagueFilter can't resurface them).
+    var trkFiltered=trackedBets.filter(function(b){return b.sport!=="mlb"&&trackerLeagueFilter[b.sport]!==false;});
 
     var ts2=(function(){
       var fb=trkFiltered;
