@@ -1,0 +1,155 @@
+[
+  {
+    "timestamp": "2026-10-04T13:47:30Z",
+    "label": "",
+    "sport": "mlb",
+    "snapshot_type": "scores",
+    "event_count": 9,
+    "data": [
+      {
+        "id": "5524c44b05e28aa899909c9e001184ec",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-02T00:15:00Z",
+        "completed": true,
+        "home_team": "Atlanta Braves",
+        "away_team": "Philadelphia Phillies",
+        "scores": [
+          {
+            "name": "Atlanta Braves",
+            "score": "6"
+          },
+          {
+            "name": "Philadelphia Phillies",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-10-02T08:31:08Z"
+      },
+      {
+        "id": "5d13b613a334039f0694d8c95af28728",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-03T17:09:00Z",
+        "completed": true,
+        "home_team": "Cleveland Guardians",
+        "away_team": "Chicago White Sox",
+        "scores": [
+          {
+            "name": "Cleveland Guardians",
+            "score": "0"
+          },
+          {
+            "name": "Chicago White Sox",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-10-04T09:36:16Z"
+      },
+      {
+        "id": "1632ced04d65127cf6172d3a2c2e2d16",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-03T20:08:12Z",
+        "completed": true,
+        "home_team": "Los Angeles Dodgers",
+        "away_team": "Atlanta Braves",
+        "scores": [
+          {
+            "name": "Los Angeles Dodgers",
+            "score": "5"
+          },
+          {
+            "name": "Atlanta Braves",
+            "score": "3"
+          }
+        ],
+        "last_update": "2026-10-04T09:36:16Z"
+      },
+      {
+        "id": "cb4d07dc15440acf3d9ebe1ad41756c1",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-03T22:31:00Z",
+        "completed": true,
+        "home_team": "Tampa Bay Rays",
+        "away_team": "New York Yankees",
+        "scores": [
+          {
+            "name": "Tampa Bay Rays",
+            "score": "1"
+          },
+          {
+            "name": "New York Yankees",
+            "score": "0"
+          }
+        ],
+        "last_update": "2026-10-04T09:36:16Z"
+      },
+      {
+        "id": "347a2e725dd11a54a1d964eae3d04dd2",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-04T00:38:44Z",
+        "completed": true,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "San Diego Padres",
+        "scores": [
+          {
+            "name": "Milwaukee Brewers",
+            "score": "3"
+          },
+          {
+            "name": "San Diego Padres",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-10-04T09:36:16Z"
+      },
+      {
+        "id": "6da40e91a31110e51e84ba5671996deb",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-04T20:00:00Z",
+        "completed": false,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "San Diego Padres",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "583202487b52f61769b2404a64e01c77",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-05T00:00:00Z",
+        "completed": false,
+        "home_team": "Los Angeles Dodgers",
+        "away_team": "Atlanta Braves",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "ccd487a87bb73145e3f12dd3a765ad47",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-05T21:10:00Z",
+        "completed": false,
+        "home_team": "Cleveland Guardians",
+        "away_team": "Chicago White Sox",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "4be245ad03895bcafcdc42d7d926b675",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-06T00:00:00Z",
+        "completed": false,
+        "home_team": "Tampa Bay Rays",
+        "away_team": "New York Yankees",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
