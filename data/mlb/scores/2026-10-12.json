@@ -1,0 +1,73 @@
+[
+  {
+    "timestamp": "2026-10-12T17:30:13Z",
+    "label": "",
+    "sport": "mlb",
+    "snapshot_type": "scores",
+    "event_count": 4,
+    "data": [
+      {
+        "id": "62bf363a77455f7a8b48838e7792f60b",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-11T00:01:00Z",
+        "completed": true,
+        "home_team": "Cleveland Guardians",
+        "away_team": "Chicago White Sox",
+        "scores": [
+          {
+            "name": "Cleveland Guardians",
+            "score": "2"
+          },
+          {
+            "name": "Chicago White Sox",
+            "score": "0"
+          }
+        ],
+        "last_update": "2026-10-11T08:14:00Z"
+      },
+      {
+        "id": "c43e98d4effc9181f21e21225fcbd47a",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-12T00:20:00Z",
+        "completed": true,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "Los Angeles Dodgers",
+        "scores": [
+          {
+            "name": "Milwaukee Brewers",
+            "score": "2"
+          },
+          {
+            "name": "Los Angeles Dodgers",
+            "score": "1"
+          }
+        ],
+        "last_update": "2026-10-12T08:40:44Z"
+      },
+      {
+        "id": "bc2a93ac7a7b15d6411dc593386ff048",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-12T21:10:00Z",
+        "completed": false,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "Los Angeles Dodgers",
+        "scores": null,
+        "last_update": null
+      },
+      {
+        "id": "362511067a27b4ef89418639e15e80b6",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-13T00:00:00Z",
+        "completed": false,
+        "home_team": "Tampa Bay Rays",
+        "away_team": "Cleveland Guardians",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
