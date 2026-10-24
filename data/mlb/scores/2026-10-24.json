@@ -1,0 +1,42 @@
+[
+  {
+    "timestamp": "2026-10-24T12:29:46Z",
+    "label": "",
+    "sport": "mlb",
+    "snapshot_type": "scores",
+    "event_count": 2,
+    "data": [
+      {
+        "id": "e4c03eec29795f56b6b06c313d3af271",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-24T00:16:30Z",
+        "completed": true,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "Tampa Bay Rays",
+        "scores": [
+          {
+            "name": "Milwaukee Brewers",
+            "score": "3"
+          },
+          {
+            "name": "Tampa Bay Rays",
+            "score": "2"
+          }
+        ],
+        "last_update": "2026-10-24T08:56:50Z"
+      },
+      {
+        "id": "238f598685f7210fbfbbe3de39289264",
+        "sport_key": "baseball_mlb",
+        "sport_title": "MLB",
+        "commence_time": "2026-10-25T00:00:00Z",
+        "completed": false,
+        "home_team": "Milwaukee Brewers",
+        "away_team": "Tampa Bay Rays",
+        "scores": null,
+        "last_update": null
+      }
+    ]
+  }
+]
